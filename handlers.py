@@ -9,7 +9,7 @@ from telegram import ParseMode
 import config
 from config import LOCATION_OF_MONITORING_POINTS
 from utilities import main_keyboard, avg_rad, text_messages
-from mongodb import (mdb, add_db_send_welcom,
+from mongodb import (mdb, add_db_send_welcome,
                      add_db_send_help,
                      add_db_get_text_messages,
                      add_db_radioactive_monitoring,
@@ -26,7 +26,7 @@ def send_welcome(update, context):
     :return: None
     '''
     message_inf = update
-    add_db_send_welcom(mdb, message_inf)
+    add_db_send_welcome(mdb, message_inf)
     logging.info('User selected /start command and added in db')
     update.message.reply_text(f"Приятно познакомится, <b>{message_inf['message']['chat']['first_name']}</b>!"
                               + text_messages['start'], reply_markup=main_keyboard(), parse_mode=ParseMode.HTML)
@@ -55,7 +55,7 @@ def get_text_messages(update, context):
     message_inf = update
     add_db_get_text_messages(mdb, message_inf)
     text = update.message.text
-    if text.lower() == 'привет':
+    if text.lower() == 'привет' or text.lower() == 'hello':
         logging.info('User sent a welcome text message')
         update.message.reply_text(f"Привет, <b>{message_inf['message']['chat']['first_name']}</b>!"
                                   + text_messages['greet'], reply_markup=main_keyboard(), parse_mode=ParseMode.HTML)
