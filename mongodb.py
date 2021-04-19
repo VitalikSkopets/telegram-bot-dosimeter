@@ -1,5 +1,6 @@
 import datetime
 from pymongo import MongoClient
+
 from config import MONGODB_REF, MONGO_DB
 
 mdb = MongoClient(MONGODB_REF)[MONGO_DB]

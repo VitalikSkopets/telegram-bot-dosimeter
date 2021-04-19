@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from emoji import emojize
+import emoji
 import requests
 from fake_useragent import UserAgent
 from telegram import ReplyKeyboardMarkup, KeyboardButton
@@ -9,7 +9,7 @@ commands = {'start': 'Start using this bot',
             'help': 'Useful information about this bot'
             }
 
-smile = emojize(':radioactive_sign:', use_aliases=True)
+smile = emoji.emojize(':radioactive_sign:', use_aliases=True)
 
 text_messages = {
     'start': f'\n\nЯ бот-дозиметр {smile}. '
