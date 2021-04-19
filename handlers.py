@@ -19,6 +19,12 @@ from mongodb import (mdb, add_db_send_welcom,
 
 
 def send_welcome(update, context):
+    '''
+    Функция-обработчик команды /start
+    :param update: словарь с информацией о пользователе Telegram
+    :param context:
+    :return: None
+    '''
     message_inf = update
     add_db_send_welcom(mdb, message_inf)
     logging.info('User selected /start command and added in db')
@@ -27,6 +33,12 @@ def send_welcome(update, context):
 
 
 def send_help(update, context):
+    '''
+    Функция-обработчик команды /help
+    :param update: словарь с информацией о пользователе Telegram
+    :param context:
+    :return: None
+    '''
     message_inf = update
     add_db_send_help(mdb, message_inf)
     logging.info('User selected /help command')
@@ -34,6 +46,12 @@ def send_help(update, context):
 
 
 def get_text_messages(update, context):
+    '''
+    Функция-обработчик входящего тествового сообщенаия от пользователя
+    :param update: словарь с информацией о пользователе Telegram
+    :param context:
+    :return: None
+    '''
     message_inf = update
     add_db_get_text_messages(mdb, message_inf)
     text = update.message.text
@@ -47,6 +65,12 @@ def get_text_messages(update, context):
 
 
 def radioactive_monitoring(update, context):
+    '''
+    Функция-обработчик нажатия кнопки "Радиационный мониторинг"
+    :param update: словарь с информацией о пользователе Telegram
+    :param context:
+    :return: None
+    '''
     message_inf = update
     add_db_radioactive_monitoring(mdb, message_inf)
     today = datetime.datetime.today().strftime("%a %d-%b-%Y")
@@ -65,6 +89,12 @@ def radioactive_monitoring(update, context):
 
 
 def scraper(update, context):
+    '''
+    Функция-обработчик нажатия кнопки "Пункты наблюдения"
+    :param update: словарь с информацией о пользователе Telegram
+    :param context:
+    :return: None
+    '''
     message_inf = update
     add_db_scraper(mdb, message_inf)
     response = requests.get(config.URL1, headers={'User-Agent': UserAgent().chrome})
@@ -84,6 +114,12 @@ def scraper(update, context):
 
 
 def geolocation(update, context):
+    '''
+    Функция-обработчик нажатия кнопки "Отправить мою геолокацию"
+    :param update: словарь с информацией о пользователе Telegram
+    :param context:
+    :return: None
+    '''
     message_inf = update
     add_db_geolocation(mdb, message_inf)
     coordinates = update.message.location

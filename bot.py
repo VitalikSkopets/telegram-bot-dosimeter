@@ -7,6 +7,10 @@ logging.basicConfig(filename='bot.log', format='%(asctime)s - %(name)s - %(level
                     level=logging.INFO)
 
 def main():
+    '''
+    Функция инициализации и запуска бота - объекта класса Updater из модуля python-telegram-bot
+    :return: None
+    '''
     bot = Updater(TOKEN)
 
     dp = bot.dispatcher

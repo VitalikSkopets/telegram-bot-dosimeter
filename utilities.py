@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import emoji
 import requests
+from emoji.core import emojize
 from fake_useragent import UserAgent
 from telegram import ReplyKeyboardMarkup, KeyboardButton
 import config
@@ -9,7 +10,7 @@ commands = {'start': 'Start using this bot',
             'help': 'Useful information about this bot'
             }
 
-smile = emoji.emojize(':radioactive_sign:', use_aliases=True)
+smile = emojize(':radioactive_sign:', use_aliases=True)
 
 text_messages = {
     'start': f'\n\nЯ бот-дозиметр {smile}. '
@@ -39,6 +40,11 @@ text_messages = {
 
 
 def avg_rad():
+    """
+    Функция скрайпит с ресурса https://rad.org.by/radiation.xml значения радиации во всех пунктах наблюдения
+    и расчитывает среднее арефметическое значение уровня радиации в Беларуси
+    :return: интерполированная строка со средним значеним величины уровня радиации в формате float
+    """
     response = requests.get(config.URL1, headers={'User-Agent': UserAgent().chrome})
     soup = BeautifulSoup(response.text, 'html.parser')
     indications = soup.find_all('rad')
@@ -47,6 +53,10 @@ def avg_rad():
 
 
 def main_keyboard():
+    """
+    Функция возвращате пользовтелю кнопки меню вместо стандартной клавиатуры
+    :return: class ReplyKeyboardMarkup из библиотеки telegram
+    """
     return ReplyKeyboardMarkup([['Радиационный мониторинг'],
                                 ['Пункты наблюдения'],
                                 [KeyboardButton('Отправить мою геопозицию',
