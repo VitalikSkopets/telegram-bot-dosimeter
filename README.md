@@ -2,15 +2,51 @@
 ## Description
 
 This bot can inform the user as of the current date about the radiation situation in Belarus and the level of equivalent dose of gamma radiation detected in the radiation monitoring network. Source: [rad.org.by](https://rad.org.by/monitoring/radiation)
+
+One of the functions of the bot is to determine the distance to the nearest point of observation in the radiation monitoring network of the Ministry of Natural Resources and Environmental Protection of the Republic of Belarus. The specified function is available when the user sends the coordinates of its current geolocation.
+
+The bot does not store the geographical coordinats of the user. However, the bot has implemented a long-term data storage function in the cloud store  [cloud.mongodb](https://cloud.mongodb.com/). The following information transmitted by [Telegram.org](https://telegram.org/) servers according to HTTPS protocol should be collected and subsequently stored.:
+
+- first name
+- last name
+- user name
+
+###Implementation of symmetric encryption of data in code using cryptography library:
+```python
+def add_db_send_welcome(mdb, message_inf):
+     firstname = message_inf['message']['chat']['first_name']
+    lastname = message_inf['message']['chat']['last_name']
+    username = message_inf['message']['chat']['username']
+
+    if mdb.users.find_one({'user_id': message_inf['message']['chat']['id']}) is None:
+        encrypted_firstname = encryption(TOKEN_FOR_DB, firstname)
+        encrypted_lastname = encryption(TOKEN_FOR_DB, lastname)
+        encrypted_username = encryption(TOKEN_FOR_DB, username)
+
+        user = {'user_id': message_inf['message']['chat']['id'],
+                'first_name': encrypted_firstname,
+                'last_name': encrypted_lastname,
+                'user_name': encrypted_username,
+                'selected /start command': today
+                }
+        mdb.users.insert_one(user)
+    elif mdb.users.find_one({'user_id': message_inf['message']['chat']['id']}) is not None:
+        mdb.users.update_one({'user_id': message_inf['message']['chat']['id']},
+                             {'$set': {'selected /start command': today}})
+```
+The specified personal data of Telegram users are **encrypted** with a symmetric encryption cryptographic algorithm prior to their entry into the database, which guarantees their confidentiality even if third parties gain access to the database. 
+
 ### Configuration file
 ##### config.py
 
-```javascript
+```python
 TOKEN = "Your Telegram Bot API token should be here"
 MONGODB_REF = "link to your account cloud.mongodb.com"
 MONGO_DB = "users_db"
 USER_ACCSESS_MONGO_DB = "DosimeterBot"    
-USER_PASSWORD = "your password"       
+USER_PASSWORD = "your password"
+key = Fernet.generate_key()               
+TOKEN_FOR_DB = Fernet(key)        
 URL1 = 'https://rad.org.by/radiation.xml'
 URL2 = 'https://rad.org.by/monitoring/radiation'
 
@@ -63,7 +99,7 @@ LOCATION_OF_MONITORING_POINTS = {'Могилев': (53.69298772769127, 30.375068
 ```
 ### List of external dependencies
 ##### requirements.txt
-```javascript
+```python
 APScheduler==3.6.3
 asgiref==3.3.4
 beautifulsoup4==4.9.3
@@ -86,12 +122,14 @@ telegram==0.0.1
 tornado==6.1
 tzlocal==2.1
 urllib3==1.26.4
+cryptography~=3.4.7
+loguru~=0.5.3
 ```
 #### Clone with HTTPS
-```javascript
+```python
     https://gitlab.itrexgroup.com/vitaly.skopets/telegram-bot-desimeter.git
 ```
 #### Clone with SSH
-```javascript
+```python
     git@gitlab.itrexgroup.com:vitaly.skopets/telegram-bot-desimeter.git
 ```
