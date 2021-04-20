@@ -4,7 +4,9 @@ import requests
 from emoji.core import emojize
 from fake_useragent import UserAgent
 from telegram import ReplyKeyboardMarkup, KeyboardButton
+import cryptography
 import config
+from config import TOKEN_FOR_DB
 
 commands = {'start': 'Start using this bot',
             'help': 'Useful information about this bot'
@@ -36,7 +38,7 @@ text_messages = {
     'button1': 'Отправить мою геопозицию',
     'button2': 'Радиационный мониторинг',
     'unknown': 'Ничего не понятно, но очень интересно.\nПопробуй команду /help.'
-                }
+}
 
 
 def avg_rad():
@@ -61,3 +63,15 @@ def main_keyboard():
                                 ['Пункты наблюдения'],
                                 [KeyboardButton('Отправить мою геопозицию',
                                                 request_location=True)]], resize_keyboard=True)
+
+
+def encryption(TOKEN_FOR_DB, line):
+    """
+    Функция сисметричного шифрования строковых данных first_name, last_name и username пользователя для последующей
+    передачи шифрованных данных в базу данных для долговременного хранения
+    :param TOKEN_FOR_DB: сгенерированный ключ-пароль для шифрования
+    :param line: строковый объект шифрования
+    :return: строковый объект ограниченной длины(10 символов) - зашифрованный теств
+    """
+    cryptoline = TOKEN_FOR_DB.encrypt(line.encode('utf-8'))
+    return cryptoline[:10].decode('utf-8')
