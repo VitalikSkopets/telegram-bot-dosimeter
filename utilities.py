@@ -1,12 +1,10 @@
 from bs4 import BeautifulSoup
-import emoji
 import requests
 from emoji.core import emojize
 from fake_useragent import UserAgent
 from telegram import ReplyKeyboardMarkup, KeyboardButton
-import cryptography
 import config
-from config import TOKEN_FOR_DB
+
 
 commands = {'start': 'Start using this bot',
             'help': 'Useful information about this bot'

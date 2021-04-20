@@ -1,16 +1,17 @@
-import logging
+from loguru import logger
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from config import TOKEN
 from handlers import send_welcome, send_help, geolocation, radioactive_monitoring, scraper, get_text_messages
 
-logging.basicConfig(filename='bot.log', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
+logger.add('debug.log', level='DEBUG', rotation='1 MB', compression='zip')
 
+
+@logger.catch()
 def main():
-    '''
+    """
     Функция инициализации и запуска бота - объекта класса Updater из модуля python-telegram-bot
     :return: None
-    '''
+    """
     bot = Updater(TOKEN)
 
     dp = bot.dispatcher
@@ -21,7 +22,7 @@ def main():
     dp.add_handler(MessageHandler(Filters.regex('^(Пункты наблюдения)$'), scraper))
     dp.add_handler(MessageHandler(Filters.text, get_text_messages))
 
-    logging.info('Start Bot')
+    logger.info('Start Bot')
     bot.start_polling()
     bot.idle()
 

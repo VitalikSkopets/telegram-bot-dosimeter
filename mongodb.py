@@ -8,13 +8,13 @@ today = datetime.datetime.today().strftime("%a %d-%b-%Y %H:%M:%S")
 
 
 def add_db_send_welcome(mdb, message_inf):
-    '''
+    """
     Функция добавляет chat_id пользователя, а также в шифрованные данные: first_name, last_name и username,
     в коллекцию users базы данных MongoDB при вызове пользователем команды /start
     :param mdb: инстанцированный объект класса MongoClient из модуля pymongo - соединение с базай данных MongoDB
     :param message_inf: словарь update с информацией о пользователе Telegram
     :return: None
-    '''
+    """
     firstname = message_inf['message']['chat']['first_name']
     lastname = message_inf['message']['chat']['last_name']
     username = message_inf['message']['chat']['username']
@@ -37,13 +37,13 @@ def add_db_send_welcome(mdb, message_inf):
 
 
 def add_db_send_help(mdb, message_inf):
-    '''
+    """
     Функция добавляет chat_id пользователя, а также в шифрованные данные: first_name, last_name и username,
     в коллекцию users базы данных MongoDB при вызове пользователем команды /help
     :param mdb: инстанцированный объект класса MongoClient из модуля pymongo - соединение с базай данных MongoDB
     :param message_inf: словарь update с информацией о пользователе Telegram
     :return: None
-    '''
+    """
     firstname = message_inf['message']['chat']['first_name']
     lastname = message_inf['message']['chat']['last_name']
     username = message_inf['message']['chat']['username']
@@ -66,13 +66,13 @@ def add_db_send_help(mdb, message_inf):
 
 
 def add_db_get_text_messages(mdb, message_inf):
-    '''
+    """
     Функция добавляет chat_id пользователя, а также в шифрованные данные: first_name, last_name и username,
     в коллекцию users базы данных MongoDB при отправке пользователем боту приветственного сообщения
     :param mdb: инстанцированный объект класса MongoClient из модуля pymongo - соединение с базай данных MongoDB
     :param message_inf: словарь update с информацией о пользователе Telegram
     :return: None
-    '''
+    """
     firstname = message_inf['message']['chat']['first_name']
     lastname = message_inf['message']['chat']['last_name']
     username = message_inf['message']['chat']['username']
@@ -95,36 +95,36 @@ def add_db_get_text_messages(mdb, message_inf):
 
 
 def add_db_radioactive_monitoring(mdb, message_inf):
-    '''
+    """
     Функция добавляет ключ 'press button "Radioactive monitoring"' в коллекцию users базы данных MongoDB
     при нажатии пользователем кнопки "Радиационный мониторирг"
     :param mdb: инстанцированный объект класса MongoClient из модуля pymongo - соединение с базай данных
     :param message_inf: словарь update с информацией о пользователе Telegram
     :return: None
-    '''
+    """
     mdb.users.update_one({'user_id': message_inf['message']['chat']['id']},
                          {'$set': {'press button "Radioactive monitoring"': today}})
 
 
 def add_db_scraper(mdb, message_inf):
-    '''
+    """
     Функция добавляет ключ 'press button "Observation points"' в коллекцию users базы данных MongoDB
     при нажатии пользователем кнопки "Пункты наблюдения"
     :param mdb: инстанцированный объект класса MongoClient из модуля pymongo - соединение с базай данных
     :param message_inf: словарь update с информацией о пользователе Telegram
     :return: None
-    '''
+    """
     mdb.users.update_one({'user_id': message_inf['message']['chat']['id']},
                          {'$set': {'press button "Observation points"': today}})
 
 
 def add_db_geolocation(mdb, message_inf):
-    '''
+    """
     Функция добавляет ключ 'press button "Send geolocation"' в коллекцию users базы данных MongoDB
     при нажатии пользователем кнопки "Отправить мою геолокацию"
     :param mdb: инстанцированный объект класса MongoClient из модуля pymongo - соединение с базай данных
     :param message_inf: словарь update с информацией о пользователе Telegram
     :return: None
-    '''
+    """
     mdb.users.update_one({'user_id': message_inf['message']['chat']['id']},
                          {'$set': {'press button "Send geolocation"': today}})

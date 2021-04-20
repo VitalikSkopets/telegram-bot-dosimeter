@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 from geopy import distance
-import logging
+from loguru import logger
 import re
 import requests
 import datetime
@@ -19,58 +19,58 @@ from mongodb import (mdb, add_db_send_welcome,
 
 
 def send_welcome(update, context):
-    '''
+    """
     Функция-обработчик команды /start
     :param update: словарь с информацией о пользователе Telegram
     :param context:
     :return: None
-    '''
+    """
     message_inf = update
     add_db_send_welcome(mdb, message_inf)
-    logging.info('User selected /start command and added in db')
+    logger.info('User selected /start command and added in db')
     update.message.reply_text(f"Приятно познакомится, <b>{message_inf['message']['chat']['first_name']}</b>!"
                               + text_messages['start'], reply_markup=main_keyboard(), parse_mode=ParseMode.HTML)
 
 
 def send_help(update, context):
-    '''
+    """
     Функция-обработчик команды /help
     :param update: словарь с информацией о пользователе Telegram
     :param context:
     :return: None
-    '''
+    """
     message_inf = update
     add_db_send_help(mdb, message_inf)
-    logging.info('User selected /help command')
+    logger.info('User selected /help command')
     update.message.reply_text(text_messages['help'], parse_mode=ParseMode.HTML)
 
 
 def get_text_messages(update, context):
-    '''
+    """
     Функция-обработчик входящего тествового сообщенаия от пользователя
     :param update: словарь с информацией о пользователе Telegram
     :param context:
     :return: None
-    '''
+    """
     message_inf = update
     add_db_get_text_messages(mdb, message_inf)
     text = update.message.text
     if text.lower() == 'привет' or text.lower() == 'hello':
-        logging.info('User sent a welcome text message')
+        logger.info('User sent a welcome text message')
         update.message.reply_text(f"Привет, <b>{message_inf['message']['chat']['first_name']}</b>!"
                                   + text_messages['greet'], reply_markup=main_keyboard(), parse_mode=ParseMode.HTML)
     else:
-        logging.info('User sent unknown text message')
+        logger.info('User sent unknown text message')
         update.message.reply_text(text_messages['unknown'], parse_mode=ParseMode.HTML)
 
 
 def radioactive_monitoring(update, context):
-    '''
+    """
     Функция-обработчик нажатия кнопки "Радиационный мониторинг"
     :param update: словарь с информацией о пользователе Telegram
     :param context:
     :return: None
-    '''
+    """
     message_inf = update
     add_db_radioactive_monitoring(mdb, message_inf)
     today = datetime.datetime.today().strftime("%a %d-%b-%Y")
@@ -81,7 +81,7 @@ def radioactive_monitoring(update, context):
     a, b, c = list(text_lst[0]), list(text_lst[1]), list(text_lst[2])
     abc = a + b + c
     abc[1] = today
-    logging.info('User press button "Radioactive monitoring"')
+    logger.info('User press button "Radioactive monitoring"')
     update.message.reply_text(f'{abc[0]} {abc[1]} {abc[2]}.\n\nПо стране <i>среднее</i> значение уровня МД '
                               f'гамма-излучения в сети пунктов радиационного мониторинга Министерства природных '
                               f'ресурсов и охраны окружающей среды Беларусь по состоянию на сегодняшний день '
@@ -89,12 +89,12 @@ def radioactive_monitoring(update, context):
 
 
 def scraper(update, context):
-    '''
+    """
     Функция-обработчик нажатия кнопки "Пункты наблюдения"
     :param update: словарь с информацией о пользователе Telegram
     :param context:
     :return: None
-    '''
+    """
     message_inf = update
     add_db_scraper(mdb, message_inf)
     response = requests.get(config.URL1, headers={'User-Agent': UserAgent().chrome})
@@ -105,7 +105,7 @@ def scraper(update, context):
     indications.reverse()
     zipped_values = zip(points, today, indications)
     zipped_list = list(zipped_values)
-    logging.info('User press button "Observation points"')
+    logger.info('User press button "Observation points"')
     update.message.reply_text(f'| *Пункт наблюдения* | *Дата и время* | *МД гамма-излучения* |',
                               parse_mode=ParseMode.MARKDOWN)
     for i in range(0, len(zipped_list)):
@@ -114,12 +114,12 @@ def scraper(update, context):
 
 
 def geolocation(update, context):
-    '''
+    """
     Функция-обработчик нажатия кнопки "Отправить мою геолокацию"
     :param update: словарь с информацией о пользователе Telegram
     :param context:
     :return: None
-    '''
+    """
     message_inf = update
     add_db_geolocation(mdb, message_inf)
     coordinates = update.message.location
@@ -139,7 +139,7 @@ def geolocation(update, context):
     zipped_list = list(zipped_values)
     for i in range(0, len(zipped_list)):
         if min_distance[1] == points[i].text:
-            logging.info('User press button "Send geolocation"')
+            logger.info('User press button "Send geolocation"')
             update.message.reply_text(f'<i>{min_distance[0]:.3f} м</i> до ближайшего пункта наблюдения '
                                       f'"{min_distance[1]}".\n\nВ пункте наблюдения "{points[i].text}" по состоянию '
                                       f'на <i>{today[i].text}</i> уровень эквивалентной дозы радиации составляет '
