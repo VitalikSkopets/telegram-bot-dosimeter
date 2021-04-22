@@ -19,14 +19,10 @@ def add_db_start(mdb, user):
     :return: None
     """
     if mdb.users.find_one({'user_id': user['id']}) is None:
-        encrypted_firstname = encryption(TOKEN_FOR_ENCRYPT_DB, user['first_name'])
-        encrypted_lastname = encryption(TOKEN_FOR_ENCRYPT_DB, user['last_name'])
-        encrypted_username = encryption(TOKEN_FOR_ENCRYPT_DB, user['username'])
-
         current_user = {'user_id': user['id'],
-                        'first_name': encrypted_firstname,
-                        'last_name': encrypted_lastname,
-                        'user_name': encrypted_username,
+                        'first_name': encryption(TOKEN_FOR_ENCRYPT_DB, user['first_name']),
+                        'last_name': encryption(TOKEN_FOR_ENCRYPT_DB, user['last_name']),
+                        'user_name': encryption(TOKEN_FOR_ENCRYPT_DB, user['username']),
                         'selected /start command': today
                         }
         mdb.users.insert_one(current_user)
@@ -44,14 +40,10 @@ def add_db_help(mdb, user):
     :return: None
     """
     if mdb.users.find_one({'user_id': user['id']}) is None:
-        encrypted_firstname = encryption(TOKEN_FOR_ENCRYPT_DB, user['first_name'])
-        encrypted_lastname = encryption(TOKEN_FOR_ENCRYPT_DB, user['last_name'])
-        encrypted_username = encryption(TOKEN_FOR_ENCRYPT_DB, user['username'])
-
         current_user = {'user_id': user['id'],
-                        'first_name': encrypted_firstname,
-                        'last_name': encrypted_lastname,
-                        'user_name': encrypted_username,
+                        'first_name': encryption(TOKEN_FOR_ENCRYPT_DB, user['first_name']),
+                        'last_name': encryption(TOKEN_FOR_ENCRYPT_DB, user['last_name']),
+                        'user_name': encryption(TOKEN_FOR_ENCRYPT_DB, user['username']),
                         'selected /help command': today
                         }
         mdb.users.insert_one(current_user)
@@ -69,14 +61,10 @@ def add_db_messages(mdb, user):
     :return: None
     """
     if mdb.users.find_one({'user_id': user['id']}) is None:
-        encrypted_firstname = encryption(TOKEN_FOR_ENCRYPT_DB, user['first_name'])
-        encrypted_lastname = encryption(TOKEN_FOR_ENCRYPT_DB, user['last_name'])
-        encrypted_username = encryption(TOKEN_FOR_ENCRYPT_DB, user['username'])
-
         current_user = {'user_id': user['id'],
-                        'first_name': encrypted_firstname,
-                        'last_name': encrypted_lastname,
-                        'user_name': encrypted_username,
+                        'first_name': encryption(TOKEN_FOR_ENCRYPT_DB, user['first_name']),
+                        'last_name': encryption(TOKEN_FOR_ENCRYPT_DB, user['last_name']),
+                        'user_name': encryption(TOKEN_FOR_ENCRYPT_DB, user['username']),
                         'sent a welcome text message': today
                         }
         mdb.users.insert_one(current_user)
