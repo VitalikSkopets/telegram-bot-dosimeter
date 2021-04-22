@@ -1,17 +1,20 @@
-from bs4 import BeautifulSoup
 from geopy import distance
 from loguru import logger
 import re
 import requests
-import datetime
+from datetime import datetime
 from fake_useragent import UserAgent
 from telegram import ParseMode
 import config
 from config import LOCATION_OF_MONITORING_POINTS
-from utilities import main_keyboard, avg_rad, text_messages
+from utilities import (main_keyboard,
+                       avg_rad,
+                       get_html,
+                       text_messages
+                       )
 from mongodb import (mdb, add_db_start,
                      add_db_help,
-                     add_db_get_text_messages,
+                     add_db_messages,
                      add_db_radioactive_monitoring,
                      add_db_scraper,
                      add_db_geolocation
@@ -25,10 +28,10 @@ def start(update, context):
     :param context: CallbackContext
     :return: None
     """
-    message_inf = update
-    add_db_start(mdb, message_inf)
+    user = update.effective_user
+    add_db_start(mdb, user)
     logger.info('User selected /start command and added in db')
-    update.message.reply_text(f"Приятно познакомится, <b>{message_inf['message']['chat']['first_name']}</b>!"
+    update.message.reply_text(f"Приятно познакомится, <b>{user['first_name']}</b>!"
                               + text_messages['start'], reply_markup=main_keyboard(), parse_mode=ParseMode.HTML)
 
 
@@ -39,25 +42,25 @@ def help(update, context):
     :param context: CallbackContext
     :return: None
     """
-    message_inf = update
-    add_db_help(mdb, message_inf)
+    user = update.effective_user
+    add_db_help(mdb, user)
     logger.info('User selected /help command')
     update.message.reply_text(text_messages['help'], parse_mode=ParseMode.HTML)
 
 
-def get_text_messages(update, context):
+def messages(update, context):
     """
     Функция-обработчик входящего тествового сообщенаия от пользователя
-    :param update: Update словарь с информацией о пользователе Telegram
+    :param update: Update словарь с пользовательской информацией Telegram
     :param context: CallbackContext
     :return: None
     """
-    message_inf = update
-    add_db_get_text_messages(mdb, message_inf)
+    user = update.effective_user
+    add_db_messages(mdb, user)
     text = update.message.text
-    if text.lower() == 'привет' or text.lower() == 'hello':
+    if text.lower() == 'привет' or text.lower() == 'hello' or text.lower() == 'hi':
         logger.info('User sent a welcome text message')
-        update.message.reply_text(f"Привет, <b>{message_inf['message']['chat']['first_name']}</b>!"
+        update.message.reply_text(f"Привет, <b>{user['first_name']}</b>!"
                                   + text_messages['greet'], reply_markup=main_keyboard(), parse_mode=ParseMode.HTML)
     else:
         logger.info('User sent unknown text message')
@@ -71,9 +74,9 @@ def radioactive_monitoring(update, context):
     :param context: CallbackContext
     :return: None
     """
-    message_inf = update
-    add_db_radioactive_monitoring(mdb, message_inf)
-    today = datetime.datetime.now().strftime("%a %d-%b-%Y")
+    user = update.effective_user
+    add_db_radioactive_monitoring(mdb, user)
+    today = datetime.now().strftime("%a %d-%b-%Y")
     responce = requests.get(config.URL2, headers={'User-Agent': UserAgent().chrome})
     pattern = r"(?:\bsans-serif;\">)(По состоянию на)(?:...*)?(текущую дату)</span>&nbsp;(радиационная...*загрязнения)"
     text_tup = re.findall(pattern, responce.text)
@@ -95,11 +98,11 @@ def scraper(update, context):
     :param context: CallbackContext
     :return: None
     """
-    message_inf = update
-    add_db_scraper(mdb, message_inf)
-    response = requests.get(config.URL1, headers={'User-Agent': UserAgent().chrome})
-    soup = BeautifulSoup(response.text, 'html.parser')
-    points, today, indications = soup.find_all('title'), soup.find_all('pubdate'), soup.find_all('rad')
+    user = update.effective_user
+    add_db_scraper(mdb, user)
+    points = get_html().find_all('title')
+    today = get_html().find_all('pubdate')
+    indications = get_html().find_all('rad')
     points.reverse()
     today.reverse()
     indications.reverse()
@@ -120,18 +123,18 @@ def geolocation(update, context):
     :param context: CallbackContext
     :return: None
     """
-    message_inf = update
-    add_db_geolocation(mdb, message_inf)
-    coordinates = update.message.location
-    user_coordinates = (coordinates['latitude'], coordinates['longitude'])
+    user = update.effective_user
+    add_db_geolocation(mdb, user)
+    user_location = update.message.location
+    coordinates = (user_location.latitude, user_location.longitude)
     distance_list = []
     min_distance = float()
     for point, location in LOCATION_OF_MONITORING_POINTS.items():
-        distance_list.append((distance.distance(user_coordinates, location).km, point))
+        distance_list.append((distance.distance(coordinates, location).km, point))
         min_distance = min(distance_list)
-    response = requests.get(config.URL1, headers={'User-Agent': UserAgent().chrome})
-    soup = BeautifulSoup(response.text, 'html.parser')
-    points, today, indications = soup.find_all('title'), soup.find_all('pubdate'), soup.find_all('rad')
+    points = get_html().find_all('title')
+    today = get_html().find_all('pubdate')
+    indications = get_html().find_all('rad')
     points.reverse()
     today.reverse()
     indications.reverse()

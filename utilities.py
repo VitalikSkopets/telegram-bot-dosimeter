@@ -3,7 +3,7 @@ import requests
 from emoji.core import emojize
 from fake_useragent import UserAgent
 from telegram import ReplyKeyboardMarkup, KeyboardButton
-import config
+from config import URL1
 
 
 commands = {'start': 'Start using this bot',
@@ -13,7 +13,7 @@ commands = {'start': 'Start using this bot',
 smile = emojize(':radioactive_sign:', use_aliases=True)
 
 text_messages = {
-    'start': f'\n\nЯ бот-дозиметр {smile}. '
+    'start': f'\n\nЯ бот-дозиметр {smile} '
              f'\n\nЧтобы узнать по состоянию на текущую дату уровень мощности эквивалентной дозы гамма-излучения, '
              f'зафиксированного на ближайшем пункте наблюдения, нажми <b>"Отправить мою геопозицию"</b>.'
              f'\n\nЧтобы узнать радиационную обстановку в Беларуси, нажми <b>"Радиационный мониторинг"</b>.'
@@ -45,11 +45,20 @@ def avg_rad():
     и расчитывает среднее арефметическое значение уровня радиации в Беларуси
     :return: интерполированная строка со средним значеним величины уровня радиации в формате float
     """
-    response = requests.get(config.URL1, headers={'User-Agent': UserAgent().chrome})
-    soup = BeautifulSoup(response.text, 'html.parser')
-    indications = soup.find_all('rad')
+    indications = get_html().find_all('rad')
     avg_indication = sum([float(indication.text) for indication in indications]) / len(indications)
     return f' {avg_indication:.2f} мкЗв/ч'
+
+
+def get_html(url=URL1):
+    """
+    Функия скрайпинга веб-ресурса https://rad.org.by/radiation.xml
+    :param url: строквый объект 'https://rad.org.by/radiation.xml'
+    :return: html- разметка веб-ресурса https://rad.org.by/radiation.xml в виде текста
+    """
+    response = requests.get(url, headers={'User-Agent': UserAgent().chrome})
+    soup = BeautifulSoup(response.text, 'html.parser')
+    return soup
 
 
 def main_keyboard():

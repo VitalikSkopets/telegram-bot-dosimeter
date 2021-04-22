@@ -1,7 +1,19 @@
+import os
+
 from loguru import logger
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-from config import TOKEN
-from handlers import start, help, geolocation, radioactive_monitoring, scraper, get_text_messages
+from telegram.ext import (Updater,
+                          CommandHandler,
+                          MessageHandler,
+                          Filters
+                          )
+
+from handlers import (start,
+                      help,
+                      geolocation,
+                      radioactive_monitoring,
+                      scraper,
+                      messages
+                      )
 
 logger.add('debug.log', level='DEBUG', rotation='1 MB', compression='zip')
 
@@ -12,7 +24,7 @@ def main():
     Функция инициализации и запуска бота - объекта класса Updater из модуля python-telegram-bot
     :return: None
     """
-    bot = Updater(TOKEN)
+    bot = Updater(os.environ['TOKEN'])
 
     dp = bot.dispatcher
     dp.add_handler(CommandHandler('start', start))
@@ -20,7 +32,7 @@ def main():
     dp.add_handler(MessageHandler(Filters.location, geolocation))
     dp.add_handler(MessageHandler(Filters.regex('^(Радиационный мониторинг)$'), radioactive_monitoring))
     dp.add_handler(MessageHandler(Filters.regex('^(Пункты наблюдения)$'), scraper))
-    dp.add_handler(MessageHandler(Filters.text, get_text_messages))
+    dp.add_handler(MessageHandler(Filters.text, messages))
 
     logger.info('Start Bot')
     bot.start_polling()
