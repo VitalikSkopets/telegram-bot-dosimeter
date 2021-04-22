@@ -1,13 +1,13 @@
 import datetime
 from pymongo import MongoClient
-from config import MONGODB_REF, MONGO_DB, TOKEN_FOR_DB
+from config import MONGODB_REF, MONGO_DB, TOKEN_FOR_ENCRYPT_DB
 from utilities import encryption
 
 mdb = MongoClient(MONGODB_REF)[MONGO_DB]
-today = datetime.datetime.today().strftime("%a %d-%b-%Y %H:%M:%S")
+today = datetime.datetime.now().strftime("%a %d-%b-%Y %H:%M:%S")
 
 
-def add_db_send_welcome(mdb, message_inf):
+def add_db_start(mdb, message_inf):
     """
     Функция добавляет chat_id пользователя, а также в шифрованные данные: first_name, last_name и username,
     в коллекцию users базы данных MongoDB при вызове пользователем команды /start
@@ -20,9 +20,9 @@ def add_db_send_welcome(mdb, message_inf):
     username = message_inf['message']['chat']['username']
 
     if mdb.users.find_one({'user_id': message_inf['message']['chat']['id']}) is None:
-        encrypted_firstname = encryption(TOKEN_FOR_DB, firstname)
-        encrypted_lastname = encryption(TOKEN_FOR_DB, lastname)
-        encrypted_username = encryption(TOKEN_FOR_DB, username)
+        encrypted_firstname = encryption(TOKEN_FOR_ENCRYPT_DB, firstname)
+        encrypted_lastname = encryption(TOKEN_FOR_ENCRYPT_DB, lastname)
+        encrypted_username = encryption(TOKEN_FOR_ENCRYPT_DB, username)
 
         user = {'user_id': message_inf['message']['chat']['id'],
                 'first_name': encrypted_firstname,
@@ -36,7 +36,7 @@ def add_db_send_welcome(mdb, message_inf):
                              {'$set': {'selected /start command': today}})
 
 
-def add_db_send_help(mdb, message_inf):
+def add_db_help(mdb, message_inf):
     """
     Функция добавляет chat_id пользователя, а также в шифрованные данные: first_name, last_name и username,
     в коллекцию users базы данных MongoDB при вызове пользователем команды /help
@@ -49,9 +49,9 @@ def add_db_send_help(mdb, message_inf):
     username = message_inf['message']['chat']['username']
 
     if mdb.users.find_one({'user_id': message_inf['message']['chat']['id']}) is None:
-        encrypted_firstname = encryption(TOKEN_FOR_DB, firstname)
-        encrypted_lastname = encryption(TOKEN_FOR_DB, lastname)
-        encrypted_username = encryption(TOKEN_FOR_DB, username)
+        encrypted_firstname = encryption(TOKEN_FOR_ENCRYPT_DB, firstname)
+        encrypted_lastname = encryption(TOKEN_FOR_ENCRYPT_DB, lastname)
+        encrypted_username = encryption(TOKEN_FOR_ENCRYPT_DB, username)
 
         user = {'user_id': message_inf['message']['chat']['id'],
                 'first_name': encrypted_firstname,
@@ -78,9 +78,9 @@ def add_db_get_text_messages(mdb, message_inf):
     username = message_inf['message']['chat']['username']
 
     if mdb.users.find_one({'user_id': message_inf['message']['chat']['id']}) is None:
-        encrypted_firstname = encryption(TOKEN_FOR_DB, firstname)
-        encrypted_lastname = encryption(TOKEN_FOR_DB, lastname)
-        encrypted_username = encryption(TOKEN_FOR_DB, username)
+        encrypted_firstname = encryption(TOKEN_FOR_ENCRYPT_DB, firstname)
+        encrypted_lastname = encryption(TOKEN_FOR_ENCRYPT_DB, lastname)
+        encrypted_username = encryption(TOKEN_FOR_ENCRYPT_DB, username)
 
         user = {'user_id': message_inf['message']['chat']['id'],
                 'first_name': encrypted_firstname,
