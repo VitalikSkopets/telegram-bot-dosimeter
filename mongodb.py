@@ -1,10 +1,13 @@
-import datetime
+from datetime import datetime
+import pytz
 from pymongo import MongoClient
 from config import MONGODB_REF, MONGO_DB, TOKEN_FOR_ENCRYPT_DB
 from utilities import encryption
 
 mdb = MongoClient(MONGODB_REF)[MONGO_DB]
-today = datetime.datetime.now().strftime("%a %d-%b-%Y %H:%M:%S")
+
+tz_minsk = pytz.timezone('Europe/Minsk')
+today = datetime.now(tz_minsk).strftime("%a %d-%b-%Y %H:%M:%S")
 
 
 def add_db_start(mdb, user):

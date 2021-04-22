@@ -1,5 +1,4 @@
 import os
-
 from loguru import logger
 from telegram.ext import (Updater,
                           CommandHandler,
