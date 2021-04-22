@@ -39,7 +39,7 @@ def main():
         bot.idle()
     else:
         bot.start_webhook(listen='0.0.0.0',
-                          port=8443,
+                          port=int(os.environ['PORT']),
                           url_path=os.environ['TOKEN'],
                           webhook_url=f"https://{os.environ['HEROKU_APP_NAME']}.herokuapp.com/{os.environ['TOKEN']}"
                           )
