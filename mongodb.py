@@ -3,6 +3,7 @@ import pytz
 from pymongo import MongoClient
 from config import MONGODB_REF, MONGO_DB, TOKEN_FOR_ENCRYPT_DB
 from utilities import encryption
+from loguru import logger
 
 mdb = MongoClient(MONGODB_REF)[MONGO_DB]
 
@@ -26,9 +27,11 @@ def add_db_start(mdb, user):
                         'selected /start command': today
                         }
         mdb.users.insert_one(current_user)
+        logger.info('User added in db after select /start command')
     elif mdb.users.find_one({'user_id': user['id']}) is not None:
         mdb.users.update_one({'user_id': user['id']},
                              {'$set': {'selected /start command': today}})
+        logger.info('In db changed date and time user select /start command')
 
 
 def add_db_help(mdb, user):
@@ -47,9 +50,11 @@ def add_db_help(mdb, user):
                         'selected /help command': today
                         }
         mdb.users.insert_one(current_user)
+        logger.info('User added in db after select /help command')
     elif mdb.users.find_one({'user_id': user['id']}) is not None:
         mdb.users.update_one({'user_id': user['id']},
                              {'$set': {'selected /help command': today}})
+        logger.info('In db changed date and time user select /help command')
 
 
 def add_db_messages(mdb, user):
@@ -68,9 +73,11 @@ def add_db_messages(mdb, user):
                         'sent a welcome text message': today
                         }
         mdb.users.insert_one(current_user)
+        logger.info('User added in db after send a welcome text message')
     elif mdb.users.find_one({'user_id': user['id']}) is not None:
         mdb.users.update_one({'user_id': user['id']},
                              {'$set': {'sent a welcome text message': today}})
+        logger.info('In db changed date and time user send a welcome text message')
 
 
 def add_db_radioactive_monitoring(mdb, user):
@@ -83,6 +90,7 @@ def add_db_radioactive_monitoring(mdb, user):
     """
     mdb.users.update_one({'user_id': user['id']},
                          {'$set': {'press button "Radioactive monitoring"': today}})
+    logger.info('In db set date and time user press button "Radioactive monitoring"')
 
 
 def add_db_scraper(mdb, user):
@@ -95,6 +103,7 @@ def add_db_scraper(mdb, user):
     """
     mdb.users.update_one({'user_id': user['id']},
                          {'$set': {'press button "Observation points"': today}})
+    logger.info('In db set date and time user press button "Observation points"')
 
 
 def add_db_geolocation(mdb, user):
@@ -107,3 +116,4 @@ def add_db_geolocation(mdb, user):
     """
     mdb.users.update_one({'user_id': user['id']},
                          {'$set': {'press button "Send geolocation"': today}})
+    logger.info('In db set date and time user press button "Send geolocation"')

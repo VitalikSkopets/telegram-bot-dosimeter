@@ -29,8 +29,8 @@ def start(update, context):
     :return: None
     """
     user = update.effective_user
+    logger.info('User selected /start command')
     add_db_start(mdb, user)
-    logger.info('User selected /start command and added in db')
     update.message.reply_text(f"Приятно познакомится, <b>{user['first_name']}</b>!"
                               + text_messages['start'], reply_markup=main_keyboard(), parse_mode=ParseMode.HTML)
 
@@ -43,8 +43,8 @@ def help(update, context):
     :return: None
     """
     user = update.effective_user
-    add_db_help(mdb, user)
     logger.info('User selected /help command')
+    add_db_help(mdb, user)
     update.message.reply_text(text_messages['help'], parse_mode=ParseMode.HTML)
 
 
@@ -56,10 +56,10 @@ def messages(update, context):
     :return: None
     """
     user = update.effective_user
-    add_db_messages(mdb, user)
     text = update.message.text
     if text.lower() == 'привет' or text.lower() == 'hello' or text.lower() == 'hi':
         logger.info('User sent a welcome text message')
+        add_db_messages(mdb, user)
         update.message.reply_text(f"Привет, <b>{user['first_name']}</b>!"
                                   + text_messages['greet'], reply_markup=main_keyboard(), parse_mode=ParseMode.HTML)
     else:
@@ -75,7 +75,6 @@ def radioactive_monitoring(update, context):
     :return: None
     """
     user = update.effective_user
-    add_db_radioactive_monitoring(mdb, user)
     today = datetime.now().strftime("%a %d-%b-%Y")
     responce = requests.get(config.URL2, headers={'User-Agent': UserAgent().chrome})
     pattern = r"(?:\bsans-serif;\">)(По состоянию на)(?:...*)?(текущую дату)</span>&nbsp;(радиационная...*загрязнения)"
@@ -85,6 +84,7 @@ def radioactive_monitoring(update, context):
     abc = a + b + c
     abc[1] = today
     logger.info('User press button "Radioactive monitoring"')
+    add_db_radioactive_monitoring(mdb, user)
     update.message.reply_text(f'{abc[0]} {abc[1]} {abc[2]}.\n\nПо стране <i>среднее</i> значение уровня МД '
                               f'гамма-излучения в сети пунктов радиационного мониторинга Министерства природных '
                               f'ресурсов и охраны окружающей среды Беларусь по состоянию на сегодняшний день '
@@ -99,7 +99,6 @@ def scraper(update, context):
     :return: None
     """
     user = update.effective_user
-    add_db_scraper(mdb, user)
     points = get_html().find_all('title')
     today = get_html().find_all('pubdate')
     indications = get_html().find_all('rad')
@@ -109,6 +108,7 @@ def scraper(update, context):
     zipped_values = zip(points, today, indications)
     zipped_list = list(zipped_values)
     logger.info('User press button "Observation points"')
+    add_db_scraper(mdb, user)
     update.message.reply_text(f'| *Пункт наблюдения* | *Дата и время* | *МД гамма-излучения* |',
                               parse_mode=ParseMode.MARKDOWN)
     for i in range(0, len(zipped_list)):
@@ -124,7 +124,6 @@ def geolocation(update, context):
     :return: None
     """
     user = update.effective_user
-    add_db_geolocation(mdb, user)
     user_location = update.message.location
     coordinates = (user_location.latitude, user_location.longitude)
     distance_list = []
@@ -143,6 +142,7 @@ def geolocation(update, context):
     for i in range(0, len(zipped_list)):
         if min_distance[1] == points[i].text:
             logger.info('User press button "Send geolocation"')
+            add_db_geolocation(mdb, user)
             update.message.reply_text(f'<i>{min_distance[0]:.3f} м</i> до ближайшего пункта наблюдения '
                                       f'"{min_distance[1]}".\n\nВ пункте наблюдения "{points[i].text}" по состоянию '
                                       f'на <i>{today[i].text}</i> уровень эквивалентной дозы радиации составляет '
