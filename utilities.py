@@ -80,5 +80,6 @@ def encryption(TOKEN_FOR_DB, line):
     :param line: строковый объект шифрования
     :return: строковый объект ограниченной длины(10 символов) - зашифрованный теств
     """
-    cryptoline = TOKEN_FOR_DB.encrypt(line.encode('utf-8'))
-    return cryptoline[:10].decode('utf-8')
+    while line is not None:
+        cryptoline = TOKEN_FOR_DB.encrypt(line.encode('utf-8'))
+        return cryptoline[:10].decode('utf-8')
