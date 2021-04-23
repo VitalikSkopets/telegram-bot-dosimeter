@@ -33,19 +33,21 @@ def main():
     dp.add_handler(MessageHandler(Filters.regex('^(Пункты наблюдения)$'), scraper))
     dp.add_handler(MessageHandler(Filters.text, messages))
 
-    if os.environ['HEROKU_APP_NAME'] is None:
-        logger.info('Start Bot in pooling mode')
-        bot.start_polling()
-        bot.idle()
-    else:
-        bot.start_webhook(listen='0.0.0.0',
-                          port=int(os.environ['PORT']),
-                          url_path=os.environ['TOKEN'],
-                          webhook_url=f"https://{os.environ['HEROKU_APP_NAME']}.herokuapp.com/{os.environ['TOKEN']}"
-                          )
-        logger.info('Start Bot in webhook mode')
-        bot.idle()
+    # if os.environ['HEROKU_APP_NAME'] is None:     # не по питоняче
+    #     logger.info('Start Bot in pooling mode')
+    #     bot.start_polling()
+    #     bot.idle()
+    # else:
+    #     bot.start_webhook(listen='0.0.0.0',
+    #                       port=int(os.environ['PORT']),
+    #                       url_path=os.environ['TOKEN'],
+    #                       webhook_url=f"https://{os.environ['HEROKU_APP_NAME']}.herokuapp.com/{os.environ['TOKEN']}"
+    #                       )
+    #     logger.info('Start Bot in webhook mode')
+    #     bot.idle()
 
+    bot.start_polling()
+    bot.idle()
 
 if __name__ == '__main__':
     main()

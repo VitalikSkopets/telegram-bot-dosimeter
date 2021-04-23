@@ -1,17 +1,14 @@
+import re
+from datetime import datetime
+import locale
+import requests
+from fake_useragent import UserAgent
 from geopy import distance
 from loguru import logger
-import re
-import requests
-from datetime import datetime
-from fake_useragent import UserAgent
 from telegram import ParseMode
+
 import config
 from config import LOCATION_OF_MONITORING_POINTS
-from utilities import (main_keyboard,
-                       avg_rad,
-                       get_html,
-                       text_messages
-                       )
 from mongodb import (mdb, add_db_start,
                      add_db_help,
                      add_db_messages,
@@ -19,7 +16,15 @@ from mongodb import (mdb, add_db_start,
                      add_db_scraper,
                      add_db_geolocation
                      )
+from utilities import (main_keyboard,
+                       avg_rad,
+                       get_html,
+                       text_messages,
+                       greeting
+                       )
 
+locale.setlocale(category=locale.LC_ALL, locale="Russian")
+today = datetime.now().strftime("%a %d-%b-%Y %H:%M")
 
 def start(update, context):
     """
@@ -57,7 +62,7 @@ def messages(update, context):
     """
     user = update.effective_user
     text = update.message.text
-    if text.lower() == 'привет' or text.lower() == 'hello' or text.lower() == 'hi':
+    if text.lower() in greeting:
         logger.info('User sent a welcome text message')
         add_db_messages(mdb, user)
         update.message.reply_text(f"Привет, <b>{user['first_name']}</b>!"
@@ -69,23 +74,23 @@ def messages(update, context):
 
 def radioactive_monitoring(update, context):
     """
-    Функция-обработчик нажатия кнопки "Радиационный мониторинг"
+    Функция-обработчик нажатия кнопки "Радиационный мониторинг". В теле функция производит get-запрос на
+    https://rad.org.by/monitoring/radiation и скрайринг html-структуры на основе регулярного выражения.
+    Результаты скрайпинга вместе с текущей датой подставляются в ответное сообщение, которое бот отправляет
+    пользователю вместе с результатом вызова кастомной функции avg_rad()
     :param update: Update словарь с информацией о пользователе Telegram
     :param context: CallbackContext
     :return: None
     """
     user = update.effective_user
-    today = datetime.now().strftime("%a %d-%b-%Y")
-    responce = requests.get(config.URL2, headers={'User-Agent': UserAgent().chrome})
+    response = requests.get(config.URL2, headers={'User-Agent': UserAgent().chrome})
     pattern = r"(?:\bsans-serif;\">)(По состоянию на)(?:...*)?(текущую дату)</span>&nbsp;(радиационная...*загрязнения)"
-    text_tup = re.findall(pattern, responce.text)
+    text_tup = re.findall(pattern, response.text)
     text_lst = list(zip(*text_tup))
-    a, b, c = list(text_lst[0]), list(text_lst[1]), list(text_lst[2])
-    abc = a + b + c
-    abc[1] = today
     logger.info('User press button "Radioactive monitoring"')
     add_db_radioactive_monitoring(mdb, user)
-    update.message.reply_text(f'{abc[0]} {abc[1]} {abc[2]}.\n\nПо стране <i>среднее</i> значение уровня МД '
+    update.message.reply_text(f'{list(text_lst[0])[0]} <i>{today}</i> {list(text_lst[2])[0]}.'
+                              f'\n\nПо стране <i>среднее</i> значение уровня МД '
                               f'гамма-излучения в сети пунктов радиационного мониторинга Министерства природных '
                               f'ресурсов и охраны окружающей среды Беларусь по состоянию на сегодняшний день '
                               f'составляет <b>{avg_rad()}</b>.', parse_mode=ParseMode.HTML)
@@ -100,19 +105,17 @@ def scraper(update, context):
     """
     user = update.effective_user
     points = get_html().find_all('title')
-    today = get_html().find_all('pubdate')
     indications = get_html().find_all('rad')
     points.reverse()
-    today.reverse()
     indications.reverse()
-    zipped_values = zip(points, today, indications)
+    zipped_values = zip(points, indications)
     zipped_list = list(zipped_values)
     logger.info('User press button "Observation points"')
     add_db_scraper(mdb, user)
     update.message.reply_text(f'| *Пункт наблюдения* | *Дата и время* | *МД гамма-излучения* |',
                               parse_mode=ParseMode.MARKDOWN)
     for i in range(0, len(zipped_list)):
-        update.message.reply_text(f'| "*{points[i].text}*" | _{today[i].text}_ | *{indications[i].text} мкЗв/ч* |',
+        update.message.reply_text(f'| "*{points[i].text}*" | _{today}_ | *{indications[i].text} мкЗв/ч* |',
                                   parse_mode=ParseMode.MARKDOWN)
 
 
@@ -127,17 +130,14 @@ def geolocation(update, context):
     user_location = update.message.location
     coordinates = (user_location.latitude, user_location.longitude)
     distance_list = []
-    min_distance = float()
     for point, location in LOCATION_OF_MONITORING_POINTS.items():
         distance_list.append((distance.distance(coordinates, location).km, point))
-        min_distance = min(distance_list)
+    min_distance = min(distance_list)
     points = get_html().find_all('title')
-    today = get_html().find_all('pubdate')
     indications = get_html().find_all('rad')
     points.reverse()
-    today.reverse()
     indications.reverse()
-    zipped_values = zip(points, today, indications)
+    zipped_values = zip(points, indications)
     zipped_list = list(zipped_values)
     for i in range(0, len(zipped_list)):
         if min_distance[1] == points[i].text:
@@ -145,5 +145,6 @@ def geolocation(update, context):
             add_db_geolocation(mdb, user)
             update.message.reply_text(f'<i>{min_distance[0]:.3f} м</i> до ближайшего пункта наблюдения '
                                       f'"{min_distance[1]}".\n\nВ пункте наблюдения "{points[i].text}" по состоянию '
-                                      f'на <i>{today[i].text}</i> уровень эквивалентной дозы радиации составляет '
+                                      f'на <i>{today}</i> уровень эквивалентной дозы радиации составляет '
                                       f'<b>{indications[i].text} мкЗв/ч</b>.', parse_mode=ParseMode.HTML)
+            break
