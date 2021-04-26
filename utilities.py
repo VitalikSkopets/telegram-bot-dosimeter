@@ -63,11 +63,11 @@ def avg_rad():
 
 def get_html(url=URL1):
     """
-    Функия скрайпинга веб-ресурса https://rad.org.by/radiation.xml
+    Функия отправляет get-звапрос и скрайпит https://rad.org.by/radiation.xml
     :param url: строквый объект 'https://rad.org.by/radiation.xml'
     :return: html- разметка веб-ресурса https://rad.org.by/radiation.xml в виде текста
     """
-    response = requests.get(url, headers={'User-Agent': UserAgent().chrome})
+    response = requests.get(url, headers={'User-Agent': UserAgent().random})
     soup = BeautifulSoup(response.text, 'html.parser')
     return soup
 

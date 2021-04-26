@@ -5,12 +5,17 @@ from telegram.ext import (Updater,
                           MessageHandler,
                           Filters
                           )
-
 from handlers import (start,
                       help,
                       geolocation,
                       radioactive_monitoring,
-                      scraper,
+                      monitoring_points,
+                      scraper_Brest,
+                      scraper_Vitebsk,
+                      scraper_Gomel,
+                      scraper_Grodno,
+                      scraper_Minsk,
+                      scraper_Mogilev,
                       messages
                       )
 
@@ -30,7 +35,13 @@ def main():
     dp.add_handler(CommandHandler('help', help))
     dp.add_handler(MessageHandler(Filters.location, geolocation))
     dp.add_handler(MessageHandler(Filters.regex('^(Радиационный мониторинг)$'), radioactive_monitoring))
-    dp.add_handler(MessageHandler(Filters.regex('^(Пункты наблюдения)$'), scraper))
+    dp.add_handler(MessageHandler(Filters.regex('^(Пункты наблюдения)$'), monitoring_points))
+    dp.add_handler(MessageHandler(Filters.regex('^(Брестская область)$'), scraper_Brest))
+    dp.add_handler(MessageHandler(Filters.regex('^(Витебская область)$'), scraper_Vitebsk))
+    dp.add_handler(MessageHandler(Filters.regex('^(Гомельская область)$'), scraper_Gomel))
+    dp.add_handler(MessageHandler(Filters.regex('^(Гродненская область)$'), scraper_Grodno))
+    dp.add_handler(MessageHandler(Filters.regex('^(Минск и Минская область)$'), scraper_Minsk))
+    dp.add_handler(MessageHandler(Filters.regex('^(Могилевская область)$'), scraper_Mogilev))
     dp.add_handler(MessageHandler(Filters.text, messages))
 
     # if os.environ['HEROKU_APP_NAME'] is None:     # не по питоняче

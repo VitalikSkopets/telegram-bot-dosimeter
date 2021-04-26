@@ -31,6 +31,12 @@ def create_collection(user):
                     'sent a welcome text message': [],
                     'press button "Radioactive monitoring"': [],
                     'press button "Observation points"': [],
+                    'press button "Brest region"': [],
+                    'press button "Vitebsk region"': [],
+                    'press button "Gomel region"': [],
+                    'press button "Grodno region"': [],
+                    'press button "Minsk region"': [],
+                    'press button "Mogilev region"': [],
                     'press button "Send geolocation"': []
                     }
     return current_user
@@ -106,7 +112,7 @@ def add_db_radioactive_monitoring(mdb, user):
     logger.info('In db added date and time user press button "Radioactive monitoring"')
 
 
-def add_db_scraper(mdb, user):
+def add_db_monitoring_points(mdb, user):
     """
     Функция добавляет текущую дату и время при нажатии пользователем кнопки "Пункты наблюдения" в массив с ключом
     "press button 'Observation points'" соответствующего документа коллекции users users_db в MongoDB Atlas
@@ -117,6 +123,84 @@ def add_db_scraper(mdb, user):
     mdb.users.update_one({'user_id': user['id']},
                          {'$push': {'press button "Observation points"': today}})
     logger.info('In db added date and time user press button "Observation points"')
+
+
+def add_db_scraper_Brest(mdb, user):
+    """
+    Функция добавляет текущую дату и время при нажатии пользователем кнопки "Брестская область" в массив с ключом
+    "press button 'Observation points'" соответствующего документа коллекции users users_db в MongoDB Atlas
+    :param mdb: инстанцированный объект класса MongoClient из модуля pymongo - соединение с базай данных
+    :param user: словарь update.effective_user с информацией о пользователе Telegram
+    :return: None
+    """
+    mdb.users.update_one({'user_id': user['id']},
+                         {'$push': {'press button "Brest region"': today}})
+    logger.info('In db added date and time user press button "Brest region"')
+
+
+def add_db_scraper_Vitebsk(mdb, user):
+    """
+    Функция добавляет текущую дату и время при нажатии пользователем кнопки "Витебская область" в массив с ключом
+    "press button 'Observation points'" соответствующего документа коллекции users users_db в MongoDB Atlas
+    :param mdb: инстанцированный объект класса MongoClient из модуля pymongo - соединение с базай данных
+    :param user: словарь update.effective_user с информацией о пользователе Telegram
+    :return: None
+    """
+    mdb.users.update_one({'user_id': user['id']},
+                         {'$push': {'press button "Vitebsk region"': today}})
+    logger.info('In db added date and time user press button "Vitebsk region"')
+
+
+def add_db_scraper_Gomel(mdb, user):
+    """
+    Функция добавляет текущую дату и время при нажатии пользователем кнопки "Гомельская область" в массив с ключом
+    "press button 'Observation points'" соответствующего документа коллекции users users_db в MongoDB Atlas
+    :param mdb: инстанцированный объект класса MongoClient из модуля pymongo - соединение с базай данных
+    :param user: словарь update.effective_user с информацией о пользователе Telegram
+    :return: None
+    """
+    mdb.users.update_one({'user_id': user['id']},
+                         {'$push': {'press button "Gomel region"': today}})
+    logger.info('In db added date and time user press button "Gomel region"')
+
+
+def add_db_scraper_Grodno(mdb, user):
+    """
+    Функция добавляет текущую дату и время при нажатии пользователем кнопки "Гродненская область" в массив с ключом
+    "press button 'Observation points'" соответствующего документа коллекции users users_db в MongoDB Atlas
+    :param mdb: инстанцированный объект класса MongoClient из модуля pymongo - соединение с базай данных
+    :param user: словарь update.effective_user с информацией о пользователе Telegram
+    :return: None
+    """
+    mdb.users.update_one({'user_id': user['id']},
+                         {'$push': {'press button "Grodno region"': today}})
+    logger.info('In db added date and time user press button "Grodno region"')
+
+
+def add_db_scraper_Minsk(mdb, user):
+    """
+    Функция добавляет текущую дату и время при нажатии пользователем кнопки "Минск и Минская область" в массив с ключом
+    "press button 'Observation points'" соответствующего документа коллекции users users_db в MongoDB Atlas
+    :param mdb: инстанцированный объект класса MongoClient из модуля pymongo - соединение с базай данных
+    :param user: словарь update.effective_user с информацией о пользователе Telegram
+    :return: None
+    """
+    mdb.users.update_one({'user_id': user['id']},
+                         {'$push': {'press button "Minsk region"': today}})
+    logger.info('In db added date and time user press button "Minsk region"')
+
+
+def add_db_scraper_Mogilev(mdb, user):
+    """
+    Функция добавляет текущую дату и время при нажатии пользователем кнопки "Могилевская область" в массив с ключом
+    "press button 'Observation points'" соответствующего документа коллекции users users_db в MongoDB Atlas
+    :param mdb: инстанцированный объект класса MongoClient из модуля pymongo - соединение с базай данных
+    :param user: словарь update.effective_user с информацией о пользователе Telegram
+    :return: None
+    """
+    mdb.users.update_one({'user_id': user['id']},
+                         {'$push': {'press button "Mogilev region"': today}})
+    logger.info('In db added date and time user press button "Mogilev region"')
 
 
 def add_db_geolocation(mdb, user):
