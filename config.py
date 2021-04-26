@@ -1,21 +1,22 @@
 import os
+from typing import Final
 from cryptography.fernet import Fernet
 
-TOKEN = os.environ["TOKEN"]  # token Telegram Bot API
+TOKEN: Final = os.environ["TOKEN"]  # token Telegram Bot API
 MONGODB_REF = "mongodb+srv://DosimeterBot:dG7ntC7sa1RrDpBp@cluster.s3cxd.mongodb.net/users_db?retryWrites=true&w" \
               "=majority"
-MONGO_DB = "users_db"
-LOGIN_MONGO_DB = "DosimeterBot"
-PASSWORD_MONGO_DB = os.environ["PASSWORD_MONGO_DB"]
-key = Fernet.generate_key()  # генарция ключа шифрования
-TOKEN_FOR_ENCRYPT_DB = Fernet(key)  # token для симетричного шифрования строковых объектов
-URL1 = 'https://rad.org.by/radiation.xml'
-URL2 = 'https://rad.org.by/monitoring/radiation'
+MONGO_DB: Final = "users_db"
+LOGIN_MONGO_DB: Final = "DosimeterBot"
+PASSWORD_MONGO_DB: Final = os.environ["PASSWORD_MONGO_DB"]
+key: Final = Fernet.generate_key()  # генарция ключа шифрования
+TOKEN_FOR_ENCRYPT_DB: Final = Fernet(key)  # token для симетричного шифрования строковых объектов
+URL1: Final = 'https://rad.org.by/radiation.xml'
+URL2: Final = 'https://rad.org.by/monitoring/radiation'
 DESCRIPTION = 'Этот бот может информировать пользователя по состоянию на текущую дату о радиационной обстановке ' \
               'в Беларуси и об уровне мощности эквивалентной дозы гамма-излучения, зафиксированного в сети ' \
               'радиационного мониторинга Министерства природных ресурсов и охраны окружающей среды Беларуси ' \
               'Источник: ©rad.org.by Разработано: ©itrexgroup.com'
-LOCATION_OF_MONITORING_POINTS = {
+LOCATION_OF_MONITORING_POINTS: Final = {
     'Могилев': (53.69298772769127, 30.375068475712993),
     'Полоцк': (55.47475184602021, 28.751296645976183),
     'Шарковщина': (55.36281482842422, 27.456996363944278),
@@ -63,7 +64,7 @@ LOCATION_OF_MONITORING_POINTS = {
     'Новая Иолча': (51.49095727903912, 30.531611339649682),
 }
 
-ADMINISTRATIVE_DIVISION = {
+ADMINISTRATIVE_DIVISION: Final = {
     "Брестская область": ['Высокое', 'Пружаны', 'Брест', 'Ивацевичи', 'Пинск', 'Барановичи',
                           'Полесская, болотная', 'Дрогичин', 'Мокраны', 'Олтуш', 'Верхний Теребежов'],
     "Витебская область": ['Полоцк', 'Шарковщина', 'Лынтупы', 'Орша', 'Витебск', 'Нарочь, озерная',

@@ -1,4 +1,5 @@
 import os
+from typing import Final
 from loguru import logger
 from telegram.ext import (Updater,
                           CommandHandler,
@@ -23,14 +24,14 @@ logger.add('debug.log', level='DEBUG', rotation='1 MB', compression='zip')
 
 
 @logger.catch()
-def main():
+def main() -> None:
     """
     Функция инициализации и запуска бота - объекта класса Updater из модуля python-telegram-bot
     :return: None
     """
-    bot = Updater(os.environ['TOKEN'])
+    bot: Final = Updater(os.environ['TOKEN'])
 
-    dp = bot.dispatcher
+    dp: Final = bot.dispatcher
     dp.add_handler(CommandHandler('start', start))
     dp.add_handler(CommandHandler('help', help))
     dp.add_handler(MessageHandler(Filters.location, geolocation))
@@ -59,6 +60,7 @@ def main():
 
     bot.start_polling()
     bot.idle()
+
 
 if __name__ == '__main__':
     main()

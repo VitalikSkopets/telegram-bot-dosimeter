@@ -1,6 +1,7 @@
 import re
 from datetime import datetime
 import locale
+from typing import Final
 from geopy import distance
 from loguru import logger
 from telegram import ReplyKeyboardMarkup, ParseMode
@@ -20,7 +21,6 @@ from mongodb import (mdb, add_db_start,
                      add_db_geolocation
                      )
 from utilities import (main_keyboard,
-                       avg_rad,
                        get_html,
                        scraper,
                        text_messages,
@@ -28,14 +28,14 @@ from utilities import (main_keyboard,
                        )
 
 locale.setlocale(category=locale.LC_ALL, locale="Russian")
-today = datetime.now().strftime("%a %d-%b-%Y %H:%M")
+today: Final = datetime.now().strftime("%a %d-%b-%Y %H:%M")
 
 
-def start(update, context):
+def start(update, context) -> None:
     """
     Функция-обработчик команды /start
     :param update: словарь Update с информацией о пользователе Telegram
-    :param context: CallbackContext
+    :param context: class telegram.ext.CallbackContext(dispatcher)
     :return: None
     """
     user = update.effective_user
@@ -45,11 +45,11 @@ def start(update, context):
                               + text_messages['start'], reply_markup=main_keyboard(), parse_mode=ParseMode.HTML)
 
 
-def help(update, context):
+def help(update, context) -> None:
     """
     Функция-обработчик команды /help
     :param update: словарь Update с информацией о пользователе Telegram
-    :param context: CallbackContext
+    :param context: class telegram.ext.CallbackContext(dispatcher)
     :return: None
     """
     user = update.effective_user
@@ -58,11 +58,11 @@ def help(update, context):
     update.message.reply_text(text_messages['help'], parse_mode=ParseMode.HTML)
 
 
-def messages(update, context):
+def messages(update, context) -> None:
     """
     Функция-обработчик входящего тествового сообщенаия от пользователя
     :param update: словарь Update с пользовательской информацией Telegram
-    :param context: CallbackContext
+    :param context: class telegram.ext.CallbackContext(dispatcher)
     :return: None
     """
     user = update.effective_user
@@ -77,35 +77,42 @@ def messages(update, context):
         update.message.reply_text(text_messages['unknown'], parse_mode=ParseMode.HTML)
 
 
-def radioactive_monitoring(update, context):
+def radioactive_monitoring(update, context) -> None:
     """
-    Функция-обработчик нажатия кнопки "Радиационный мониторинг". В теле функция производит get-запрос на
-    https://rad.org.by/monitoring/radiation и скрайринг html-структуры на основе регулярного выражения.
-    Результаты скрайпинга вместе с текущей датой подставляются в ответное сообщение, которое бот отправляет
-    пользователю вместе с результатом вызова кастомной функции avg_rad()
+    Функция-обработчик нажатия кнопки "Радиационный мониторинг". В теле функция производит вызов кастомной функцию
+    get_html(), которая осуществляет get-запрос и скрайринг html-структуры https://rad.org.by/monitoring/radiation
+    на основе регулярного выражения. Результаты скрайпинга в виде строкового объекта вместе с текущей датой
+    подставляются в интерполированную строку - ответное сообщение пользователю. Также, в теле функции происходит
+    повторный вызов кастомной функцию get_html(), которая в результате скрайпига https://rad.org.by/radiation.xml
+    возвращает строковые значения радиации всех пунктов наблюдения, после чего приводит строковые значения уровня
+    радиации к типу данных число с плавающей точкой float() и расчитывает среднее арефметическое значение уровня
+    радиации всех пунктов наблюдения. Среднее арефметическое значение уровня радиации, также подставляются в
+    интерполированную строку - ответное сообщение пользователю
     :param update: словарь Update с информацией о пользователе Telegram
-    :param context: CallbackContext
+    :param context: class telegram.ext.CallbackContext(dispatcher)
     :return: None
     """
     user = update.effective_user
     text_lst = str(get_html(url=config.URL2).find_all('span'))
     pattern = r"(?:...*)(радиационная...*загрязнения)(?:<\/span>)"
     text = re.findall(pattern, text_lst)
+    indications = get_html().find_all('rad')
+    avg_indication = sum([float(indication.text) for indication in indications]) / len(indications)
     logger.info('User press button "Radioactive monitoring"')
     add_db_radioactive_monitoring(mdb, user)
     update.message.reply_text(f'По состоянию на <i>{today}</i> {text[0]}.'
                               f'\n\nПо стране <i>среднее</i> значение уровня МД '
                               f'гамма-излучения в сети пунктов радиационного мониторинга Министерства природных '
                               f'ресурсов и охраны окружающей среды Беларусь по состоянию на сегодняшний день '
-                              f'составляет <b>{avg_rad()}</b>.', parse_mode=ParseMode.HTML)
+                              f'составляет <b>{avg_indication:.2f}</b> мкЗв/ч.', parse_mode=ParseMode.HTML)
 
 
-def monitoring_points(update, context):
+def monitoring_points(update, context) -> None:
     """
     Функция-обработчик нажатия пользователем кнопки "Пункты наблюдения". Возвращает пользователю кнопк с названиями
     областей вместо стандартной клавиатуры
     :param update: словарь Update с информацией о пользователе Telegram
-    :param context: CallbackContext
+    :param context: class telegram.ext.CallbackContext(dispatcher)
     :return: None
     """
     user = update.effective_user
@@ -117,7 +124,7 @@ def monitoring_points(update, context):
                               )
 
 
-def scraper_Brest(update, context):
+def scraper_Brest(update, context) -> None:
     """
     Функция-обработчик нажатия пользователем кнопки "Брестская область". Функция вызывет метод scraper(), которая,
     в свою очередь, вызывает метод get_html(). Последний отправляет get-запрос и скрайпит html-структуру
@@ -125,7 +132,7 @@ def scraper_Brest(update, context):
     пунктов наблюдения, расположенныъ в Брестской области, и вместе с текущей датой подставляются в ответное
     сообщение пользователю
     :param update: словарь Update с информацией о пользователе Telegram
-    :param context: CallbackContext
+    :param context: class telegram.ext.CallbackContext(dispatcher)
     :return: None
     """
     user = update.effective_user
@@ -134,7 +141,7 @@ def scraper_Brest(update, context):
     add_db_scraper_Brest(mdb, user)
 
 
-def scraper_Vitebsk(update, context):
+def scraper_Vitebsk(update, context) -> None:
     """
     Функция-обработчик нажатия пользователем кнопки "Витебская область". Функция вызывет метод scraper(), которая,
     в свою очередь, вызывает метод get_html(). Последний отправляет get-запрос и скрайпит html-структуру
@@ -142,7 +149,7 @@ def scraper_Vitebsk(update, context):
     пунктов наблюдения, расположенныъ в Витебской области, и вместе с текущей датой подставляются в ответное
     сообщение пользователю
     :param update: словарь Update с информацией о пользователе Telegram
-    :param context: CallbackContext
+    :param context: class telegram.ext.CallbackContext(dispatcher)
     :return: None
     """
     user = update.effective_user
@@ -151,7 +158,7 @@ def scraper_Vitebsk(update, context):
     add_db_scraper_Vitebsk(mdb, user)
 
 
-def scraper_Gomel(update, context):
+def scraper_Gomel(update, context) -> None:
     """
     Функция-обработчик нажатия пользователем кнопки "Гомельская область". Функция вызывет метод scraper(), которая,
     в свою очередь, вызывает метод get_html(). Последний отправляет get-запрос и скрайпит html-структуру
@@ -159,7 +166,7 @@ def scraper_Gomel(update, context):
     пунктов наблюдения, расположенныъ в Гомельской области, и вместе с текущей датой подставляются в ответное
     сообщение пользователю
     :param update: словарь Update с информацией о пользователе Telegram
-    :param context: CallbackContext
+    :param context: class telegram.ext.CallbackContext(dispatcher)
     :return: None
     """
     user = update.effective_user
@@ -168,7 +175,7 @@ def scraper_Gomel(update, context):
     add_db_scraper_Gomel(mdb, user)
 
 
-def scraper_Grodno(update, context):
+def scraper_Grodno(update, context) -> None:
     """
     Функция-обработчик нажатия пользователем кнопки "Гродненская область". Функция вызывет метод scraper(), которая,
     в свою очередь, вызывает метод get_html(). Последний отправляет get-запрос и скрайпит html-структуру
@@ -176,7 +183,7 @@ def scraper_Grodno(update, context):
     пунктов наблюдения, расположенныъ в Гродненской области, и вместе с текущей датой подставляются в ответное
     сообщение пользователю
     :param update: словарь Update с информацией о пользователе Telegram
-    :param context: CallbackContext
+    :param context: class telegram.ext.CallbackContext(dispatcher)
     :return: None
     """
     user = update.effective_user
@@ -185,7 +192,7 @@ def scraper_Grodno(update, context):
     add_db_scraper_Grodno(mdb, user)
 
 
-def scraper_Minsk(update, context):
+def scraper_Minsk(update, context) -> None:
     """
     Функция-обработчик нажатия пользователем кнопки "Минск и Минская область". Функция вызывет метод scraper(), которая,
     в свою очередь, вызывает метод get_html(). Последний отправляет get-запрос и скрайпит html-структуру
@@ -193,7 +200,7 @@ def scraper_Minsk(update, context):
     пунктов наблюдения, расположенныъ в Минске и Минской области, и вместе с текущей датой подставляются в ответное
     сообщение пользователю
     :param update: словарь Update с информацией о пользователе Telegram
-    :param context: CallbackContext
+    :param context: class telegram.ext.CallbackContext(dispatcher)
     :return: None
     """
     user = update.effective_user
@@ -202,7 +209,7 @@ def scraper_Minsk(update, context):
     add_db_scraper_Minsk(mdb, user)
 
 
-def scraper_Mogilev(update, context):
+def scraper_Mogilev(update, context) -> None:
     """
     Функция-обработчик нажатия пользователем кнопки "Могилевская область". Функция вызывет метод scraper(), которая,
     в свою очередь, вызывает метод get_html(). Последний отправляет get-запрос и скрайпит html-структуру
@@ -210,7 +217,7 @@ def scraper_Mogilev(update, context):
     пунктов наблюдения, расположенныъ в Могилевскойй области, и вместе с текущей датой подставляются в ответное
     сообщение пользователю
     :param update: словарь Update с информацией о пользователе Telegram
-    :param context: CallbackContext
+    :param context: class telegram.ext.CallbackContext(dispatcher)
     :return: None
     """
     user = update.effective_user
@@ -219,11 +226,18 @@ def scraper_Mogilev(update, context):
     add_db_scraper_Mogilev(mdb, user)
 
 
-def geolocation(update, context):
+def geolocation(update, context) -> None:
     """
-    Функция-обработчик нажатия кнопки "Отправить мою геолокацию"
+    Функция-обработчик нажатия кнопки "Отправить мою геолокацию". В теле функции происходит вызов метода distance() из
+    модуля geopy в который в качестве оргументов передаются географические координаты пользователя и георгарфические
+    координаты пунктво наблюдения из словаря LOCATION_OF_MONITORING_POINTS. Метод distance() расяитывает расстояние в
+    километрах от каждого пункта наблюдения до пользователя. Далее, с помощью встроенной функции min() определяется
+    расстояние от ближайшего к пользователю пунтка наблюдения. Также, в теле функция производит вызов
+    кастомной функцию get_html(), которая осуществляет скрайринг html-структуры https://rad.org.by/radiation.xml.
+    Результаты выполнения метода distance() и функции скрайпинга вместе с текущей датой и временем подставляются
+    в интерполированную строку - ответное сообщение пользователю.
     :param update: словарь Update с информацией о пользователе Telegram
-    :param context: CallbackContext
+    :param context: class telegram.ext.CallbackContext(dispatcher)
     :return: None
     """
     user = update.effective_user
@@ -233,8 +247,7 @@ def geolocation(update, context):
     for point, location in LOCATION_OF_MONITORING_POINTS.items():
         distance_list.append((distance.distance(coordinates, location).km, point))
     min_distance = min(distance_list)
-    points = get_html().find_all('title')
-    indications = get_html().find_all('rad')
+    points, indications = get_html().find_all('title'), get_html().find_all('rad')
     points.reverse()
     indications.reverse()
     zipped_values = zip(points, indications)

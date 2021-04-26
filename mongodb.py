@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Final
 import pytz
 import locale
 from pymongo import MongoClient
@@ -6,14 +7,14 @@ from config import MONGODB_REF, MONGO_DB, TOKEN_FOR_ENCRYPT_DB
 from utilities import encryption
 from loguru import logger
 
-mdb = MongoClient(MONGODB_REF)[MONGO_DB]
+mdb: Final = MongoClient(MONGODB_REF)[MONGO_DB]
 
-tz_minsk = pytz.timezone('Europe/Minsk')
-today = datetime.now(tz_minsk).strftime("%a %d-%b-%Y %H:%M:%S")
+tz_minsk: Final = pytz.timezone('Europe/Minsk')
+today: Final = datetime.now(tz_minsk).strftime("%a %d-%b-%Y %H:%M:%S")
 locale.setlocale(category=locale.LC_ALL, locale="Russian")
 
 
-def create_collection(user):
+def create_collection(user) -> dict[str, any]:
     """
     Функция создает объект с типом данных "словарь", содержащий в качестве ключей "идентификационные данные
     пользователя" и доступный перечень "действий" бота. Значения ключей first_name, last_name и username добавляются
@@ -42,7 +43,7 @@ def create_collection(user):
     return current_user
 
 
-def add_db_start(mdb, user):
+def add_db_start(mdb, user) -> None:
     """
     Функция добавляет текущую дату и время вызова команды /start пользователя Telegram в массив с ключом
     "selected /start command" коллекции users users_db в MongoDB Atlas
@@ -61,7 +62,7 @@ def add_db_start(mdb, user):
         logger.info('In db updated date and time user select /start command')
 
 
-def add_db_help(mdb, user):
+def add_db_help(mdb, user) -> None:
     """
     Функция добавляет текущую дату и время вызова команды /help пользователя Telegram в массив с ключом
     "selected /help command" коллекции users users_db в MongoDB Atlas
@@ -80,7 +81,7 @@ def add_db_help(mdb, user):
         logger.info('In db updated date and time user select /help command')
 
 
-def add_db_messages(mdb, user):
+def add_db_messages(mdb, user) -> None:
     """
     Функция добавляет текущую дату и время отправки пользователем приветственного сообщения в массив с ключом
     "sent a welcome text message" коллекции users users_db в MongoDB Atlas
@@ -99,7 +100,7 @@ def add_db_messages(mdb, user):
         logger.info('In db updated date and time user send a welcome text message')
 
 
-def add_db_radioactive_monitoring(mdb, user):
+def add_db_radioactive_monitoring(mdb, user) -> None:
     """
     Функция добавляет текущую дату и время при нажатии пользователем кнопки "Радиационный мониторирг"в массив с ключом
     "press button 'Radioactive monitoring'" соответствующего документа коллекции users users_db в MongoDB Atlas
@@ -112,7 +113,7 @@ def add_db_radioactive_monitoring(mdb, user):
     logger.info('In db added date and time user press button "Radioactive monitoring"')
 
 
-def add_db_monitoring_points(mdb, user):
+def add_db_monitoring_points(mdb, user) -> None:
     """
     Функция добавляет текущую дату и время при нажатии пользователем кнопки "Пункты наблюдения" в массив с ключом
     "press button 'Observation points'" соответствующего документа коллекции users users_db в MongoDB Atlas
@@ -125,7 +126,7 @@ def add_db_monitoring_points(mdb, user):
     logger.info('In db added date and time user press button "Observation points"')
 
 
-def add_db_scraper_Brest(mdb, user):
+def add_db_scraper_Brest(mdb, user) -> None:
     """
     Функция добавляет текущую дату и время при нажатии пользователем кнопки "Брестская область" в массив с ключом
     "press button 'Observation points'" соответствующего документа коллекции users users_db в MongoDB Atlas
@@ -138,7 +139,7 @@ def add_db_scraper_Brest(mdb, user):
     logger.info('In db added date and time user press button "Brest region"')
 
 
-def add_db_scraper_Vitebsk(mdb, user):
+def add_db_scraper_Vitebsk(mdb, user) -> None:
     """
     Функция добавляет текущую дату и время при нажатии пользователем кнопки "Витебская область" в массив с ключом
     "press button 'Observation points'" соответствующего документа коллекции users users_db в MongoDB Atlas
@@ -151,7 +152,7 @@ def add_db_scraper_Vitebsk(mdb, user):
     logger.info('In db added date and time user press button "Vitebsk region"')
 
 
-def add_db_scraper_Gomel(mdb, user):
+def add_db_scraper_Gomel(mdb, user) -> None:
     """
     Функция добавляет текущую дату и время при нажатии пользователем кнопки "Гомельская область" в массив с ключом
     "press button 'Observation points'" соответствующего документа коллекции users users_db в MongoDB Atlas
@@ -164,7 +165,7 @@ def add_db_scraper_Gomel(mdb, user):
     logger.info('In db added date and time user press button "Gomel region"')
 
 
-def add_db_scraper_Grodno(mdb, user):
+def add_db_scraper_Grodno(mdb, user) -> None:
     """
     Функция добавляет текущую дату и время при нажатии пользователем кнопки "Гродненская область" в массив с ключом
     "press button 'Observation points'" соответствующего документа коллекции users users_db в MongoDB Atlas
@@ -177,7 +178,7 @@ def add_db_scraper_Grodno(mdb, user):
     logger.info('In db added date and time user press button "Grodno region"')
 
 
-def add_db_scraper_Minsk(mdb, user):
+def add_db_scraper_Minsk(mdb, user) -> None:
     """
     Функция добавляет текущую дату и время при нажатии пользователем кнопки "Минск и Минская область" в массив с ключом
     "press button 'Observation points'" соответствующего документа коллекции users users_db в MongoDB Atlas
@@ -190,7 +191,7 @@ def add_db_scraper_Minsk(mdb, user):
     logger.info('In db added date and time user press button "Minsk region"')
 
 
-def add_db_scraper_Mogilev(mdb, user):
+def add_db_scraper_Mogilev(mdb, user) -> None:
     """
     Функция добавляет текущую дату и время при нажатии пользователем кнопки "Могилевская область" в массив с ключом
     "press button 'Observation points'" соответствующего документа коллекции users users_db в MongoDB Atlas
@@ -203,7 +204,7 @@ def add_db_scraper_Mogilev(mdb, user):
     logger.info('In db added date and time user press button "Mogilev region"')
 
 
-def add_db_geolocation(mdb, user):
+def add_db_geolocation(mdb, user) -> None:
     """
     Функция добавляет текущую дату и время при нажатии пользователем кнопки "Отправить мою геолокацию" в массив
     с ключом "press button 'Send geolocation'" соответствующего документа коллекции users users_db в MongoDB Atlas

@@ -1,3 +1,4 @@
+from typing import Final
 from bs4 import BeautifulSoup
 import requests
 from emoji.core import emojize
@@ -8,16 +9,16 @@ from telegram import ReplyKeyboardMarkup, KeyboardButton, ParseMode
 from config import URL1
 
 locale.setlocale(category=locale.LC_ALL, locale="Russian")
-today = datetime.now().strftime("%a %d-%b-%Y %H:%M")
+today: Final = datetime.now().strftime("%a %d-%b-%Y %H:%M")
 
 commands = {'start': 'Start using this bot',
             'help': 'Useful information about this bot'
             }
 
-smile1 = emojize(':radioactive_sign:', use_aliases=True)
-smile2 = emojize(':robot_face:', use_aliases=True)
+smile1: Final = emojize(':radioactive_sign:', use_aliases=True)
+smile2: Final = emojize(':robot_face:', use_aliases=True)
 
-text_messages = {
+text_messages: Final = {
     'start': f'\n\nЯ бот-дозиметр {smile1} '
              f'\n\nЧтобы узнать по состоянию на <i>текущую дату</i> уровень мощности эквивалентной дозы '
              f'гамма-излучения, зафиксированного на <i>ближайшем</i> пункте наблюдения, '
@@ -44,41 +45,27 @@ text_messages = {
     'unknown': f'Ничего не понятно, но очень интересно {smile2}\nПопробуй команду /help.'
 }
 
-greeting = ['hello', 'hi', 'hey', 'привет', 'салют', 'здарова', 'здравствуй', 'здравствуйте', 'добрый день',
-            'добрый вечер', 'доброе утро', 'доброго дня', 'хелоу', 'бонжур', 'привестствую', 'здрасте', 'какая встреча',
-            'рад встрече', 'хай', 'здравия желаю', 'приветик', 'доброго времени суток', 'здорова', 'здорово',
-            'мое почтение', 'приветствую тебя', 'сердечно приветствую', 'how are you', 'what’s up', 'whats up',
-            'hello there', 'howdy', 'hiya', 'yo', 'how do you do', 'good morning', 'good afternoon', 'good evening',
-            'peek-a-boo', 'peek a boo', 'hi mister', 'ahoy'
-            ]
-
-
-def avg_rad():
-    """
-    В теле функции происходит вызов другой кастомной функцию get_html(), которая в результате скрайпига
-    https://rad.org.by/radiation.xml возвращает строковые значения радиации всех пунктов наблюдения, после чего функция
-    avg_rad() приводит строковые значения уровня радиации к типу данных число с плавающей точкой float() и расчитывает
-    среднее арефметическое значение уровня радиации всех пунктов наблюдения
-    :return: интерполированная строка со средним значеним величины уровня радиации в формате числа с плавающей точной
-    float(), сокращенного до двух знаков после запятой
-    """
-    indications = get_html().find_all('rad')
-    avg_indication = sum([float(indication.text) for indication in indications]) / len(indications)
-    return f' {avg_indication:.2f} мкЗв/ч'
+greeting: Final = ['hello', 'hi', 'hey', 'привет', 'салют', 'здарова', 'здравствуй', 'здравствуйте', 'добрый день',
+                   'добрый вечер', 'доброе утро', 'доброго дня', 'хелоу', 'бонжур', 'привестствую', 'здрасте',
+                   'какая встреча', 'рад встрече', 'хай', 'здравия желаю', 'приветик', 'доброго времени суток',
+                   'здорова', 'здорово', 'мое почтение', 'приветствую тебя', 'сердечно приветствую', 'how are you',
+                   'what’s up', 'whats up', 'hello there', 'howdy', 'hiya', 'yo', 'how do you do', 'good morning',
+                   'good afternoon', 'good evening', 'peek-a-boo', 'peek a boo', 'hi mister', 'ahoy'
+                   ]
 
 
 def get_html(url=URL1):
     """
     Функия отправляет get-звапрос и скрайпит https://rad.org.by/radiation.xml
     :param url: строквый объект 'https://rad.org.by/radiation.xml'
-    :return: html- разметка веб-ресурса https://rad.org.by/radiation.xml в виде текста
+    :return: объект класса bs4.BeautifulSoup - html-разметка веб-ресурса https://rad.org.by/radiation.xml
     """
     response = requests.get(url, headers={'User-Agent': UserAgent().random})
     soup = BeautifulSoup(response.text, 'html.parser')
     return soup
 
 
-def scraper(update, region):
+def scraper(update, region: list[str]) -> None:
     """
     Функция вызывает метод get_html(), который отправляет get-запрос и скрайпит html-структуру веб-ресурса
     https://rad.org.by/radiation.xml. Результаты скрайпинга в цикле for сравниваются на равенство с названиями
@@ -120,7 +107,7 @@ def main_keyboard():
                                                 request_location=True)]], resize_keyboard=True)
 
 
-def encryption(TOKEN_FOR_DB, line):
+def encryption(TOKEN_FOR_DB, line: str) -> str:
     """
     Функция симетричного шифрования строковых данных first_name, last_name и username пользователя для последующей
     передачи шифрованных данных в базу данных для долговременного хранения
