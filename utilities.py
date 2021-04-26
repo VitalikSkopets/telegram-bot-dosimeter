@@ -87,7 +87,7 @@ def scraper(update, region: list[str]) -> None:
                                   parse_mode=ParseMode.MARKDOWN)
         for i in range(0, len(zipped_list)):
             if points[i].text in region:
-                update.message.reply_text(f'| "*{points[i].text}*" | _{today}_ | *{indications[i].text} мкЗв/ч* |',
+                update.message.reply_text(f'| "*{points[i].text}*" | _{today}_ | *{indications[i].text}* мкЗв/ч |',
                                           parse_mode=ParseMode.MARKDOWN)
     except Exception:
         update.message.reply_text(f"К сожалению, <b>{user['first_name']}</b>, в настоящее время актуальная "
