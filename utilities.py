@@ -70,13 +70,15 @@ def scraper(update, region: list[str]) -> None:
     Функция вызывает метод get_html(), который отправляет get-запрос и скрайпит html-структуру веб-ресурса
     https://rad.org.by/radiation.xml. Результаты скрайпинга в цикле for сравниваются на равенство с названиями
     пунктов наблюдения, расположенныъ в соответстсвующей области, и вместе с текущей датой подставляются в ответное
-    сообщение пользователю
+    сообщение пользователю. Также, функция расчитывает среднее арифметическое значение уровня радиации в сети
+    соответствующих региоанльных пунктов радиационного мониторинга
     :param update: словарь Update с информацией о пользователе Telegram
     :param region: список элементами которого являются значения (названия пунктов наблюдения) ключей (названия областей)
     из словаря ADMINISTRATIVE_DIVISION в модуле config.py
     :return: None
     """
     user = update.effective_user
+    indications_region = []
     try:
         points, indications = get_html().find_all('title'), get_html().find_all('rad')
         points.reverse()
@@ -87,8 +89,16 @@ def scraper(update, region: list[str]) -> None:
                                   parse_mode=ParseMode.MARKDOWN)
         for i in range(0, len(zipped_list)):
             if points[i].text in region:
+                indications_region.append(float(indications[i].text))
                 update.message.reply_text(f'| "*{points[i].text}*" | _{today}_ | *{indications[i].text}* мкЗв/ч |',
                                           parse_mode=ParseMode.MARKDOWN)
+        avg_indication_region = sum(indications_region) / len(indications_region)
+        update.message.reply_text(f'По состоянию на <i>{today}</i> <b>среднее</b> значение уровня МД '
+                                  f'гамма-излучения в сети региоанльных пунктов радиационного мониторинга '
+                                  f'Министерства природных ресурсов и охраны окружающей среды Беларуси '
+                                  f'составляет <b>{avg_indication_region:.2f}</b> мкЗв/ч.',
+                                  parse_mode=ParseMode.HTML
+                                  )
     except Exception:
         update.message.reply_text(f"К сожалению, <b>{user['first_name']}</b>, в настоящее время актуальная "
                                   f"информация по интересующему региону отсутствует {smile2}",
