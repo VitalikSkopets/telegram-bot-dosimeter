@@ -5,7 +5,7 @@ from geopy import distance
 from loguru import logger
 from telegram import ReplyKeyboardMarkup, ParseMode
 import config
-from config import LOCATION_OF_MONITORING_POINTS
+from config import LOCATION_OF_MONITORING_POINTS, ADMINISTRATIVE_DIVISION
 from mongodb import (mdb, add_db_start,
                      add_db_help,
                      add_db_messages,
@@ -22,6 +22,7 @@ from mongodb import (mdb, add_db_start,
 from utilities import (main_keyboard,
                        avg_rad,
                        get_html,
+                       scraper,
                        text_messages,
                        greeting
                        )
@@ -33,7 +34,7 @@ today = datetime.now().strftime("%a %d-%b-%Y %H:%M")
 def start(update, context):
     """
     Функция-обработчик команды /start
-    :param update: Update словарь с информацией о пользователе Telegram
+    :param update: словарь Update с информацией о пользователе Telegram
     :param context: CallbackContext
     :return: None
     """
@@ -47,7 +48,7 @@ def start(update, context):
 def help(update, context):
     """
     Функция-обработчик команды /help
-    :param update: Update словарь с информацией о пользователе Telegram
+    :param update: словарь Update с информацией о пользователе Telegram
     :param context: CallbackContext
     :return: None
     """
@@ -60,7 +61,7 @@ def help(update, context):
 def messages(update, context):
     """
     Функция-обработчик входящего тествового сообщенаия от пользователя
-    :param update: Update словарь с пользовательской информацией Telegram
+    :param update: словарь Update с пользовательской информацией Telegram
     :param context: CallbackContext
     :return: None
     """
@@ -82,7 +83,7 @@ def radioactive_monitoring(update, context):
     https://rad.org.by/monitoring/radiation и скрайринг html-структуры на основе регулярного выражения.
     Результаты скрайпинга вместе с текущей датой подставляются в ответное сообщение, которое бот отправляет
     пользователю вместе с результатом вызова кастомной функции avg_rad()
-    :param update: Update словарь с информацией о пользователе Telegram
+    :param update: словарь Update с информацией о пользователе Telegram
     :param context: CallbackContext
     :return: None
     """
@@ -103,7 +104,7 @@ def monitoring_points(update, context):
     """
     Функция-обработчик нажатия пользователем кнопки "Пункты наблюдения". Возвращает пользователю кнопк с названиями
     областей вместо стандартной клавиатуры
-    :param update: Update словарь с информацией о пользователе Telegram
+    :param update: словарь Update с информацией о пользователе Telegram
     :param context: CallbackContext
     :return: None
     """
@@ -118,170 +119,110 @@ def monitoring_points(update, context):
 
 def scraper_Brest(update, context):
     """
-    Функция-обработчик нажатия пользователем кнопки "Брестская область". Функция вызывет метод get_html(),которая,
-    в свою очередь, отправляет get-запрос и скрайпит html-структуру https://rad.org.by/radiation.xml . Результаты
-    скрайпинга в цикле for сравниваются на равенство с нацзваниями пунктов наблюдения, расположенныъ в Брестской области
-    и вместе с текущей датой подставляются в ответное сообщение пользователю
-    :param update: Update словарь с информацией о пользователе Telegram
+    Функция-обработчик нажатия пользователем кнопки "Брестская область". Функция вызывет метод scraper(), которая,
+    в свою очередь, вызывает метод get_html(). Последний отправляет get-запрос и скрайпит html-структуру
+    https://rad.org.by/radiation.xml . Результаты скрайпинга в цикле for сравниваются на равенство с названиями
+    пунктов наблюдения, расположенныъ в Брестской области, и вместе с текущей датой подставляются в ответное
+    сообщение пользователю
+    :param update: словарь Update с информацией о пользователе Telegram
     :param context: CallbackContext
     :return: None
     """
     user = update.effective_user
-    points = get_html().find_all('title')
-    indications = get_html().find_all('rad')
-    points.reverse()
-    indications.reverse()
-    zipped_values = zip(points, indications)
-    zipped_list = list(zipped_values)
+    scraper(update, region=ADMINISTRATIVE_DIVISION["Брестская область"])
     logger.info('User press button "Brest region"')
     add_db_scraper_Brest(mdb, user)
-    update.message.reply_text(f'| *Пункт наблюдения* | *Дата и время* | *МД гамма-излучения* |',
-                              parse_mode=ParseMode.MARKDOWN)
-    for i in range(0, len(zipped_list)):
-        if points[i].text in config.ADMINISTRATIVE_DIVISION["Брестская область"]:
-            update.message.reply_text(f'| "*{points[i].text}*" | _{today}_ | *{indications[i].text} мкЗв/ч* |',
-                                      parse_mode=ParseMode.MARKDOWN)
 
 
 def scraper_Vitebsk(update, context):
     """
-    Функция-обработчик нажатия пользователем кнопки "Витебская область". Функция вызывет метод get_html(),которая,
-    в свою очередь, отправляет get-запрос и скрайпит html-структуру https://rad.org.by/radiation.xml . Результаты
-    скрайпинга в цикле for сравниваются на равенство с нацзваниями пунктов наблюдения, расположенныъ в Витебской области
-    и вместе с текущей датой подставляются в ответное сообщение пользователю
-    :param update: Update словарь с информацией о пользователе Telegram
+    Функция-обработчик нажатия пользователем кнопки "Витебская область". Функция вызывет метод scraper(), которая,
+    в свою очередь, вызывает метод get_html(). Последний отправляет get-запрос и скрайпит html-структуру
+    https://rad.org.by/radiation.xml . Результаты скрайпинга в цикле for сравниваются на равенство с названиями
+    пунктов наблюдения, расположенныъ в Витебской области, и вместе с текущей датой подставляются в ответное
+    сообщение пользователю
+    :param update: словарь Update с информацией о пользователе Telegram
     :param context: CallbackContext
     :return: None
     """
     user = update.effective_user
-    points = get_html().find_all('title')
-    indications = get_html().find_all('rad')
-    points.reverse()
-    indications.reverse()
-    zipped_values = zip(points, indications)
-    zipped_list = list(zipped_values)
+    scraper(update, region=ADMINISTRATIVE_DIVISION["Витебская область"])
     logger.info('User press button "Vitebsk region"')
     add_db_scraper_Vitebsk(mdb, user)
-    update.message.reply_text(f'| *Пункт наблюдения* | *Дата и время* | *МД гамма-излучения* |',
-                              parse_mode=ParseMode.MARKDOWN)
-    for i in range(0, len(zipped_list)):
-        if points[i].text in config.ADMINISTRATIVE_DIVISION["Витебская область"]:
-            update.message.reply_text(f'| "*{points[i].text}*" | _{today}_ | *{indications[i].text} мкЗв/ч* |',
-                                      parse_mode=ParseMode.MARKDOWN)
 
 
 def scraper_Gomel(update, context):
     """
-    Функция-обработчик нажатия пользователем кнопки "Гомельская область". Функция вызывет метод get_html(),которая,
-    в свою очередь, отправляет get-запрос и скрайпит html-структуру https://rad.org.by/radiation.xml . Результаты
-    скрайпинга в цикле for сравниваются на равенство с нацзваниями пунктов наблюдения, расположенныъ в Гомельской
-    области и вместе с текущей датой подставляются в ответное сообщение пользователю
-    :param update: Update словарь с информацией о пользователе Telegram
+    Функция-обработчик нажатия пользователем кнопки "Гомельская область". Функция вызывет метод scraper(), которая,
+    в свою очередь, вызывает метод get_html(). Последний отправляет get-запрос и скрайпит html-структуру
+    https://rad.org.by/radiation.xml . Результаты скрайпинга в цикле for сравниваются на равенство с названиями
+    пунктов наблюдения, расположенныъ в Гомельской области, и вместе с текущей датой подставляются в ответное
+    сообщение пользователю
+    :param update: словарь Update с информацией о пользователе Telegram
     :param context: CallbackContext
     :return: None
     """
     user = update.effective_user
-    points = get_html().find_all('title')
-    indications = get_html().find_all('rad')
-    points.reverse()
-    indications.reverse()
-    zipped_values = zip(points, indications)
-    zipped_list = list(zipped_values)
+    scraper(update, region=ADMINISTRATIVE_DIVISION["Гомельская область"])
     logger.info('User press button "Gomel region"')
     add_db_scraper_Gomel(mdb, user)
-    update.message.reply_text(f'| *Пункт наблюдения* | *Дата и время* | *МД гамма-излучения* |',
-                              parse_mode=ParseMode.MARKDOWN)
-    for i in range(0, len(zipped_list)):
-        if points[i].text in config.ADMINISTRATIVE_DIVISION["Гомельская область"]:
-            update.message.reply_text(f'| "*{points[i].text}*" | _{today}_ | *{indications[i].text} мкЗв/ч* |',
-                                      parse_mode=ParseMode.MARKDOWN)
 
 
 def scraper_Grodno(update, context):
     """
-    Функция-обработчик нажатия пользователем кнопки "Гродненская область". Функция вызывет метод get_html(),которая,
-    в свою очередь, отправляет get-запрос и скрайпит html-структуру https://rad.org.by/radiation.xml . Результаты
-    скрайпинга в цикле for сравниваются на равенство с нацзваниями пунктов наблюдения, расположенныъ в Гродненской
-    области и вместе с текущей датой подставляются в ответное сообщение пользователю
-    :param update: Update словарь с информацией о пользователе Telegram
+    Функция-обработчик нажатия пользователем кнопки "Гродненская область". Функция вызывет метод scraper(), которая,
+    в свою очередь, вызывает метод get_html(). Последний отправляет get-запрос и скрайпит html-структуру
+    https://rad.org.by/radiation.xml . Результаты скрайпинга в цикле for сравниваются на равенство с названиями
+    пунктов наблюдения, расположенныъ в Гродненской области, и вместе с текущей датой подставляются в ответное
+    сообщение пользователю
+    :param update: словарь Update с информацией о пользователе Telegram
     :param context: CallbackContext
     :return: None
     """
     user = update.effective_user
-    points = get_html().find_all('title')
-    indications = get_html().find_all('rad')
-    points.reverse()
-    indications.reverse()
-    zipped_values = zip(points, indications)
-    zipped_list = list(zipped_values)
+    scraper(update, region=ADMINISTRATIVE_DIVISION["Гродненская область"])
     logger.info('User press button "Grodno region"')
     add_db_scraper_Grodno(mdb, user)
-    update.message.reply_text(f'| *Пункт наблюдения* | *Дата и время* | *МД гамма-излучения* |',
-                              parse_mode=ParseMode.MARKDOWN)
-    for i in range(0, len(zipped_list)):
-        if points[i].text in config.ADMINISTRATIVE_DIVISION["Гродненская область"]:
-            update.message.reply_text(f'| "*{points[i].text}*" | _{today}_ | *{indications[i].text} мкЗв/ч* |',
-                                      parse_mode=ParseMode.MARKDOWN)
 
 
 def scraper_Minsk(update, context):
     """
-    Функция-обработчик нажатия пользователем кнопки "Минск и Минская область". Функция вызывет метод get_html(),которая,
-    в свою очередь, отправляет get-запрос и скрайпит html-структуру https://rad.org.by/radiation.xml . Результаты
-    скрайпинга в цикле for сравниваются на равенство с нацзваниями пунктов наблюдения, расположенных в Минске и Минской
-    области и вместе с текущей датой подставляются в ответное сообщение пользователю
-    :param update: Update словарь с информацией о пользователе Telegram
+    Функция-обработчик нажатия пользователем кнопки "Минск и Минская область". Функция вызывет метод scraper(), которая,
+    в свою очередь, вызывает метод get_html(). Последний отправляет get-запрос и скрайпит html-структуру
+    https://rad.org.by/radiation.xml . Результаты скрайпинга в цикле for сравниваются на равенство с названиями
+    пунктов наблюдения, расположенныъ в Минске и Минской области, и вместе с текущей датой подставляются в ответное
+    сообщение пользователю
+    :param update: словарь Update с информацией о пользователе Telegram
     :param context: CallbackContext
     :return: None
     """
     user = update.effective_user
-    points = get_html().find_all('title')
-    indications = get_html().find_all('rad')
-    points.reverse()
-    indications.reverse()
-    zipped_values = zip(points, indications)
-    zipped_list = list(zipped_values)
+    scraper(update, region=ADMINISTRATIVE_DIVISION["Минск и Минская область"])
     logger.info('User press button "Minsk region"')
     add_db_scraper_Minsk(mdb, user)
-    update.message.reply_text(f'| *Пункт наблюдения* | *Дата и время* | *МД гамма-излучения* |',
-                              parse_mode=ParseMode.MARKDOWN)
-    for i in range(0, len(zipped_list)):
-        if points[i].text in config.ADMINISTRATIVE_DIVISION["Минск и Минская область"]:
-            update.message.reply_text(f'| "*{points[i].text}*" | _{today}_ | *{indications[i].text} мкЗв/ч* |',
-                                      parse_mode=ParseMode.MARKDOWN)
 
 
 def scraper_Mogilev(update, context):
     """
-    Функция-обработчик нажатия пользователем кнопки "Могилевская область". Функция вызывет метод get_html(),которая,
-    в свою очередь, отправляет get-запрос и скрайпит html-структуру https://rad.org.by/radiation.xml . Результаты
-    скрайпинга в цикле for сравниваются на равенство с нацзваниями пунктов наблюдения, расположенных в Могилевской
-    области и вместе с текущей датой подставляются в ответное сообщение пользователю
-    :param update: Update словарь с информацией о пользователе Telegram
+    Функция-обработчик нажатия пользователем кнопки "Могилевская область". Функция вызывет метод scraper(), которая,
+    в свою очередь, вызывает метод get_html(). Последний отправляет get-запрос и скрайпит html-структуру
+    https://rad.org.by/radiation.xml . Результаты скрайпинга в цикле for сравниваются на равенство с названиями
+    пунктов наблюдения, расположенныъ в Могилевскойй области, и вместе с текущей датой подставляются в ответное
+    сообщение пользователю
+    :param update: словарь Update с информацией о пользователе Telegram
     :param context: CallbackContext
     :return: None
     """
     user = update.effective_user
-    points = get_html().find_all('title')
-    indications = get_html().find_all('rad')
-    points.reverse()
-    indications.reverse()
-    zipped_values = zip(points, indications)
-    zipped_list = list(zipped_values)
+    scraper(update, region=ADMINISTRATIVE_DIVISION["Могилевская область"])
     logger.info('User press button "Mogilev region"')
     add_db_scraper_Mogilev(mdb, user)
-    update.message.reply_text(f'| *Пункт наблюдения* | *Дата и время* | *МД гамма-излучения* |',
-                              parse_mode=ParseMode.MARKDOWN)
-    for i in range(0, len(zipped_list)):
-        if points[i].text in config.ADMINISTRATIVE_DIVISION["Могилевская область"]:
-            update.message.reply_text(f'| "*{points[i].text}*" | _{today}_ | *{indications[i].text} мкЗв/ч* |',
-                                      parse_mode=ParseMode.MARKDOWN)
 
 
 def geolocation(update, context):
     """
     Функция-обработчик нажатия кнопки "Отправить мою геолокацию"
-    :param update: Update словарь с информацией о пользователе Telegram
+    :param update: словарь Update с информацией о пользователе Telegram
     :param context: CallbackContext
     :return: None
     """

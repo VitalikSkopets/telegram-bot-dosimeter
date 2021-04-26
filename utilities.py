@@ -2,23 +2,29 @@ from bs4 import BeautifulSoup
 import requests
 from emoji.core import emojize
 from fake_useragent import UserAgent
-from telegram import ReplyKeyboardMarkup, KeyboardButton
+from datetime import datetime
+import locale
+from telegram import ReplyKeyboardMarkup, KeyboardButton, ParseMode
 from config import URL1
+
+locale.setlocale(category=locale.LC_ALL, locale="Russian")
+today = datetime.now().strftime("%a %d-%b-%Y %H:%M")
 
 commands = {'start': 'Start using this bot',
             'help': 'Useful information about this bot'
             }
 
-smile = emojize(':radioactive_sign:', use_aliases=True)
+smile1 = emojize(':radioactive_sign:', use_aliases=True)
+smile2 = emojize(':robot_face:', use_aliases=True)
 
 text_messages = {
-    'start': f'\n\nЯ бот-дозиметр {smile} '
+    'start': f'\n\nЯ бот-дозиметр {smile1} '
              f'\n\nЧтобы узнать по состоянию на <i>текущую дату</i> уровень мощности эквивалентной дозы '
              f'гамма-излучения, зафиксированного на <i>ближайшем</i> пункте наблюдения, '
              f'нажми <b>"Отправить мою геопозицию"</b>.\n\nЧтобы узнать радиационную обстановку в Беларуси, '
              f'нажми <b>"Радиационный мониторинг"</b>.\n\nЧтобы узнать сводку пунктов наблюдения, '
              f'нажми <b>"Пункты наблюдения"</b>.',
-    'help': f'{smile} Бот-дозиметр может информировать пользователя по состоянию на <i>текущую дату</i> о радиационной '
+    'help': f'{smile1} Бот-дозиметр может информировать пользователя по состоянию на <i>текущую дату</i> о радиационной '
             f'обстановке в Беларуси и об уровне мощности дозы (далее - МД) гамма-излучения, зафиксированного '
             f'на <i>ближайшем</i> к пользователю пункте наблюдения сети радиационного мониторинга Министерства '
             f'природных ресурсов и охраны окружающей среды Беларуси (далее - Министерства). \n\nВ соответствии '
@@ -35,7 +41,7 @@ text_messages = {
              f'\n\nЧтобы узнать сводку пунктов наблюдения, нажми <b>"Пункты наблюдения"</b>.',
     'button1': 'Отправить мою геопозицию',
     'button2': 'Радиационный мониторинг',
-    'unknown': 'Ничего не понятно, но очень интересно.\nПопробуй команду /help.'
+    'unknown': f'Ничего не понятно, но очень интересно {smile2}\nПопробуй команду /help.'
 }
 
 greeting = ['hello', 'hi', 'hey', 'привет', 'салют', 'здарова', 'здравствуй', 'здравствуйте', 'добрый день',
@@ -70,6 +76,37 @@ def get_html(url=URL1):
     response = requests.get(url, headers={'User-Agent': UserAgent().random})
     soup = BeautifulSoup(response.text, 'html.parser')
     return soup
+
+
+def scraper(update, region):
+    """
+    Функция вызывает метод get_html(), который отправляет get-запрос и скрайпит html-структуру веб-ресурса
+    https://rad.org.by/radiation.xml. Результаты скрайпинга в цикле for сравниваются на равенство с названиями
+    пунктов наблюдения, расположенныъ в соответстсвующей области, и вместе с текущей датой подставляются в ответное
+    сообщение пользователю
+    :param update: словарь Update с информацией о пользователе Telegram
+    :param region: список элементами которого являются значения (названия пунктов наблюдения) ключей (названия областей)
+    из словаря ADMINISTRATIVE_DIVISION в модуле config.py
+    :return: None
+    """
+    user = update.effective_user
+    try:
+        points, indications = get_html().find_all('title'), get_html().find_all('rad')
+        points.reverse()
+        indications.reverse()
+        zipped_values = zip(points, indications)
+        zipped_list = list(zipped_values)
+        update.message.reply_text(f'| *Пункт наблюдения* | *Дата и время* | *МД гамма-излучения* |',
+                                  parse_mode=ParseMode.MARKDOWN)
+        for i in range(0, len(zipped_list)):
+            if points[i].text in region:
+                update.message.reply_text(f'| "*{points[i].text}*" | _{today}_ | *{indications[i].text} мкЗв/ч* |',
+                                          parse_mode=ParseMode.MARKDOWN)
+    except Exception:
+        update.message.reply_text(f"К сожалению, <b>{user['first_name']}</b>, в настоящее время актуальная "
+                                  f"информация по интересующему региону отсутствует {smile2}",
+                                  parse_mode=ParseMode.HTML
+                                  )
 
 
 def main_keyboard():
