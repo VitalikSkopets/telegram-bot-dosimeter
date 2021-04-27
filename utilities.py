@@ -1,6 +1,7 @@
 from typing import Final
 from bs4 import BeautifulSoup
 import requests
+from loguru import logger
 from emoji.core import emojize
 from fake_useragent import UserAgent
 from datetime import datetime
@@ -25,8 +26,8 @@ text_messages: Final = {
              f'нажми <b>"Отправить мою геопозицию"</b>.\n\nЧтобы узнать радиационную обстановку в Беларуси, '
              f'нажми <b>"Радиационный мониторинг"</b>.\n\nЧтобы узнать сводку пунктов наблюдения, '
              f'нажми <b>"Пункты наблюдения"</b>.',
-    'help': f'{smile1} Бот-дозиметр может информировать пользователя по состоянию на <i>текущую дату</i> о радиационной '
-            f'обстановке в Беларуси и об уровне мощности дозы (далее - МД) гамма-излучения, зафиксированного '
+    'help': f'{smile1} Бот-дозиметр может информировать пользователя по состоянию на <i>текущую дату</i> о радиационной'
+            f' обстановке в Беларуси и об уровне мощности дозы (далее - МД) гамма-излучения, зафиксированного '
             f'на <i>ближайшем</i> к пользователю пункте наблюдения сети радиационного мониторинга Министерства '
             f'природных ресурсов и охраны окружающей среды Беларуси (далее - Министерства). \n\nВ соответствии '
             f'с приказом Министерства от 18.04.2014 №230-ОД, измерение уровней МД гамма-излучения проводится ежедневно '
@@ -60,9 +61,12 @@ def get_html(url=URL1):
     :param url: строквый объект 'https://rad.org.by/radiation.xml'
     :return: объект класса bs4.BeautifulSoup - html-разметка веб-ресурса https://rad.org.by/radiation.xml
     """
-    response = requests.get(url, headers={'User-Agent': UserAgent().random})
-    soup = BeautifulSoup(response.text, 'html.parser')
-    return soup
+    try:
+        response = requests.get(url, headers={'User-Agent': UserAgent().random})
+        soup = BeautifulSoup(response.text, 'html.parser')
+        return soup
+    except Exception:
+        logger.warning('ERROR while performing the get_html() function')
 
 
 def scraper(update, region: list[str]) -> None:
@@ -96,10 +100,11 @@ def scraper(update, region: list[str]) -> None:
         update.message.reply_text(f'По состоянию на <i>{today}</i> <b>среднее</b> значение уровня МД '
                                   f'гамма-излучения в сети региоанльных пунктов радиационного мониторинга '
                                   f'Министерства природных ресурсов и охраны окружающей среды Беларуси '
-                                  f'составляет <b>{avg_indication_region:.2f}</b> мкЗв/ч.',
+                                  f'составляет <b>{avg_indication_region:.1f}</b> мкЗв/ч.',
                                   parse_mode=ParseMode.HTML
                                   )
     except Exception:
+        logger.warning('ERROR while performing the scraper() function')
         update.message.reply_text(f"К сожалению, <b>{user['first_name']}</b>, в настоящее время актуальная "
                                   f"информация по интересующему региону отсутствует {smile2}",
                                   parse_mode=ParseMode.HTML
@@ -126,5 +131,8 @@ def encryption(TOKEN_FOR_DB, line: str) -> str:
     :return: строковый объект - зашифрованные first_name и(или) last_name, username
     """
     if line is not None:
-        cryptoline = TOKEN_FOR_DB.encrypt(line.encode('utf-8'))
-        return cryptoline.decode('utf-8')
+        try:
+            cryptoline = TOKEN_FOR_DB.encrypt(line.encode('utf-8'))
+            return cryptoline.decode('utf-8')
+        except Exception:
+            logger.warning('ERROR while performing the encryption() function')

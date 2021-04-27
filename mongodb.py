@@ -51,15 +51,18 @@ def add_db_start(mdb, user) -> None:
     :param user: словарь update.effective_user с информацией о пользователе Telegram
     :return: None
     """
-    if mdb.users.find_one({'user_id': user['id']}) is None:
-        mdb.users.insert_one(create_collection(user))
-        mdb.users.update_one({'user_id': user['id']},
-                             {'$push': {'selected /start command': today}})
-        logger.info('User added in db after select /start command')
-    elif mdb.users.find_one({'user_id': user['id']}) is not None:
-        mdb.users.update_one({'user_id': user['id']},
-                             {'$push': {'selected /start command': today}})
-        logger.info('In db updated date and time user select /start command')
+    try:
+        if mdb.users.find_one({'user_id': user['id']}) is None:
+            mdb.users.insert_one(create_collection(user))
+            mdb.users.update_one({'user_id': user['id']},
+                                 {'$push': {'selected /start command': today}})
+            logger.info('User added in db after select /start command')
+        elif mdb.users.find_one({'user_id': user['id']}) is not None:
+            mdb.users.update_one({'user_id': user['id']},
+                                 {'$push': {'selected /start command': today}})
+            logger.info('In db updated date and time user select /start command')
+    except Exception:
+        logger.warning('ERROR while performing the add_db_start() function')
 
 
 def add_db_help(mdb, user) -> None:
@@ -70,15 +73,18 @@ def add_db_help(mdb, user) -> None:
     :param user: словарь update.effective_user с информацией о пользователе Telegram
     :return: None
     """
-    if mdb.users.find_one({'user_id': user['id']}) is None:
-        mdb.users.insert_one(create_collection(user))
-        mdb.users.update_one({'user_id': user['id']},
-                             {'$push': {'selected /help command': today}})
-        logger.info('User added in db after select /help command')
-    elif mdb.users.find_one({'user_id': user['id']}) is not None:
-        mdb.users.update_one({'user_id': user['id']},
-                             {'$push': {'selected /help command': today}})
-        logger.info('In db updated date and time user select /help command')
+    try:
+        if mdb.users.find_one({'user_id': user['id']}) is None:
+            mdb.users.insert_one(create_collection(user))
+            mdb.users.update_one({'user_id': user['id']},
+                                 {'$push': {'selected /help command': today}})
+            logger.info('User added in db after select /help command')
+        elif mdb.users.find_one({'user_id': user['id']}) is not None:
+            mdb.users.update_one({'user_id': user['id']},
+                                 {'$push': {'selected /help command': today}})
+            logger.info('In db updated date and time user select /help command')
+    except Exception:
+        logger.warning('ERROR while performing the add_db_help() function')
 
 
 def add_db_messages(mdb, user) -> None:
@@ -89,15 +95,18 @@ def add_db_messages(mdb, user) -> None:
     :param user: словарь update.effective_user с информацией о пользователе Telegram
     :return: None
     """
-    if mdb.users.find_one({'user_id': user['id']}) is None:
-        mdb.users.insert_one(create_collection(user))
-        mdb.users.update_one({'user_id': user['id']},
-                             {'$push': {'sent a welcome text message': today}})
-        logger.info('User added in db after send a welcome text message')
-    elif mdb.users.find_one({'user_id': user['id']}) is not None:
-        mdb.users.update_one({'user_id': user['id']},
-                             {'$push': {'sent a welcome text message': today}})
-        logger.info('In db updated date and time user send a welcome text message')
+    try:
+        if mdb.users.find_one({'user_id': user['id']}) is None:
+            mdb.users.insert_one(create_collection(user))
+            mdb.users.update_one({'user_id': user['id']},
+                                 {'$push': {'sent a welcome text message': today}})
+            logger.info('User added in db after send a welcome text message')
+        elif mdb.users.find_one({'user_id': user['id']}) is not None:
+            mdb.users.update_one({'user_id': user['id']},
+                                 {'$push': {'sent a welcome text message': today}})
+            logger.info('In db updated date and time user send a welcome text message')
+    except Exception:
+        logger.warning('ERROR while performing the add_db_add_db_messages() function')
 
 
 def add_db_radioactive_monitoring(mdb, user) -> None:
@@ -108,9 +117,12 @@ def add_db_radioactive_monitoring(mdb, user) -> None:
     :param user: словарь update.effective_user с информацией о пользователе Telegram
     :return: None
     """
-    mdb.users.update_one({'user_id': user['id']},
-                         {'$push': {'press button "Radioactive monitoring"': today}})
-    logger.info('In db added date and time user press button "Radioactive monitoring"')
+    try:
+        mdb.users.update_one({'user_id': user['id']},
+                             {'$push': {'press button "Radioactive monitoring"': today}})
+        logger.info('In db added date and time user press button "Radioactive monitoring"')
+    except Exception:
+        logger.warning('ERROR while performing the add_db_radioactive_monitoring() function')
 
 
 def add_db_monitoring_points(mdb, user) -> None:
@@ -121,9 +133,12 @@ def add_db_monitoring_points(mdb, user) -> None:
     :param user: словарь update.effective_user с информацией о пользователе Telegram
     :return: None
     """
-    mdb.users.update_one({'user_id': user['id']},
-                         {'$push': {'press button "Observation points"': today}})
-    logger.info('In db added date and time user press button "Observation points"')
+    try:
+        mdb.users.update_one({'user_id': user['id']},
+                             {'$push': {'press button "Observation points"': today}})
+        logger.info('In db added date and time user press button "Observation points"')
+    except Exception:
+        logger.warning('ERROR while performing the add_db_monitoring_points() function')
 
 
 def add_db_scraper_Brest(mdb, user) -> None:
@@ -134,9 +149,12 @@ def add_db_scraper_Brest(mdb, user) -> None:
     :param user: словарь update.effective_user с информацией о пользователе Telegram
     :return: None
     """
-    mdb.users.update_one({'user_id': user['id']},
-                         {'$push': {'press button "Brest region"': today}})
-    logger.info('In db added date and time user press button "Brest region"')
+    try:
+        mdb.users.update_one({'user_id': user['id']},
+                             {'$push': {'press button "Brest region"': today}})
+        logger.info('In db added date and time user press button "Brest region"')
+    except Exception:
+        logger.warning('ERROR while performing the add_db_scraper_Brest() function')
 
 
 def add_db_scraper_Vitebsk(mdb, user) -> None:
@@ -147,9 +165,12 @@ def add_db_scraper_Vitebsk(mdb, user) -> None:
     :param user: словарь update.effective_user с информацией о пользователе Telegram
     :return: None
     """
-    mdb.users.update_one({'user_id': user['id']},
-                         {'$push': {'press button "Vitebsk region"': today}})
-    logger.info('In db added date and time user press button "Vitebsk region"')
+    try:
+        mdb.users.update_one({'user_id': user['id']},
+                             {'$push': {'press button "Vitebsk region"': today}})
+        logger.info('In db added date and time user press button "Vitebsk region"')
+    except Exception:
+        logger.warning('ERROR while performing the add_db_scraper_Vitebsk() function')
 
 
 def add_db_scraper_Gomel(mdb, user) -> None:
@@ -160,9 +181,12 @@ def add_db_scraper_Gomel(mdb, user) -> None:
     :param user: словарь update.effective_user с информацией о пользователе Telegram
     :return: None
     """
-    mdb.users.update_one({'user_id': user['id']},
-                         {'$push': {'press button "Gomel region"': today}})
-    logger.info('In db added date and time user press button "Gomel region"')
+    try:
+        mdb.users.update_one({'user_id': user['id']},
+                             {'$push': {'press button "Gomel region"': today}})
+        logger.info('In db added date and time user press button "Gomel region"')
+    except Exception:
+        logger.warning('ERROR while performing the add_db_scraper_Gomel() function')
 
 
 def add_db_scraper_Grodno(mdb, user) -> None:
@@ -173,9 +197,12 @@ def add_db_scraper_Grodno(mdb, user) -> None:
     :param user: словарь update.effective_user с информацией о пользователе Telegram
     :return: None
     """
-    mdb.users.update_one({'user_id': user['id']},
-                         {'$push': {'press button "Grodno region"': today}})
-    logger.info('In db added date and time user press button "Grodno region"')
+    try:
+        mdb.users.update_one({'user_id': user['id']},
+                             {'$push': {'press button "Grodno region"': today}})
+        logger.info('In db added date and time user press button "Grodno region"')
+    except Exception:
+        logger.warning('ERROR while performing the add_db_scraper_Grodno() function')
 
 
 def add_db_scraper_Minsk(mdb, user) -> None:
@@ -186,9 +213,12 @@ def add_db_scraper_Minsk(mdb, user) -> None:
     :param user: словарь update.effective_user с информацией о пользователе Telegram
     :return: None
     """
-    mdb.users.update_one({'user_id': user['id']},
-                         {'$push': {'press button "Minsk region"': today}})
-    logger.info('In db added date and time user press button "Minsk region"')
+    try:
+        mdb.users.update_one({'user_id': user['id']},
+                             {'$push': {'press button "Minsk region"': today}})
+        logger.info('In db added date and time user press button "Minsk region"')
+    except Exception:
+        logger.warning('ERROR while performing the add_db_scraper_Minsk() function')
 
 
 def add_db_scraper_Mogilev(mdb, user) -> None:
@@ -199,9 +229,12 @@ def add_db_scraper_Mogilev(mdb, user) -> None:
     :param user: словарь update.effective_user с информацией о пользователе Telegram
     :return: None
     """
-    mdb.users.update_one({'user_id': user['id']},
-                         {'$push': {'press button "Mogilev region"': today}})
-    logger.info('In db added date and time user press button "Mogilev region"')
+    try:
+        mdb.users.update_one({'user_id': user['id']},
+                             {'$push': {'press button "Mogilev region"': today}})
+        logger.info('In db added date and time user press button "Mogilev region"')
+    except Exception:
+        logger.warning('ERROR while performing the add_db_scraper_Mogilev() function')
 
 
 def add_db_geolocation(mdb, user) -> None:
@@ -212,6 +245,9 @@ def add_db_geolocation(mdb, user) -> None:
     :param user: словарь update.effective_user с информацией о пользователе Telegram
     :return: None
     """
-    mdb.users.update_one({'user_id': user['id']},
-                         {'$push': {'press button "Send geolocation"': today}})
-    logger.info('In db added date and time user press button "Send geolocation"')
+    try:
+        mdb.users.update_one({'user_id': user['id']},
+                             {'$push': {'press button "Send geolocation"': today}})
+        logger.info('In db added date and time user press button "Send geolocation"')
+    except Exception:
+        logger.warning('ERROR while performing the add_db_geolocation() function')

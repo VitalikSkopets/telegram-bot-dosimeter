@@ -24,7 +24,8 @@ from utilities import (main_keyboard,
                        get_html,
                        scraper,
                        text_messages,
-                       greeting
+                       greeting,
+                       smile2
                        )
 
 locale.setlocale(category=locale.LC_ALL, locale="Russian")
@@ -93,18 +94,27 @@ def radioactive_monitoring(update, context) -> None:
     :return: None
     """
     user = update.effective_user
-    text_lst = str(get_html(url=config.URL2).find_all('span'))
-    pattern = r"(?:...*)(радиационная...*загрязнения)(?:<\/span>)"
-    text = re.findall(pattern, text_lst)
-    indications = get_html().find_all('rad')
-    avg_indication = sum([float(indication.text) for indication in indications]) / len(indications)
-    logger.info('User press button "Radioactive monitoring"')
-    add_db_radioactive_monitoring(mdb, user)
-    update.message.reply_text(f'По состоянию на <i>{today}</i> {text[0]}.'
-                              f'\n\nПо стране <i>среднее</i> значение уровня МД '
-                              f'гамма-излучения в сети пунктов радиационного мониторинга Министерства природных '
-                              f'ресурсов и охраны окружающей среды Беларусь по состоянию на сегодняшний день '
-                              f'составляет <b>{avg_indication:.2f}</b> мкЗв/ч.', parse_mode=ParseMode.HTML)
+    try:
+        text_lst = str(get_html(url=config.URL2).find_all('span'))
+        pattern = r"(?:...*)(радиационная...*загрязнения)(?:<\/span>)"
+        text = re.findall(pattern, text_lst)
+        indications = get_html().find_all('rad')
+        avg_indication = sum([float(indication.text) for indication in indications]) / len(indications)
+        logger.info('User press button "Radioactive monitoring"')
+        add_db_radioactive_monitoring(mdb, user)
+        update.message.reply_text(f'По состоянию на <i>{today}</i> {text[0]}.'
+                                  f'\n\nПо стране <i>среднее</i> значение уровня МД '
+                                  f'гамма-излучения в сети пунктов радиационного мониторинга Министерства природных '
+                                  f'ресурсов и охраны окружающей среды Беларусь по состоянию на сегодняшний день '
+                                  f'составляет <b>{avg_indication:.2f}</b> мкЗв/ч.', parse_mode=ParseMode.HTML
+                                  )
+    except Exception:
+        logger.warning('ERROR while performing the radioactive_monitoring() function')
+        update.message.reply_text(f"К сожалению, <b>{user['first_name']}</b>, в настоящее время актуальная "
+                                  f"информация о состоянии радиационной обстановки отсутствует {smile2}",
+                                  parse_mode=ParseMode.HTML
+                                  )
+
 
 
 def monitoring_points(update, context) -> None:
@@ -120,7 +130,8 @@ def monitoring_points(update, context) -> None:
     add_db_monitoring_points(mdb, user)
     update.message.reply_text(f'Выбери интересующий регион', reply_markup=ReplyKeyboardMarkup([
         ['Брестская область'], ['Витебская область'], ['Гомельская область'],
-        ['Гродненская область'], ['Минск и Минская область'], ['Могилевская область']], resize_keyboard=True)
+        ['Гродненская область'], ['Минск и Минская область'], ['Могилевская область'], ['Главное меню']],
+        resize_keyboard=True)
                               )
 
 
@@ -226,38 +237,66 @@ def scraper_Mogilev(update, context) -> None:
     add_db_scraper_Mogilev(mdb, user)
 
 
-def geolocation(update, context) -> None:
+def master_menu(update, context) -> None:
     """
-    Функция-обработчик нажатия кнопки "Отправить мою геолокацию". В теле функции происходит вызов метода distance() из
-    модуля geopy в который в качестве оргументов передаются географические координаты пользователя и георгарфические
-    координаты пунктво наблюдения из словаря LOCATION_OF_MONITORING_POINTS. Метод distance() расяитывает расстояние в
-    километрах от каждого пункта наблюдения до пользователя. Далее, с помощью встроенной функции min() определяется
-    расстояние от ближайшего к пользователю пунтка наблюдения. Также, в теле функция производит вызов
-    кастомной функцию get_html(), которая осуществляет скрайринг html-структуры https://rad.org.by/radiation.xml.
-    Результаты выполнения метода distance() и функции скрайпинга вместе с текущей датой и временем подставляются
-    в интерполированную строку - ответное сообщение пользователю.
+    Функция-обработчик нажатия пользователем кнопки "Главное меню". В качестве ответного сообщения пользователю
+    обработчик вызывает кастомную функцию main_keyboard(), которая возвращает пользователю сообщение и кнопки меню
+    вместо стандартной клавиатуры
     :param update: словарь Update с информацией о пользователе Telegram
     :param context: class telegram.ext.CallbackContext(dispatcher)
     :return: None
     """
     user = update.effective_user
-    user_location = update.message.location
-    coordinates = (user_location.latitude, user_location.longitude)
-    distance_list = []
-    for point, location in LOCATION_OF_MONITORING_POINTS.items():
-        distance_list.append((distance.distance(coordinates, location).km, point))
-    min_distance = min(distance_list)
-    points, indications = get_html().find_all('title'), get_html().find_all('rad')
-    points.reverse()
-    indications.reverse()
-    zipped_values = zip(points, indications)
-    zipped_list = list(zipped_values)
-    for i in range(0, len(zipped_list)):
-        if min_distance[1] == points[i].text:
-            logger.info('User press button "Send geolocation"')
-            add_db_geolocation(mdb, user)
-            update.message.reply_text(f'<i>{min_distance[0]:.3f} м</i> до ближайшего пункта наблюдения '
-                                      f'"{min_distance[1]}".\n\nВ пункте наблюдения "{points[i].text}" по состоянию '
-                                      f'на <i>{today}</i> уровень эквивалентной дозы радиации составляет '
-                                      f'<b>{indications[i].text} мкЗв/ч</b>.', parse_mode=ParseMode.HTML)
-            break
+    logger.info('User press button "Main menu"')
+    update.message.reply_text(f'''<b>{user['first_name']}</b>, чтобы узнать по состоянию на <i>текущую дату</i> '''
+                              f'''уровень мощности эквивалентной дозы гамма-излучения, зафиксированного '''
+                              f'''на <i>ближайшем</i> пункте наблюдения, нажми <b>"Отправить мою геопозицию"</b>.'''
+                              f'''\n\nЧтобы узнать радиационную обстановку в Беларуси, нажми '''
+                              f'''<b>"Радиационный мониторинг"</b>.\n\nЧтобы узнать сводку пунктов наблюдения, '''
+                              f'''нажми <b>"Пункты наблюдения"</b>.''', reply_markup=main_keyboard(),
+                              parse_mode=ParseMode.HTML
+                              )
+
+
+def geolocation(update, context) -> None:
+    """
+    Функция-обработчик нажатия кнопки "Отправить мою геолокацию". В теле функции происходит вызов метода distance()
+    из библиотеки geopy в который в качестве оргументов передаются географические координаты пользователя и пунктов
+    наблюдения из словаря LOCATION_OF_MONITORING_POINTS. Метод distance() расчитывает расстояние в метрах от каждого
+    пункта наблюдения до пользователя. Далее, с помощью встроенной функции min() определяется расстояние до ближайшего
+    к пользователю пунтка наблюдения. Также, в теле функция производит вызов кастомной функцию get_html(), которая
+    осуществляет скрайпинг html-структуры https://rad.org.by/radiation.xml. Результаты выполнения метода distance()
+    и функции скрайпинга вместе с текущей датой и временем подставляются в интерполированную строку, которая
+    отправляется пользователю в качестве ответного сообщения.
+    :param update: словарь Update с информацией о пользователе Telegram
+    :param context: class telegram.ext.CallbackContext(dispatcher)
+    :return: None
+    """
+    user = update.effective_user
+    try:
+        user_location = update.message.location
+        coordinates = (user_location.latitude, user_location.longitude)
+        distance_list = []
+        for point, location in LOCATION_OF_MONITORING_POINTS.items():
+            distance_list.append((distance.distance(coordinates, location).km, point))
+        min_distance = min(distance_list)
+        points, indications = get_html().find_all('title'), get_html().find_all('rad')
+        points.reverse()
+        indications.reverse()
+        zipped_values = zip(points, indications)
+        zipped_list = list(zipped_values)
+        for i in range(0, len(zipped_list)):
+            if min_distance[1] == points[i].text:
+                logger.info('User press button "Send geolocation"')
+                add_db_geolocation(mdb, user)
+                update.message.reply_text(f'<i>{min_distance[0]:.3f} м</i> до ближайшего пункта наблюдения '
+                                          f'"{min_distance[1]}".\n\nВ пункте наблюдения "{points[i].text}" по состоянию '
+                                          f'на <i>{today}</i> уровень эквивалентной дозы радиации составляет '
+                                          f'<b>{indications[i].text} мкЗв/ч</b>.', parse_mode=ParseMode.HTML)
+                break
+    except Exception:
+        logger.warning('ERROR while performing the geolocation() function')
+        update.message.reply_text(f"К сожалению, <b>{user['first_name']}</b>, в настоящее время информация "
+                                  f"о пунктах наблюдения сети радиационного мониторинга отсутствует {smile2}",
+                                  parse_mode=ParseMode.HTML
+                                  )

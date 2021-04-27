@@ -17,7 +17,8 @@ from handlers import (start,
                       scraper_Grodno,
                       scraper_Minsk,
                       scraper_Mogilev,
-                      messages
+                      messages,
+                      master_menu
                       )
 
 logger.add('debug.log', level='DEBUG', rotation='1 MB', compression='zip')
@@ -43,6 +44,7 @@ def main() -> None:
     dp.add_handler(MessageHandler(Filters.regex('^(Гродненская область)$'), scraper_Grodno))
     dp.add_handler(MessageHandler(Filters.regex('^(Минск и Минская область)$'), scraper_Minsk))
     dp.add_handler(MessageHandler(Filters.regex('^(Могилевская область)$'), scraper_Mogilev))
+    dp.add_handler(MessageHandler(Filters.regex('^(Главное меню)$'), master_menu))
     dp.add_handler(MessageHandler(Filters.text, messages))
 
     # if os.environ['HEROKU_APP_NAME'] is None:     # не по питоняче
