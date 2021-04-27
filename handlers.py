@@ -290,8 +290,8 @@ def geolocation(update, context) -> None:
                 logger.info('User press button "Send geolocation"')
                 add_db_geolocation(mdb, user)
                 update.message.reply_text(f'<i>{min_distance[0]:.3f} м</i> до ближайшего пункта наблюдения '
-                                          f'"{min_distance[1]}".\n\nВ пункте наблюдения "{points[i].text}" по состоянию '
-                                          f'на <i>{today}</i> уровень эквивалентной дозы радиации составляет '
+                                          f'"{min_distance[1]}".\n\nВ пункте наблюдения "{points[i].text}" по состоянию'
+                                          f' на <i>{today}</i> уровень эквивалентной дозы радиации составляет '
                                           f'<b>{indications[i].text} мкЗв/ч</b>.', parse_mode=ParseMode.HTML)
                 break
     except Exception:

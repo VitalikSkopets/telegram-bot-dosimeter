@@ -9,9 +9,9 @@ from loguru import logger
 
 mdb: Final = MongoClient(MONGODB_REF)[MONGO_DB]
 
+locale.setlocale(category=locale.LC_ALL, locale="Russian")
 tz_minsk: Final = pytz.timezone('Europe/Minsk')
 today: Final = datetime.now(tz_minsk).strftime("%a %d-%b-%Y %H:%M:%S")
-locale.setlocale(category=locale.LC_ALL, locale="Russian")
 
 
 def create_collection(user) -> dict[str, any]:
