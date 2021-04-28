@@ -56,7 +56,7 @@ def help(update, context) -> None:
     user = update.effective_user
     logger.info('User selected /help command')
     add_db_help(mdb, user)
-    update.message.reply_text(text_messages['help'], parse_mode=ParseMode.HTML)
+    update.message.reply_text(text_messages['help'], reply_markup=main_keyboard(), parse_mode=ParseMode.HTML)
 
 
 def messages(update, context) -> None:

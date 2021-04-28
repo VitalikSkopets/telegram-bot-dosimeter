@@ -82,28 +82,24 @@ def scraper(update, region: list[str]) -> None:
     :return: None
     """
     user = update.effective_user
-    indications_region = []
+    indications_region, table = [], []
     try:
         points, indications = get_html().find_all('title'), get_html().find_all('rad')
         points.reverse()
         indications.reverse()
         zipped_values = zip(points, indications)
         zipped_list = list(zipped_values)
-        update.message.reply_text(f'| *Пункт наблюдения* | *Дата и время* | *МД гамма-излучения* |',
-                                  parse_mode=ParseMode.MARKDOWN, disable_notification=True
-                                  )
         for i in range(0, len(zipped_list)):
             if points[i].text in region:
                 indications_region.append(float(indications[i].text))
-                update.message.reply_text(f'| "*{points[i].text}*" | _{today}_ | *{indications[i].text}* мкЗв/ч |',
-                                          parse_mode=ParseMode.MARKDOWN, disable_notification=True
-                                          )
+                table.append('| {:<19} | {:<13} |'.format(points[i].text, indications[i].text + ' мкЗв/ч'))
         avg_indication_region = sum(indications_region) / len(indications_region)
-        update.message.reply_text(f'По состоянию на <i>{today}</i> <b>среднее</b> значение уровня МД '
-                                  f'гамма-излучения в сети региоанльных пунктов радиационного мониторинга '
-                                  f'Министерства природных ресурсов и охраны окружающей среды Беларуси '
-                                  f'составляет <b>{avg_indication_region:.1f}</b> мкЗв/ч.',
-                                  parse_mode=ParseMode.HTML
+        update.message.reply_text('По состоянию на _{}_\n\n| *{:19}* | *{:13}* |\n'.format(today, 'Пункт наблюдения',
+                                  'Мощность дозы') + '\n'.join(table) + '\n\n*Среднее* значение уровня МД '
+                                  'гамма-излучения в сети региоанльных пунктов радиационного мониторинга '
+                                  'Министерства природных ресурсов и охраны окружающей среды Беларуси '
+                                  'составляет *{:.1f}* мкЗв/ч.'.format(avg_indication_region),
+                                  parse_mode=ParseMode.MARKDOWN
                                   )
     except Exception:
         logger.warning('ERROR while performing the scraper() function')
