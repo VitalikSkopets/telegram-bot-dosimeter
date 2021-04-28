@@ -69,6 +69,18 @@ def get_html(url=URL1):
         logger.warning('ERROR while performing the get_html() function')
 
 
+def format_string(string: str, min_length: int = 20) -> str:
+    """
+    Функция увеличивает длину строкового объекта до 20 символов заполняя "-" пробельные символы
+    :param string: строковый объект - название пункта наблюдения в сети радиационного мониторинга
+    :param min_length: длина строкового объекта по умолчанию 20 симовлов
+    :return:
+    """
+    while len(string) < min_length:
+        string += "-"
+    return string
+
+
 def scraper(update, region: list[str]) -> None:
     """
     Функция вызывает метод get_html(), который отправляет get-запрос и скрайпит html-структуру веб-ресурса
@@ -92,14 +104,14 @@ def scraper(update, region: list[str]) -> None:
         for i in range(0, len(zipped_list)):
             if points[i].text in region:
                 indications_region.append(float(indications[i].text))
-                table.append('| {:<19} | {:<13} |'.format(points[i].text, indications[i].text + ' мкЗв/ч'))
+                new_point = format_string(points[i].text)
+                table.append('| `{}` | `{:^13}` |'.format(new_point, indications[i].text + ' мкЗв/ч'))
         avg_indication_region = sum(indications_region) / len(indications_region)
-        update.message.reply_text('По состоянию на _{}_\n\n| *{:19}* | *{:13}* |\n'.format(today, 'Пункт наблюдения',
+        update.message.reply_text('По состоянию на _{}_\n\n| `{:^20}` | `{:13}` |\n'.format(today, 'Пункт наблюдения',
                                   'Мощность дозы') + '\n'.join(table) + '\n\n*Среднее* значение уровня МД '
-                                  'гамма-излучения в сети региоанльных пунктов радиационного мониторинга '
-                                  'Министерства природных ресурсов и охраны окружающей среды Беларуси '
-                                  'составляет *{:.1f}* мкЗв/ч.'.format(avg_indication_region),
-                                  parse_mode=ParseMode.MARKDOWN
+                                  'гамма-излучения в сети региоанльных пунктов радиационного мониторинга Министерства '
+                                  'природных ресурсов и охраны окружающей среды Беларуси составляет *{:.1f}* мкЗв/ч.'
+                                  .format(avg_indication_region), parse_mode=ParseMode.MARKDOWN
                                   )
     except Exception:
         logger.warning('ERROR while performing the scraper() function')
