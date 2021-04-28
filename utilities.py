@@ -90,12 +90,14 @@ def scraper(update, region: list[str]) -> None:
         zipped_values = zip(points, indications)
         zipped_list = list(zipped_values)
         update.message.reply_text(f'| *Пункт наблюдения* | *Дата и время* | *МД гамма-излучения* |',
-                                  parse_mode=ParseMode.MARKDOWN)
+                                  parse_mode=ParseMode.MARKDOWN, disable_notification=True
+                                  )
         for i in range(0, len(zipped_list)):
             if points[i].text in region:
                 indications_region.append(float(indications[i].text))
                 update.message.reply_text(f'| "*{points[i].text}*" | _{today}_ | *{indications[i].text}* мкЗв/ч |',
-                                          parse_mode=ParseMode.MARKDOWN)
+                                          parse_mode=ParseMode.MARKDOWN, disable_notification=True
+                                          )
         avg_indication_region = sum(indications_region) / len(indications_region)
         update.message.reply_text(f'По состоянию на <i>{today}</i> <b>среднее</b> значение уровня МД '
                                   f'гамма-излучения в сети региоанльных пунктов радиационного мониторинга '
