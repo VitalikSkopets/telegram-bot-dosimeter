@@ -105,9 +105,9 @@ def scraper(update, region: list[str]) -> None:
             if points[i].text in region:
                 indications_region.append(float(indications[i].text))
                 new_point = format_string(points[i].text)
-                table.append('| `{}` | `{:^13}` |'.format(new_point, indications[i].text + ' мкЗв/ч'))
+                table.append('|`{}`|`{:^13}`|'.format(new_point, indications[i].text + ' мкЗв/ч'))
         avg_indication_region = sum(indications_region) / len(indications_region)
-        update.message.reply_text('По состоянию на _{}_\n\n| `{:^20}` | `{:13}` |\n'.format(today, 'Пункт наблюдения',
+        update.message.reply_text('По состоянию на _{}_\n\n|`{:^20}`|`{:^13}`|\n'.format(today, 'Пункт наблюдения',
                                   'Мощность дозы') + '\n'.join(table) + '\n\n*Среднее* значение уровня МД '
                                   'гамма-излучения в сети региоанльных пунктов радиационного мониторинга Министерства '
                                   'природных ресурсов и охраны окружающей среды Беларуси составляет *{:.1f}* мкЗв/ч.'
