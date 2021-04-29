@@ -7,7 +7,7 @@ from fake_useragent import UserAgent
 from datetime import datetime
 import locale
 from telegram import ReplyKeyboardMarkup, KeyboardButton, ParseMode
-from config import URL1
+from config import URL1, SECRET_KEY
 
 locale.setlocale(category=locale.LC_ALL, locale="Russian")
 today: Final = datetime.now().strftime("%a %d-%b-%Y %H:%M")
@@ -132,17 +132,19 @@ def main_keyboard():
                                                 request_location=True)]], resize_keyboard=True)
 
 
-def encryption(TOKEN_FOR_DB, line: str) -> str:
+def encrypt(line, key=SECRET_KEY):
     """
-    Функция симетричного шифрования строковых данных first_name, last_name и username пользователя для последующей
-    передачи шифрованных данных в базу данных для долговременного хранения
-    :param TOKEN_FOR_DB: сгенерированный ключ-пароль для шифрования
-    :param line: строковый объект шифрования
-    :return: строковый объект - зашифрованные first_name и(или) last_name, username
+    Функция симетричного шифрования строковых объектов - идентификацуионных данных пользователей, хранящихся
+    в коллекции users базы данных MongoDB Atlas в полях с ключами first_name, last_name и username
+    :param key: сгенерированный ключ шифрования/дешифрования
+    :param line: строковый объект - текст полей с ключами first_name и(или) last_name, username коллекции users
+    базы данных MongoDB Atlas, подлежащий шифрованию
+    :return строковый объект - шифрованый текст полей с ключами first_name и(или) last_name, username коллекции users
+    базы данных MongoDB Atlas
     """
     if line is not None:
         try:
-            cryptoline = TOKEN_FOR_DB.encrypt(line.encode('utf-8'))
-            return cryptoline.decode('utf-8')
+            token = key.encrypt(line.encode())
+            return token.decode()
         except Exception:
-            logger.warning('ERROR while performing the encryption() function')
+            logger.warning('ERROR while performing the encrypt() function')

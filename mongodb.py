@@ -3,8 +3,8 @@ from typing import Final
 import pytz
 import locale
 from pymongo import MongoClient
-from config import MONGODB_REF, MONGO_DB, TOKEN_FOR_ENCRYPT_DB
-from utilities import encryption
+from config import MONGODB_REF, MONGO_DB
+from utilities import encrypt
 from loguru import logger
 
 mdb: Final = MongoClient(MONGODB_REF)[MONGO_DB]
@@ -24,9 +24,9 @@ def create_collection(user) -> dict[str, any]:
     :return: словарь current_user, являющийся документов для добавления в коллекцию users БД users_db в MongoDB Atlas
     """
     current_user = {'user_id': user['id'],
-                    'first_name': encryption(TOKEN_FOR_ENCRYPT_DB, user['first_name']),
-                    'last_name': encryption(TOKEN_FOR_ENCRYPT_DB, user['last_name']),
-                    'user_name': encryption(TOKEN_FOR_ENCRYPT_DB, user['username']),
+                    'first_name': encrypt(user['first_name']),
+                    'last_name': encrypt(user['last_name']),
+                    'user_name': encrypt(user['username']),
                     'selected /start command': [],
                     'selected /help command': [],
                     'sent a welcome text message': [],
