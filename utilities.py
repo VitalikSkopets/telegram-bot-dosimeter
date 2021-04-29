@@ -1,4 +1,5 @@
 from typing import Final
+import rsa
 from bs4 import BeautifulSoup
 import requests
 from loguru import logger
@@ -7,7 +8,7 @@ from fake_useragent import UserAgent
 from datetime import datetime
 import locale
 from telegram import ReplyKeyboardMarkup, KeyboardButton, ParseMode
-from config import URL1, SECRET_KEY
+from config import URL1
 
 locale.setlocale(category=locale.LC_ALL, locale="Russian")
 today: Final = datetime.now().strftime("%a %d-%b-%Y %H:%M")
@@ -132,19 +133,22 @@ def main_keyboard():
                                                 request_location=True)]], resize_keyboard=True)
 
 
-def encrypt(line, key=SECRET_KEY):
+def encrypt(line):
     """
-    Функция симетричного шифрования строковых объектов - идентификацуионных данных пользователей, хранящихся
-    в коллекции users базы данных MongoDB Atlas в полях с ключами first_name, last_name и username
-    :param key: сгенерированный ключ шифрования/дешифрования
+    Функция ассиметричного шифрования строковых объектов - идентификацуионных данных пользователей, хранящихся
+    в коллекции users базы данных MongoDB Atlas в полях с ключами first_name, last_name и username. Данные шифруются
+    с использованием публичного ключа, который читается из файла public.pem
     :param line: строковый объект - текст полей с ключами first_name и(или) last_name, username коллекции users
     базы данных MongoDB Atlas, подлежащий шифрованию
     :return строковый объект - шифрованый текст полей с ключами first_name и(или) last_name, username коллекции users
     базы данных MongoDB Atlas
     """
+    with open('public.pem', mode='rb') as publicfile:
+        keydata = publicfile.read()
+    pubkey = rsa.PublicKey.load_pkcs1(keydata)
     if line is not None:
         try:
-            token = key.encrypt(line.encode())
-            return token.decode()
+            token = rsa.encrypt(line.encode('utf8'), pubkey)
+            return token
         except Exception:
             logger.warning('ERROR while performing the encrypt() function')
