@@ -34,7 +34,8 @@ today: Final = datetime.now().strftime("%a %d-%b-%Y %H:%M")
 
 def start(update, context) -> None:
     """
-    Функция-обработчик команды /start
+    Функция-обработчик команды /start. Возвращает пользователю приветственное сообщение и кнопки меню вместо стандартной
+    клавиатуры при выборе команды /start
     :param update: словарь Update с информацией о пользователе Telegram
     :param context: class telegram.ext.CallbackContext(dispatcher)
     :return: None
@@ -48,7 +49,8 @@ def start(update, context) -> None:
 
 def help(update, context) -> None:
     """
-    Функция-обработчик команды /help
+    Функция-обработчик команды /help. Возвращает пользователю текстовое сообщение и кнопки меню вместо стандартной
+    клавиатуры при выборе команды /help
     :param update: словарь Update с информацией о пользователе Telegram
     :param context: class telegram.ext.CallbackContext(dispatcher)
     :return: None
@@ -61,7 +63,10 @@ def help(update, context) -> None:
 
 def messages(update, context) -> None:
     """
-    Функция-обработчик входящего тествового сообщенаия от пользователя
+    Функция-обработчик входящего тествового сообщенаия от пользователя. Если в текствовм сообщении пользователя есть
+    строка из списка greeting, функция возвращает пользователю приветственное текстовое сообщение и кнопки меню вместо
+    стандартной клавиатуры. Если в сообщении пользователя строки невходящие в спсиок greeting, функция возвращает
+    пользователю текстовое сообщение с предложением выбрать команду /help
     :param update: словарь Update с пользовательской информацией Telegram
     :param context: class telegram.ext.CallbackContext(dispatcher)
     :return: None
@@ -109,7 +114,7 @@ def radioactive_monitoring(update, context) -> None:
                                   f'составляет <b>{avg_indication:.2f}</b> мкЗв/ч.', parse_mode=ParseMode.HTML
                                   )
     except Exception:
-        logger.warning('ERROR while performing the radioactive_monitoring() function')
+        logger.exception('ERROR while performing the radioactive_monitoring() function', traceback=True)
         update.message.reply_text(f"К сожалению, <b>{user['first_name']}</b>, в настоящее время актуальная "
                                   f"информация о состоянии радиационной обстановки отсутствует {smile2}",
                                   parse_mode=ParseMode.HTML
@@ -295,7 +300,7 @@ def geolocation(update, context) -> None:
                                           f'<b>{indications[i].text}</b> мкЗв/ч.', parse_mode=ParseMode.HTML)
                 break
     except Exception:
-        logger.warning('ERROR while performing the geolocation() function')
+        logger.exception('ERROR while performing the geolocation() function', traceback=True)
         update.message.reply_text(f"К сожалению, <b>{user['first_name']}</b>, в настоящее время информация "
                                   f"о пунктах наблюдения сети радиационного мониторинга отсутствует {smile2}",
                                   parse_mode=ParseMode.HTML

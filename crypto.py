@@ -1,5 +1,5 @@
 import rsa
-
+from loguru import logger
 
 def crypto() -> None:
     """
@@ -7,13 +7,16 @@ def crypto() -> None:
     соответственно для дальнейшего ассиметричного RSA шифрования/дешифрования стркоовых объектов
     :return: None
     """
-    (pubkey, privkey) = rsa.newkeys(512, accurate=False)
-    pubkey_pem = pubkey.save_pkcs1()
-    privkey_pem = privkey.save_pkcs1()
-    with open('private.pem', mode='wb') as privatefile, open(r'public.pem', mode='wb') as publicfile:
-        privatefile.write(privkey_pem)
-        publicfile.write(pubkey_pem)
-    return None
+    try:
+        (pubkey, privkey) = rsa.newkeys(512, accurate=False)
+        pubkey_pem = pubkey.save_pkcs1()
+        privkey_pem = privkey.save_pkcs1()
+        with open('private.pem', mode='wb') as privatefile, open(r'public.pem', mode='wb') as publicfile:
+            privatefile.write(privkey_pem)
+            publicfile.write(pubkey_pem)
+        return None
+    except Exception:
+        logger.exception('ERROR while performing the crypto() function', traceback=True)
 
 
 def decoder(token: bytes) -> str:
@@ -26,14 +29,18 @@ def decoder(token: bytes) -> str:
     :return: строковый объект - дешифрованные идентификацуионные данные пользователей, хранящиеся в коллекции users
     базы данных MongoDB Atlas в полях с ключами first_name, last_name и username
     """
-    with open('private.pem', mode='rb') as privatefile:
-        keydata = privatefile.read()
-    privkey = rsa.PrivateKey.load_pkcs1(keydata)
-    line = rsa.decrypt(token, privkey)
-    return line.decode('utf8')
+    try:
+        with open('private.pem', mode='rb') as privatefile:
+            keydata = privatefile.read()
+        privkey = rsa.PrivateKey.load_pkcs1(keydata)
+        line = rsa.decrypt(token, privkey)
+        return line.decode('utf8')
+    except FileNotFoundError:
+        logger.exception('File private.pem not found!', traceback=True)
+    except Exception:
+        logger.exception('ERROR while performing the decoder() function', traceback=True)
 
 
 if __name__ == '__main__':
     # crypto()
-    decoder(b'')
-
+    print(decoder(b''))

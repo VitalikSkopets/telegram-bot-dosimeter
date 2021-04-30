@@ -67,7 +67,7 @@ def get_html(url=URL1):
         soup = BeautifulSoup(response.text, 'html.parser')
         return soup
     except Exception:
-        logger.warning('ERROR while performing the get_html() function')
+        logger.exception('ERROR while performing the get_html() function', traceback=True)
 
 
 def format_string(string: str, min_length: int = 20) -> str:
@@ -109,13 +109,14 @@ def scraper(update, region: list[str]) -> None:
                 table.append('|`{}`|`{:^13}`|'.format(new_point, indications[i].text + ' мкЗв/ч'))
         avg_indication_region = sum(indications_region) / len(indications_region)
         update.message.reply_text('По состоянию на _{}_\n\n|`{:^20}`|`{:^13}`|\n'.format(today, 'Пункт наблюдения',
-                                  'Мощность дозы') + '\n'.join(table) + '\n\n*Среднее* значение уровня МД '
+                                                                                         'Мощность дозы') +
+                                  '\n'.join(table) + '\n\n*Среднее* значение уровня МД '
                                   'гамма-излучения в сети региоанльных пунктов радиационного мониторинга Министерства '
                                   'природных ресурсов и охраны окружающей среды Беларуси составляет *{:.1f}* мкЗв/ч.'
                                   .format(avg_indication_region), parse_mode=ParseMode.MARKDOWN
                                   )
     except Exception:
-        logger.warning('ERROR while performing the scraper() function')
+        logger.exception('ERROR while performing the scraper() function', traceback=True)
         update.message.reply_text(f"К сожалению, <b>{user['first_name']}</b>, в настоящее время актуальная "
                                   f"информация по интересующему региону отсутствует {smile2}",
                                   parse_mode=ParseMode.HTML
@@ -133,7 +134,7 @@ def main_keyboard():
                                                 request_location=True)]], resize_keyboard=True)
 
 
-def encrypt(line):
+def encrypt(line: str) -> str:
     """
     Функция ассиметричного шифрования строковых объектов - идентификацуионных данных пользователей, хранящихся
     в коллекции users базы данных MongoDB Atlas в полях с ключами first_name, last_name и username. Данные шифруются
@@ -143,12 +144,14 @@ def encrypt(line):
     :return строковый объект - шифрованый текст полей с ключами first_name и(или) last_name, username коллекции users
     базы данных MongoDB Atlas
     """
-    with open('public.pem', mode='rb') as publicfile:
-        keydata = publicfile.read()
-    pubkey = rsa.PublicKey.load_pkcs1(keydata)
-    if line is not None:
-        try:
+    try:
+        with open('public.pem', mode='rb') as publicfile:
+            keydata = publicfile.read()
+        pubkey = rsa.PublicKey.load_pkcs1(keydata)
+        if line is not None:
             token = rsa.encrypt(line.encode('utf8'), pubkey)
-            return token
-        except Exception:
-            logger.warning('ERROR while performing the encrypt() function')
+            return str(token)
+    except FileNotFoundError:
+        logger.exception('File public.pem not found!', traceback=True)
+    except Exception:
+        logger.exception('ERROR while performing the encrypt() function', traceback=True)

@@ -62,7 +62,7 @@ def add_db_start(mdb, user) -> None:
                                  {'$push': {'selected /start command': today}})
             logger.info('In db updated date and time user select /start command')
     except Exception:
-        logger.warning('ERROR while performing the add_db_start() function')
+        logger.exception('ERROR while performing the add_db_start() function', traceback=True)
 
 
 def add_db_help(mdb, user) -> None:
@@ -84,7 +84,7 @@ def add_db_help(mdb, user) -> None:
                                  {'$push': {'selected /help command': today}})
             logger.info('In db updated date and time user select /help command')
     except Exception:
-        logger.warning('ERROR while performing the add_db_help() function')
+        logger.exception('ERROR while performing the add_db_help() function', traceback=True)
 
 
 def add_db_messages(mdb, user) -> None:
@@ -106,7 +106,7 @@ def add_db_messages(mdb, user) -> None:
                                  {'$push': {'sent a welcome text message': today}})
             logger.info('In db updated date and time user send a welcome text message')
     except Exception:
-        logger.warning('ERROR while performing the add_db_add_db_messages() function')
+        logger.exception('ERROR while performing the add_db_add_db_messages() function', traceback=True)
 
 
 def add_db_radioactive_monitoring(mdb, user) -> None:
@@ -122,7 +122,7 @@ def add_db_radioactive_monitoring(mdb, user) -> None:
                              {'$push': {'press button "Radioactive monitoring"': today}})
         logger.info('In db added date and time user press button "Radioactive monitoring"')
     except Exception:
-        logger.warning('ERROR while performing the add_db_radioactive_monitoring() function')
+        logger.exception('ERROR while performing the add_db_radioactive_monitoring() function', traceback=True)
 
 
 def add_db_monitoring_points(mdb, user) -> None:
@@ -138,7 +138,7 @@ def add_db_monitoring_points(mdb, user) -> None:
                              {'$push': {'press button "Observation points"': today}})
         logger.info('In db added date and time user press button "Observation points"')
     except Exception:
-        logger.warning('ERROR while performing the add_db_monitoring_points() function')
+        logger.exception('ERROR while performing the add_db_monitoring_points() function', traceback=True)
 
 
 def add_db_scraper_Brest(mdb, user) -> None:
@@ -154,7 +154,7 @@ def add_db_scraper_Brest(mdb, user) -> None:
                              {'$push': {'press button "Brest region"': today}})
         logger.info('In db added date and time user press button "Brest region"')
     except Exception:
-        logger.warning('ERROR while performing the add_db_scraper_Brest() function')
+        logger.exception('ERROR while performing the add_db_scraper_Brest() function', traceback=True)
 
 
 def add_db_scraper_Vitebsk(mdb, user) -> None:
@@ -170,7 +170,7 @@ def add_db_scraper_Vitebsk(mdb, user) -> None:
                              {'$push': {'press button "Vitebsk region"': today}})
         logger.info('In db added date and time user press button "Vitebsk region"')
     except Exception:
-        logger.warning('ERROR while performing the add_db_scraper_Vitebsk() function')
+        logger.exception('ERROR while performing the add_db_scraper_Vitebsk() function', traceback=True)
 
 
 def add_db_scraper_Gomel(mdb, user) -> None:
@@ -186,7 +186,7 @@ def add_db_scraper_Gomel(mdb, user) -> None:
                              {'$push': {'press button "Gomel region"': today}})
         logger.info('In db added date and time user press button "Gomel region"')
     except Exception:
-        logger.warning('ERROR while performing the add_db_scraper_Gomel() function')
+        logger.exception('ERROR while performing the add_db_scraper_Gomel() function', traceback=True)
 
 
 def add_db_scraper_Grodno(mdb, user) -> None:
@@ -202,7 +202,7 @@ def add_db_scraper_Grodno(mdb, user) -> None:
                              {'$push': {'press button "Grodno region"': today}})
         logger.info('In db added date and time user press button "Grodno region"')
     except Exception:
-        logger.warning('ERROR while performing the add_db_scraper_Grodno() function')
+        logger.exception('ERROR while performing the add_db_scraper_Grodno() function', traceback=True)
 
 
 def add_db_scraper_Minsk(mdb, user) -> None:
@@ -218,7 +218,7 @@ def add_db_scraper_Minsk(mdb, user) -> None:
                              {'$push': {'press button "Minsk region"': today}})
         logger.info('In db added date and time user press button "Minsk region"')
     except Exception:
-        logger.warning('ERROR while performing the add_db_scraper_Minsk() function')
+        logger.exception('ERROR while performing the add_db_scraper_Minsk() function', traceback=True)
 
 
 def add_db_scraper_Mogilev(mdb, user) -> None:
@@ -234,7 +234,7 @@ def add_db_scraper_Mogilev(mdb, user) -> None:
                              {'$push': {'press button "Mogilev region"': today}})
         logger.info('In db added date and time user press button "Mogilev region"')
     except Exception:
-        logger.warning('ERROR while performing the add_db_scraper_Mogilev() function')
+        logger.exception('ERROR while performing the add_db_scraper_Mogilev() function', traceback=True)
 
 
 def add_db_geolocation(mdb, user) -> None:
@@ -250,4 +250,4 @@ def add_db_geolocation(mdb, user) -> None:
                              {'$push': {'press button "Send geolocation"': today}})
         logger.info('In db added date and time user press button "Send geolocation"')
     except Exception:
-        logger.warning('ERROR while performing the add_db_geolocation() function')
+        logger.exception('ERROR while performing the add_db_geolocation() function', traceback=True)
