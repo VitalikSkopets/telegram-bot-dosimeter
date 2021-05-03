@@ -5,50 +5,47 @@ This bot can inform the user as of the current date about the radiation situatio
 
 One of the functions of the bot is to determine the distance to the nearest point of observation in the radiation monitoring network of the Ministry of Natural Resources and Environmental Protection of the Republic of Belarus. The specified function is available when the user sends the coordinates of its current geolocation.
 
-The bot does not store the geographical coordinats of the user. However, the bot has implemented a long-term data storage function in the cloud store  [cloud.mongodb](https://cloud.mongodb.com/). The following information transmitted by [Telegram.org](https://telegram.org/) servers according to HTTPS protocol should be collected and subsequently stored.:
+The bot does not store the geographical coordinates of the user. However, the bot has implemented a long-term data storage function in the cloud store  [cloud.mongodb](https://cloud.mongodb.com/). The following information transmitted by [Telegram.org](https://telegram.org/) servers according to HTTPS protocol should be collected and subsequently stored.:
 
 - first name
 - last name
 - user name
 
-###Implementation of symmetric encryption of data in code using cryptography library:
+###Implementing asymmetric encryption of RSA data in code using a cryptographic library:
 ```python
-def add_db_send_welcome(mdb, message_inf):
-     firstname = message_inf['message']['chat']['first_name']
-    lastname = message_inf['message']['chat']['last_name']
-    username = message_inf['message']['chat']['username']
+import rsa
 
-    if mdb.users.find_one({'user_id': message_inf['message']['chat']['id']}) is None:
-        encrypted_firstname = encryption(TOKEN_FOR_DB, firstname)
-        encrypted_lastname = encryption(TOKEN_FOR_DB, lastname)
-        encrypted_username = encryption(TOKEN_FOR_DB, username)
+class DB:
+    mdb: Final = MongoClient(MONGODB_REF)[MONGO_DB]
 
-        user = {'user_id': message_inf['message']['chat']['id'],
-                'first_name': encrypted_firstname,
-                'last_name': encrypted_lastname,
-                'user_name': encrypted_username,
-                'selected /start command': today
-                }
-        mdb.users.insert_one(user)
-    elif mdb.users.find_one({'user_id': message_inf['message']['chat']['id']}) is not None:
-        mdb.users.update_one({'user_id': message_inf['message']['chat']['id']},
-                             {'$set': {'selected /start command': today}})
+    def create_collection(user: dict[str, any]) -> dict[str, any]:
+        current_user = {'user_id': user['id'],
+                        'first_name': Crypt.encrypt(user['first_name']),
+                        'last_name': Crypt.encrypt(user['last_name']),
+                        'user_name': Crypt.encrypt(user['username'])
+
+def encrypt(line: str, pubkey=__get_pubkey) -> str:
+    if line is not None:
+        token = rsa.encrypt(line.encode(), pubkey())
+        return token
 ```
-The specified personal data of Telegram users are **encrypted** with a symmetric encryption cryptographic algorithm prior to their entry into the database, which guarantees their confidentiality even if third parties gain access to the database. 
+Telegram users' specified personal data are **encrypted** using the RSA asymmetric cryptographic encryption algorithm before entering them into the database, which guarantees confidentiality even if third parties gain access to the database. 
 
 ### Configuration file
 ##### config.py
 
 ```python
-TOKEN = "Your Telegram Bot API token should be here"
-MONGODB_REF = "link to your account cloud.mongodb.com"
-MONGO_DB = "users_db"
-USER_ACCSESS_MONGO_DB = "DosimeterBot"    
-USER_PASSWORD = "your password"
-key = Fernet.generate_key()               
-TOKEN_FOR_DB = Fernet(key)        
-URL1 = 'https://rad.org.by/radiation.xml'
-URL2 = 'https://rad.org.by/monitoring/radiation'
+import os
+from typing import Final
+
+TOKEN: Final = os.environ["TOKEN"]  # token Telegram Bot API
+MONGODB_REF = "mongodb+srv://DosimeterBot:dG7ntC7sa1RrDpBp@cluster.s3cxd.mongodb.net/users_db?retryWrites=true&w" \
+              "=majority"
+MONGO_DB: Final = "users_db"
+LOGIN_MONGO_DB: Final = "DosimeterBot"
+PASSWORD_MONGO_DB: Final = os.environ["PASSWORD_MONGO_DB"]
+URL1: Final = 'https://rad.org.by/radiation.xml'
+URL2: Final = 'https://rad.org.by/monitoring/radiation'
 
 LOCATION_OF_MONITORING_POINTS = {'Могилев': (53.69298772769127, 30.375068475712993),
                                  'Полоцк': (55.47475184602021, 28.751296645976183),
@@ -104,13 +101,17 @@ APScheduler==3.6.3
 asgiref==3.3.4
 beautifulsoup4==4.9.3
 certifi==2020.12.5
+cffi==1.14.5
 chardet==4.0.0
+colorama==0.4.4
 dnspython==2.1.0
 emoji==1.2.0
 fake-useragent==0.1.11
 geographiclib==1.50
 geopy==2.1.0
 idna==2.10
+loguru==0.5.3
+pycparser==2.20
 pymongo==3.11.3
 python-telegram-bot==13.4.1
 pytz==2021.1
@@ -118,12 +119,11 @@ requests==2.25.1
 six==1.15.0
 soupsieve==2.2.1
 sqlparse==0.4.1
-telegram==0.0.1
 tornado==6.1
 tzlocal==2.1
 urllib3==1.26.4
-cryptography~=3.4.7
-loguru~=0.5.3
+win32-setctime==1.0.3
+rsa~=4.7.2
 ```
 #### Clone with HTTPS
 ```python
