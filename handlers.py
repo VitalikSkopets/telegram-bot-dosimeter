@@ -117,8 +117,6 @@ class Handlers:
             logger.exception('ERROR division by zero. Not available on the resource https://rad.org.by/radiation.xml',
                              traceback=True
                              )
-        except ConnectionError:
-            logger.exception('ERROR connecting with resource websites.', traceback=True)
         except Exception:
             logger.exception('ERROR while performing the radioactive_monitoring() function', traceback=True)
             update.message.reply_text(f"К сожалению, <b>{user['first_name']}</b>, в настоящее время актуальная "

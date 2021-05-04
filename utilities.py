@@ -68,6 +68,8 @@ def get_html(url=URL1) -> BeautifulSoup:
         response = requests.get(url, headers={'User-Agent': UserAgent().random})
         soup = BeautifulSoup(response.text, 'html.parser')
         return soup
+    except ConnectionError:
+        logger.exception('ERROR connecting with resource websites.', traceback=True)
     except Exception:
         logger.exception('ERROR while performing the get_html() function', traceback=True)
 
@@ -123,6 +125,10 @@ def scraper(update: Update, region: list[str]) -> None:
                                   'природных ресурсов и охраны окружающей среды Беларуси составляет *{:.1f}* мкЗв/ч.'
                                   .format(avg_indication_region), parse_mode=ParseMode.MARKDOWN
                                   )
+    except ZeroDivisionError:
+        logger.exception('ERROR division by zero. Not available on the resource https://rad.org.by/radiation.xml',
+                         traceback=True
+                         )
     except Exception:
         logger.exception('ERROR while performing the scraper() function', traceback=True)
         update.message.reply_text(f"К сожалению, <b>{user['first_name']}</b>, в настоящее время актуальная "

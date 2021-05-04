@@ -20,7 +20,6 @@ class Crypt:
             with open('private.pem', mode='wb') as privatefile, open(r'public.pem', mode='wb') as publicfile:
                 privatefile.write(privkey_pem)
                 publicfile.write(pubkey_pem)
-            return None
         except FileExistsError:
             logger.exception('Files with extensions *.pem in the predefined directory already exist', traceback=True)
         except Exception:
