@@ -5,6 +5,7 @@ from loguru import logger
 
 class Crypt:
 
+    @staticmethod
     def __gen_cryptokeys() -> None:
         """
         Функция генерирует пару ключей (публичный и приватный) и записывает их в файлы pubkey.pem и private.pem,
@@ -25,6 +26,7 @@ class Crypt:
         except Exception:
             logger.exception('ERROR while performing the _gen_cryptokeys() function', traceback=True)
 
+    @staticmethod
     def __get_pubkey():
         """
         Функция открывает для чтения файл public.pem и возвращает, записанный в нем публичный ключ для шифрования
@@ -46,6 +48,7 @@ class Crypt:
         except Exception:
             logger.exception('ERROR while performing the __get_pubkey() function', traceback=True)
 
+    @staticmethod
     def __get_privkey():
         """
         Функция открывает для чтения файл private.pem и возвращает, записанный в нем приватный(закрытый) ключ для
