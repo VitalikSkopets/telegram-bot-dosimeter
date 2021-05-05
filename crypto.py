@@ -85,6 +85,7 @@ class Crypt:
         self.pubkey = pubkey
         self.privkey = privkey
 
+    @staticmethod
     def encrypt(line: str, pubkey=__get_pubkey) -> str:
         """
         Функция ассиметричного RSA шифрования строковых объектов - идентификацуионных данных пользователей, хранящихся
@@ -101,35 +102,28 @@ class Crypt:
         """
         try:
             if line is not None:
-                token = rsa.encrypt(line.encode(), pubkey())
+                token = rsa.encrypt(line.encode(), Crypt.__get_pubkey())
                 token_str = str(token)
                 return token_str
         except Exception:
             logger.exception('ERROR while performing the encrypt() function', traceback=True)
 
-    def decrypt(self, token: bytes = encrypt, privkey=__get_privkey) -> str:
-        """
-        Функия дешифрования строковых объектов - идентификацуионных данных пользователей, хранящихся в коллекции users
-        базы данных MongoDB Atlas в полях с ключами first_name, last_name и username. Данные дешифруются
-        с использованием приватного ключа, который читается из файла private.pem
 
-        :param privkey: приватный ключ дешифрования
+class Decryptor():
 
-        :param token: байтовая строка - последовательность байт - зашифрованные идентификацуионные данные пользователей,
-        хранящиеся в коллекции users базы данных MongoDB Atlas в полях с ключами first_name, last_name и username
+    def __init__(self, token):
+        self.token = token
 
-        :return: строковый объект - дешифрованные идентификацуионные данные пользователей, хранящиеся в коллекции users
-        базы данных MongoDB Atlas в полях с ключами first_name, last_name и username
-        """
-        try:
-            line = rsa.decrypt(token(self, pubkey=Crypt.__get_pubkey), privkey())
-            return line.decode()
-        except Exception:
-            logger.exception('ERROR while performing the decrypt() function', traceback=True)
+    def decrypt(self):
+        with open('private.pem', mode='rb') as privfile:
+            privkeydata = privfile.read()
+            privkey = rsa.PrivateKey.load_pkcs1(privkeydata)
+        line = rsa.decrypt(self.token, privkey)
+        return line.decode()
 
 
 if __name__ == '__main__':
-    a = Crypt("Rrrrrrrrrrrrrrrrr")
-    print(a.line)
-    print(a.encrypt())
+    a = Decryptor(
+        b'Q\x88\x1fr8-\xf0<\x18\xde\x068\x93\xa9\xaaT\xa4\xf9%L\xdcV\xd6\xcb\x83\xd9\x01\x00\x9b\xee\x1c\x11J/\xef'
+        b'\xabT\x00\xbf\xee\x06\xa5\xcd\x84A\x0e \x8cf)\xcd\xcd5\x1d\xd3\xb6\xebS\xe0\xcd\xd76\xf4\xb5')
     print(a.decrypt())

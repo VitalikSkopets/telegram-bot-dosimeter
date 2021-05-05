@@ -1,10 +1,10 @@
 import re
 from datetime import datetime
 import locale
-from typing import Final
+from typing import Final, Optional, Any
 from geopy import distance
 from loguru import logger
-from telegram import ReplyKeyboardMarkup, ParseMode, Update
+from telegram import ReplyKeyboardMarkup, ParseMode
 from telegram.ext import CallbackContext
 import config
 from config import LOCATION_OF_MONITORING_POINTS, ADMINISTRATIVE_DIVISION
@@ -14,7 +14,6 @@ from utilities import (main_keyboard,
                        scraper,
                        text_messages,
                        greeting,
-                       smile2
                        )
 
 locale.setlocale(category=locale.LC_ALL, locale="Russian")
@@ -23,7 +22,8 @@ today: Final = datetime.now().strftime("%a %d-%b-%Y %H:%M")
 
 class Handlers:
 
-    def start(update: Update, context: CallbackContext) -> None:
+    @staticmethod
+    def start(update: Optional[Any], context: CallbackContext) -> None:
         """
         Функция-обработчик команды /start. При выборе пользователем команды /start возвращает приветственное сообщение
         и кнопки меню вместо стандартной клавиатуры
@@ -40,7 +40,8 @@ class Handlers:
         update.message.reply_text(f"Приятно познакомится, <b>{user['first_name']}</b>!"
                                   + text_messages['start'], reply_markup=main_keyboard(), parse_mode=ParseMode.HTML)
 
-    def help(update: Update, context: CallbackContext) -> None:
+    @staticmethod
+    def help(update: Optional[Any], context: CallbackContext) -> None:
         """
         Функция-обработчик команды /help. При выборе пользователем команды /help возвращает текстовое сообщение и кнопки
         меню вместо стандартной клавиатуры
@@ -56,7 +57,8 @@ class Handlers:
         DB.add_db_help(user)
         update.message.reply_text(text_messages['help'], reply_markup=main_keyboard(), parse_mode=ParseMode.HTML)
 
-    def messages(update: Update, context: CallbackContext) -> None:
+    @staticmethod
+    def messages(update: Optional[Any], context: CallbackContext) -> None:
         """
         Функция-обработчик входящего тествового сообщенаия от пользователя. Если в текствовм сообщении пользователя есть
         строка из списка greeting, функция возвращает пользователю приветственное текстовое сообщение и кнопки меню
@@ -80,7 +82,8 @@ class Handlers:
             logger.info('User sent unknown text message')
             update.message.reply_text(text_messages['unknown'], parse_mode=ParseMode.HTML)
 
-    def radioactive_monitoring(update: Update, context: CallbackContext) -> None:
+    @staticmethod
+    def radioactive_monitoring(update: Optional[Any], context: CallbackContext) -> None:
         """
         Функция-обработчик нажатия кнопки "Радиационный мониторинг". В теле функция производит вызов кастомной функцию
         get_html(), которая осуществляет get-запрос и скрайринг html-структуры https://rad.org.by/monitoring/radiation
@@ -126,7 +129,8 @@ class Handlers:
                                       parse_mode=ParseMode.HTML
                                       )
 
-    def monitoring_points(update: Update, context: CallbackContext) -> None:
+    @staticmethod
+    def monitoring_points(update: Optional[Any], context: CallbackContext) -> None:
         """
         Функция-обработчик нажатия пользователем кнопки "Пункты наблюдения". Возвращает пользователю кнопк с названиями
         областей вместо стандартной клавиатуры
@@ -145,7 +149,9 @@ class Handlers:
             ['Гродненская область'], ['Минск и Минская область'], ['Могилевская область'], ['Главное меню']],
             resize_keyboard=True)
                                   )
-    def scraper_Brest(update: Update, context: CallbackContext) -> None:
+
+    @staticmethod
+    def scraper_Brest(update: Optional[Any], context: CallbackContext) -> None:
         """
         Функция-обработчик нажатия пользователем кнопки "Брестская область". Функция вызывет метод scraper(), которая,
         в свою очередь, вызывает метод get_html(). Последний отправляет get-запрос и скрайпит html-структуру
@@ -164,7 +170,8 @@ class Handlers:
         logger.info('User press button "Brest region"')
         DB.add_db_scraper_Brest(user)
 
-    def scraper_Vitebsk(update: Update, context: CallbackContext) -> None:
+    @staticmethod
+    def scraper_Vitebsk(update: Optional[Any], context: CallbackContext) -> None:
         """
         Функция-обработчик нажатия пользователем кнопки "Витебская область". Функция вызывет метод scraper(), которая,
         в свою очередь, вызывает метод get_html(). Последний отправляет get-запрос и скрайпит html-структуру
@@ -183,7 +190,8 @@ class Handlers:
         logger.info('User press button "Vitebsk region"')
         DB.add_db_scraper_Vitebsk(user)
 
-    def scraper_Gomel(update: Update, context: CallbackContext) -> None:
+    @staticmethod
+    def scraper_Gomel(update: Optional[Any], context: CallbackContext) -> None:
         """
         Функция-обработчик нажатия пользователем кнопки "Гомельская область". Функция вызывет метод scraper(), которая,
         в свою очередь, вызывает метод get_html(). Последний отправляет get-запрос и скрайпит html-структуру
@@ -202,7 +210,8 @@ class Handlers:
         logger.info('User press button "Gomel region"')
         DB.add_db_scraper_Gomel(user)
 
-    def scraper_Grodno(update: Update, context: CallbackContext) -> None:
+    @staticmethod
+    def scraper_Grodno(update: Optional[Any], context: CallbackContext) -> None:
         """
         Функция-обработчик нажатия пользователем кнопки "Гродненская область". Функция вызывет метод scraper(), которая,
         в свою очередь, вызывает метод get_html(). Последний отправляет get-запрос и скрайпит html-структуру
@@ -221,7 +230,8 @@ class Handlers:
         logger.info('User press button "Grodno region"')
         DB.add_db_scraper_Grodno(user)
 
-    def scraper_Minsk(update: Update, context: CallbackContext) -> None:
+    @staticmethod
+    def scraper_Minsk(update: Optional[Any], context: CallbackContext) -> None:
         """
         Функция-обработчик нажатия пользователем кнопки "Минск и Минская область". Функция вызывет метод scraper(),
         которая, в свою очередь, вызывает метод get_html(). Последний отправляет get-запрос и скрайпит html-структуру
@@ -240,7 +250,8 @@ class Handlers:
         logger.info('User press button "Minsk region"')
         DB.add_db_scraper_Minsk(user)
 
-    def scraper_Mogilev(update: Update, context: CallbackContext) -> None:
+    @staticmethod
+    def scraper_Mogilev(update: Optional[Any], context: CallbackContext) -> None:
         """
         Функция-обработчик нажатия пользователем кнопки "Могилевская область". Функция вызывет метод scraper(), которая,
         в свою очередь, вызывает метод get_html(). Последний отправляет get-запрос и скрайпит html-структуру
@@ -259,7 +270,8 @@ class Handlers:
         logger.info('User press button "Mogilev region"')
         DB.add_db_scraper_Mogilev(user)
 
-    def master_menu(update: Update, context: CallbackContext) -> None:
+    @staticmethod
+    def master_menu(update: Optional[Any], context: CallbackContext) -> None:
         """
         Функция-обработчик нажатия пользователем кнопки "Главное меню". В качестве ответного сообщения пользователю
         обработчик вызывает кастомную функцию main_keyboard(), которая возвращает пользователю сообщение и кнопки меню
@@ -282,7 +294,8 @@ class Handlers:
                                   f'''интересующий регион''', reply_markup=main_keyboard(), parse_mode=ParseMode.HTML
                                   )
 
-    def geolocation(update: Update, context: CallbackContext) -> None:
+    @staticmethod
+    def geolocation(update: Optional[Any], context: CallbackContext) -> None:
         """
         Функция-обработчик нажатия кнопки "Отправить мою геолокацию". В теле функции происходит вызов метода distance()
         из библиотеки geopy, которому в качестве оргументов передаются географические координаты пользователя и пунктов
