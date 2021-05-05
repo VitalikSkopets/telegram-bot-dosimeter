@@ -117,10 +117,12 @@ class Handlers:
             logger.exception('ERROR division by zero. Not available on the resource https://rad.org.by/radiation.xml',
                              traceback=True
                              )
+            update.message.reply_text(f"К сожалению, <b>{user['first_name']}</b>, " + text_messages['info'],
+                                      parse_mode=ParseMode.HTML
+                                      )
         except Exception:
             logger.exception('ERROR while performing the radioactive_monitoring() function', traceback=True)
-            update.message.reply_text(f"К сожалению, <b>{user['first_name']}</b>, в настоящее время актуальная "
-                                      f"информация о состоянии радиационной обстановки отсутствует {smile2}",
+            update.message.reply_text(f"К сожалению, <b>{user['first_name']}</b>, " + text_messages['info'],
                                       parse_mode=ParseMode.HTML
                                       )
 
@@ -323,7 +325,6 @@ class Handlers:
                     break
         except Exception:
             logger.exception('ERROR while performing the geolocation() function', traceback=True)
-            update.message.reply_text(f"К сожалению, <b>{user['first_name']}</b>, в настоящее время информация "
-                                      f"о пунктах наблюдения сети радиационного мониторинга отсутствует {smile2}",
+            update.message.reply_text(f"К сожалению, <b>{user['first_name']}</b>, " + text_messages['info'],
                                       parse_mode=ParseMode.HTML
                                       )

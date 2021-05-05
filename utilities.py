@@ -44,6 +44,8 @@ text_messages: Final = {
              f'интересующий регион',
     'button1': 'Отправить мою геопозицию',
     'button2': 'Радиационный мониторинг',
+    'info': f'в настоящее время актуальная информация о состоянии радиационной обстановки недоступна. '
+            f'Попробуй спросить {smile2} в другой раз и обязательно увидишь ответ!',
     'unknown': f'Ничего не понятно, но очень интересно {smile2}\nПопробуй команду /help.'
 }
 
@@ -129,10 +131,12 @@ def scraper(update: Update, region: list[str]) -> None:
         logger.exception('ERROR division by zero. Not available on the resource https://rad.org.by/radiation.xml',
                          traceback=True
                          )
+        update.message.reply_text(f"К сожалению, <b>{user['first_name']}</b>, " + text_messages['info'],
+                                  parse_mode=ParseMode.HTML
+                                  )
     except Exception:
         logger.exception('ERROR while performing the scraper() function', traceback=True)
-        update.message.reply_text(f"К сожалению, <b>{user['first_name']}</b>, в настоящее время актуальная "
-                                  f"информация по интересующему региону отсутствует {smile2}",
+        update.message.reply_text(f"К сожалению, <b>{user['first_name']}</b>, " + text_messages['info'],
                                   parse_mode=ParseMode.HTML
                                   )
 
