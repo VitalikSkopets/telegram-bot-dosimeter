@@ -1,12 +1,12 @@
+import config
+import locale
 import re
 from datetime import datetime
-import locale
-from typing import Final, Optional, Any
 from geopy import distance
+from typing import Final, Optional, Any
 from loguru import logger
 from telegram import ReplyKeyboardMarkup, ParseMode
 from telegram.ext import CallbackContext
-import config
 from config import LOCATION_OF_MONITORING_POINTS, ADMINISTRATIVE_DIVISION
 from mongodb import DB
 from utilities import (main_keyboard,

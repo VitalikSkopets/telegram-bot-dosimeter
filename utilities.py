@@ -1,13 +1,13 @@
-from typing import Final
 from bs4 import BeautifulSoup
-import requests
-from loguru import logger
+from datetime import datetime
 from emoji.core import emojize
 from fake_useragent import UserAgent
-from datetime import datetime
-import locale
+from loguru import logger
+from typing import Final
 from telegram import ReplyKeyboardMarkup, KeyboardButton, ParseMode, Update
-from config import URL1
+import requests
+import locale
+
 
 locale.setlocale(category=locale.LC_ALL, locale="Russian")
 today: Final = datetime.now().strftime("%a %d-%b-%Y %H:%M")
@@ -58,11 +58,11 @@ greeting: Final = ['hello', 'hi', 'hey', 'привет', 'салют', 'здар
                    ]
 
 
-def get_html(url=URL1) -> BeautifulSoup:
+def get_html(url='https://rad.org.by/radiation.xml') -> BeautifulSoup:
     """
     Функия отправляет get-звапрос и скрайпит https://rad.org.by/radiation.xml
 
-    :param url: строквый объект 'https://rad.org.by/radiation.xml'
+    :param url: строквый объект URL 'https://rad.org.by/radiation.xml'
 
     :return: объект класса bs4.BeautifulSoup - html-разметка веб-ресурса https://rad.org.by/radiation.xml
     """

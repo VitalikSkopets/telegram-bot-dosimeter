@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 import rsa
 from loguru import logger
 
@@ -86,7 +87,7 @@ class Crypt:
         self.privkey = privkey
 
     @staticmethod
-    def encrypt(line: str, pubkey=__get_pubkey) -> str:
+    def encrypt(line: str, pubkey=__get_pubkey) -> Optional[str]:
         """
         Функция ассиметричного RSA шифрования строковых объектов - идентификацуионных данных пользователей, хранящихся
         в коллекции users базы данных MongoDB Atlas в полях с ключами first_name, last_name и username. Данные шифруются
@@ -101,7 +102,7 @@ class Crypt:
         коллекцию users базы данных MongoDB Atlas в полях с ключами first_name, last_name и username
         """
         try:
-            if line is not None:
+            if isinstance(line, str):
                 token = rsa.encrypt(line.encode(), Crypt.__get_pubkey())
                 token_str = str(token)
                 return token_str
