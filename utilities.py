@@ -3,7 +3,7 @@ from datetime import datetime
 from emoji.core import emojize
 from fake_useragent import UserAgent
 from loguru import logger
-from typing import Final
+from typing import Final, Dict, List
 from telegram import ReplyKeyboardMarkup, KeyboardButton, ParseMode, Update
 import requests
 import locale
@@ -91,7 +91,7 @@ def format_string(string: str, min_length: int = 20) -> str:
     return string
 
 
-def scraper(update: Update, region: list[str]) -> None:
+def scraper(update: Update, region: Dict[str, List[str]]) -> None:
     """
     Функция вызывает метод get_html(), который отправляет get-запрос и скрайпит html-структуру веб-ресурса
     https://rad.org.by/radiation.xml. Результаты скрайпинга в цикле for сравниваются на равенство с названиями
