@@ -28,7 +28,7 @@ class Crypt:
             logger.exception('ERROR while performing the _gen_cryptokeys() function', traceback=True)
 
     @staticmethod
-    def __get_pubkey():
+    def __get_pubkey() -> rsa.PublicKey:
         """
         Функция открывает для чтения файл public.pem и возвращает, записанный в нем публичный ключ для шифрования
         строкового объекта
@@ -50,7 +50,7 @@ class Crypt:
             logger.exception('ERROR while performing the __get_pubkey() function', traceback=True)
 
     @staticmethod
-    def __get_privkey():
+    def __get_privkey() -> rsa.PrivateKey:
         """
         Функция открывает для чтения файл private.pem и возвращает, записанный в нем приватный(закрытый) ключ для
         дешифрования байтовой строки - полседолвательности байт
@@ -71,7 +71,7 @@ class Crypt:
         except Exception:
             logger.exception('ERROR while performing the __get_privkey() function', traceback=True)
 
-    def __init__(self, line: str, pubkey=__get_pubkey, privkey=__get_privkey):
+    def __init__(self, line: str, pubkey=__get_pubkey, privkey=__get_privkey) -> None:
         """
         Конструктор инициализации объектов класса Crypt
 
@@ -112,10 +112,16 @@ class Crypt:
 
 class Decryptor():
 
-    def __init__(self, token):
+    def __init__(self, token) -> None:
+        """
+        Конструктор инициализации объектов класса Decryptor
+
+        :param token: шифрованный стрковый объект в байтовом представлении, хранящийся в коллекции users базы данных
+        MongoDB Atlas в полях с ключами first_name, last_name и(или) username
+        """
         self.token = token
 
-    def decrypt(self):
+    def decrypt(self) -> str:
         with open('private.pem', mode='rb') as privfile:
             privkeydata = privfile.read()
             privkey = rsa.PrivateKey.load_pkcs1(privkeydata)

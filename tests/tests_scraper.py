@@ -38,9 +38,6 @@ def scraper(region="Гродненская область") -> None:
             new_point = points[i].text
             table.append('| {} | {:^13} |'.format(new_point, indications[i].text + ' мкЗв/ч'))
     avg_indication_region = sum(indications_region) / len(indications_region)
-    print(indications_region)
-    print(table)
-    print(avg_indication_region)
 
 
 class ScraperTestCase(unittest.TestCase):
