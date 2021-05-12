@@ -1,43 +1,58 @@
+import os
 import unittest
+from unittest.mock import Mock
+from handlers import Handlers
 
-greeting = ['hello', 'hi', 'hey', 'привет', 'салют', 'здарова', 'здравствуй', 'здравствуйте', 'добрый день',
-            'добрый вечер', 'доброе утро', 'доброго дня', 'хелоу', 'бонжур', 'привестствую', 'здрасте',
-            'какая встреча', 'рад встрече', 'хай', 'здравия желаю', 'приветик', 'доброго времени суток',
-            'здорова', 'здорово', 'мое почтение', 'приветствую тебя', 'сердечно приветствую', 'how are you',
-            'what’s up', 'whats up', 'hello there', 'howdy', 'hiya', 'yo', 'how do you do', 'good morning',
-            'good afternoon', 'good evening', 'peek-a-boo', 'peek a boo', 'hi mister', 'ahoy'
-            ]
+TOKEN = os.environ.get("TOKEN")
+PASSWORD_MONGO_DB = os.environ.get("PASSWORD_MONGO_DB")
 
+mock_update = Mock(name='mock update', return_value=
+{'update_id': 529174731,
+ 'message': {
+     'message_id': 4029,
+     'date': 1620813558,
+     'chat': {
+         'id': 413818791,
+         'type': 'private',
+         'username': 'vitalik_sk',
+         'first_name': 'Skopets',
+         'last_name': 'Vitalik'
+             },
+     'text': 'hello',
+     'entities': [{'type': 'bot_command', 'offset': 0, 'length': 6}],
+     'caption_entities': [],
+     'photo': [],
+     'new_chat_members': [],
+     'new_chat_photo': [],
+     'delete_chat_photo': False,
+     'group_chat_created': False,
+     'supergroup_chat_created': False,
+     'channel_chat_created': False,
+     'from': {
+         'id': 413818791,
+         'first_name': 'Skopets',
+         'is_bot': False,
+         'last_name': 'Vitalik',
+         'username': 'vitalik_sk',
+         'language_code': 'en'
+             }
+            }
+ }
+                   )
+mock_update.effective_user = {'id': 413818791, 'first_name': 'Skopets', 'is_bot': False, 'last_name': 'Vitalik',
+                              'username': 'vitalik_sk', 'language_code': 'en'
+                              }
+mock_update.message.text = 'hello'
+mock_context = Mock(name='mock context')
 
-def messages(text: str, greeting: list) -> str:
-    """ Функция-обработчик тествового сообщенаия пользователя """
-    if text.lower() in greeting:
-        return "Привет, User"
-    else:
-        return "unknown message"
+class TestMessage(unittest.TestCase):
 
-
-class MessageTestCase(unittest.TestCase):
     def test_messages_1(self):
-        result = messages('hello', greeting)
-        self.assertEqual(result, "Привет, User")
-
-    def test_messages_2(self):
-        result = messages('салют', greeting)
-        self.assertEqual(result, "Привет, User")
-
-    def test_messages_3(self):
-        result = messages('good morning', greeting)
-        self.assertEqual(result, "Привет, User")
-
-    def test_messages_4(self):
-        result = messages('klsjdgbvo', greeting)
-        self.assertEqual(result, "unknown message")
-
-    def test_messages_5(self):
-        result = messages('25656', greeting)
-        self.assertEqual(result, "unknown message")
+        result = Handlers.messages(mock_update, mock_context)
+        self.assertEqual(result, None)
+        self.assertIsNone(result)
+        print(mock_update.message.reply_text.call_count)
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(verbosity=2)

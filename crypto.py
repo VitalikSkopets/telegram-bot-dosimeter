@@ -1,7 +1,7 @@
 import os
-from typing import Optional
 import rsa
 from loguru import logger
+from typing import Optional
 
 
 class Crypt:
@@ -87,30 +87,57 @@ class Crypt:
         self.privkey = privkey
 
     @staticmethod
-    def encrypt(line: str, pubkey=__get_pubkey) -> Optional[str]:
+    def encrypt(line: str, pubkey=__get_pubkey) -> Optional[list[int]]:
         """
-        Функция ассиметричного RSA шифрования строковых объектов - идентификацуионных данных пользователей, хранящихся
-        в коллекции users базы данных MongoDB Atlas в полях с ключами first_name, last_name и username. Данные шифруются
-        с использованием публичного ключа, который читается из файла public.pem
+        Функция ассиметричного RSA шифрования строковых объектов - идентификацуионных данных пользователей. Данные
+        шифруются с использованием публичного ключа, который читается из файла public.pem, после чего преобразуются
+        в массив целых чисел для последующего долговременного хранениния в коллекции users базы данных MongoDB Atlas
+        в полях с ключами first_name, last_name и username
 
         :param line: строковый объект - идентификацуионные данные пользователя - значения ключей first_name, last_name,
         username из словаря update.effective_user
 
         :param pubkey: публичный ключ шифрования
 
-        :return token_str: шифрованный стрковый объект в байтовом представлении преобразованный в строку для помещения в
-        коллекцию users базы данных MongoDB Atlas в полях с ключами first_name, last_name и username
+        :return token_lst: шифрованный стрковый объект в байтовом представлении преобразованный в массив целых чисел
+        для последующего помещения в коллекцию users базы данных MongoDB Atlas в полях с ключами first_name, last_name
+        и username
         """
         try:
             if isinstance(line, str):
                 token = rsa.encrypt(line.encode(), Crypt.__get_pubkey())
-                token_str = str(token)
-                return token_str
+                token_lst = list(token)
+                return token_lst
+            elif not line:
+                return None
+        except Exception:
+            logger.exception('ERROR while performing the encrypt() function', traceback=True)
+
+    @staticmethod
+    def decrypt(token_lst: list[int], privkey=__get_privkey) -> str:
+        """
+        Функция дешифрования строковых объектов - идентификацуионных данных пользователей, хранящихся в коллекции users
+        базы данных MongoDB Atlas в полях с ключами first_name, last_name и username. Данные преобразуются из массива
+        целых чисел в байтовую строку, после чего дешифруются с использованием приватного (закрытого) ключа, который
+        читается из файла privat.pem
+
+        :param token_lst: строковый объект - идентификацуионные данные пользователя - значения ключей first_name,
+        last_name, username из словаря update.effective_user
+
+        :param privkey: приватный (закрытый) ключ дешифрования
+
+        :return line: дешифрованный стрковый объект - - идентификацуионные данные пользователя из коллекции users базы
+        данных MongoDB Atlas в полях с ключами first_name, last_name и username
+        """
+        try:
+            if isinstance(token_lst, list):
+                line = rsa.decrypt(bytes(token_lst), Crypt.__get_privkey())
+                return line.decode()
         except Exception:
             logger.exception('ERROR while performing the encrypt() function', traceback=True)
 
 
-class Decryptor():
+class Decryptor:
 
     def __init__(self, token) -> None:
         """
@@ -122,6 +149,14 @@ class Decryptor():
         self.token = token
 
     def decrypt(self) -> str:
+        """
+        Функция дешифрования строковых объектов - идентификацуионных данных пользователей, хранящихся в коллекции users
+        базы данных MongoDB Atlas в полях с ключами first_name, last_name и username. Данные дешифруются с
+        использованием приватного (закрытого) ключа, который читается из файла privat.pem
+
+        :return line: дешифрованный стрковый объект - - идентификацуионные данные пользователя из коллекции users базы
+        данных MongoDB Atlas в полях с ключами first_name, last_name и username
+        """
         with open('private.pem', mode='rb') as privfile:
             privkeydata = privfile.read()
             privkey = rsa.PrivateKey.load_pkcs1(privkeydata)
@@ -130,7 +165,17 @@ class Decryptor():
 
 
 if __name__ == '__main__':
-    a = Decryptor(
+    a = Crypt('Rrrrr')
+    print(a.encrypt('Rrrrr'))
+    print(a.decrypt([13, 179, 191, 91, 23, 237, 226, 52, 157, 77, 108, 8, 179, 80, 188, 91, 158, 118, 127, 179, 153,
+                     187, 131, 36, 223, 107, 199, 238, 75, 157, 217, 39, 109, 4, 64, 92, 47, 83, 118, 96, 99, 191,
+                     99, 238, 174, 124, 33, 211, 39, 121, 106, 110, 253, 189, 165, 173, 147, 93, 84, 36, 117, 75,
+                     221, 3
+                     ]
+                    )
+          )
+    print()
+    b = Decryptor(
         b'Q\x88\x1fr8-\xf0<\x18\xde\x068\x93\xa9\xaaT\xa4\xf9%L\xdcV\xd6\xcb\x83\xd9\x01\x00\x9b\xee\x1c\x11J/\xef'
         b'\xabT\x00\xbf\xee\x06\xa5\xcd\x84A\x0e \x8cf)\xcd\xcd5\x1d\xd3\xb6\xebS\xe0\xcd\xd76\xf4\xb5')
-    print(a.decrypt())
+    print(b.decrypt())

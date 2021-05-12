@@ -1,12 +1,12 @@
 import os
 from typing import Final
 
-TOKEN: Final = os.environ["TOKEN"]  # token Telegram Bot API
+TOKEN: Final = os.environ.get("TOKEN")  # token Telegram Bot API
 MONGODB_REF = "mongodb+srv://DosimeterBot:dG7ntC7sa1RrDpBp@cluster.s3cxd.mongodb.net/users_db?retryWrites=true&w" \
               "=majority"
 MONGO_DB: Final = "users_db"
 LOGIN_MONGO_DB: Final = "DosimeterBot"
-PASSWORD_MONGO_DB: Final = os.environ["PASSWORD_MONGO_DB"]
+PASSWORD_MONGO_DB: Final = os.environ.get("PASSWORD_MONGO_DB")
 URL1: Final = 'https://rad.org.by/radiation.xml'
 URL2: Final = 'https://rad.org.by/monitoring/radiation'
 DESCRIPTION = 'Этот бот может информировать пользователя по состоянию на текущую дату о радиационной обстановке ' \

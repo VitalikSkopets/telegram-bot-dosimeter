@@ -314,8 +314,7 @@ class Handlers:
         """
         user = update.effective_user
         try:
-            user_location = update.message.location
-            coordinates = (user_location.latitude, user_location.longitude)
+            coordinates = (update.message.location.latitude, update.message.location.longitude)
             distance_list = []
             for point, location in LOCATION_OF_MONITORING_POINTS.items():
                 distance_list.append((distance.distance(coordinates, location).km, point))

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Final
+from typing import Final, Any
 import pytz
 import locale
 from pymongo import MongoClient
@@ -307,55 +307,24 @@ class DB:
         Функция возвращает список уникальных id пользователей Telegram-бота из документов коллекции users базы данных
         users_db в MongoDB Atlas
 
-        :param mdb: соединение с базой данных users_db в MongoDB Atlas
-
-        :return: список значений всех документов коллекции users базы данных users_db в MongoDB Atlas по ключу 'user_id'
+        :return: список значений поля по ключу 'user_id' всех документов коллекции users базы данных users_db в MongoDB
         """
         usersid = mdb.users.distinct("user_id")
         return usersid
 
     @staticmethod
-    def __get_db_firstnames_users() -> list[str]:
+    def __get_db_users() -> dict[Any]:
         """
-        Функция возвращает список уникальных first name пользователей Telegram-бота из документов коллекции users
-        дазы данных users_db в MongoDB Atlas
+        Функция возвращает из документов коллекции users дазы данных users_db в MongoDB Atlas словарь персональных 
+        данных пользователей Telegram бота, включая идентификационные данные - user id, first/last/user names
 
-        :param mdb: соединение с базой данных users_db в MongoDB Atlas
-
-        :return: список строковых объектов - значения всех документов коллекции users базы данных users_db в MongoDB
-        Atlas по ключу 'first_name'
+        :return users: словарь персональных данных пользователей Telegram бота, включая идентификационные данные -
+        user id, first/last/user names из всех документов коллекции users базы данных users_db в MongoDB Atlas
         """
-        firstnames = mdb.users.distinct("first_name")
-        return firstnames
+        users = mdb.users.find()
+        return users
 
     @staticmethod
-    def __get_db_lastnames_users() -> list[str]:
-        """
-        Функция возвращает список уникальных last name пользователей Telegram-бота из документов коллекции users дазы
-        данных users_db в MongoDB Atlas
-
-        :param mdb: соединение с базой данных users_db в MongoDB Atlas
-
-        :return: список строковых объектов - значения всех документов коллекции users базы данных users_db в MongoDB
-        Atlas по ключу 'last_name'
-        """
-        lastnames = mdb.users.distinct("last_name")
-        return lastnames
-
-    @staticmethod
-    def __get_db_usernames_users() -> list[str]:
-        """
-        Функция возвращает список уникальных username пользователей Telegram-бота из документов коллекции users дазы
-        данных users_db в MongoDB Atlas
-
-        :param mdb: соединение с базой данных users_db в MongoDB Atlas
-
-        :return: список строковых объектов - значения всех документов коллекции users базы данных users_db в MongoDB
-        Atlas по ключу 'user_name'
-        """
-        usernames = mdb.users.distinct("user_name")
-        return usernames
-
     def show_users_id(usersid=__get_db_users_id) -> None:
         """
         Функция выводит в консоль id пользователей Telegram-бота из документов коллекции users дазы данных users_db
@@ -368,51 +337,31 @@ class DB:
         MongoDB Atlas по ключу 'user_id'
         """
         for num, userid in enumerate(DB.__get_db_users_id(), 1):
-            print(f"iD {num}-го пользователя - {userid}\n")
+            print(f"iD {num}-го пользователя - {userid}")
 
-    def show_firstnames_users(firstnames=__get_db_firstnames_users) -> None:
+    @staticmethod
+    def show_users(users=__get_db_users) -> None:
         """
-        Функция выводит в консоль first names пользователей Telegram-бота из документов коллекции users дазы данных
+        Функция выводит в консоль User ID, first/last/user names пользователей Telegram-бота из документов коллекции
+        users дазы данных users_db в MongoDB Atlas
+
+        :param users: результат вызова функции get_db_users() - словарь персональных данных пользователей Telegram бота,
+        включая идентификационные данные - user id, first/last/user names из всех документов коллекции users базы данных
         users_db в MongoDB Atlas
 
-        :param firstnames: результат вызова функции get_db_firstnames_users() - список строковых объектов - значения
-        всех документов коллекции users базы данных users_db в MongoDB Atlas по ключу 'first_name'
-
-        :return: строковое представление нумерованных значений всех документов коллекции users базы данных users_db в
-        MongoDB Atlas по ключу 'first_name'
+        :return: значенаия полей всех документов коллекции users базы данных users_db в MongoDB Atlas по ключам user_id,
+        first_name, last_name и user_name
         """
-        for num, firstname in enumerate(DB.__get_db_firstnames_users(), 1):
-            print(f"First name {num}-го пользователя - {firstname}\n")
-
-    def show_lastnames_users(lastnames=__get_db_lastnames_users) -> None:
-        """
-        Функция выводит в консоль last names пользователей Telegram-бота из документов коллекции users дазы данных
-        users_db в MongoDB Atlas
-
-        :param lastnames: результат вызова функции get_db_lastnames_users() - список строковых объектов - значения всех
-        документов коллекции users базы данных users_db в MongoDB Atlas по ключу 'last_name'
-
-        :return: строковое представление нумерованных значений всех документов коллекции users базы данных users_db в
-        MongoDB Atlas по ключу 'last_name'
-        """
-        for num, lastname in enumerate(DB.__get_db_lastnames_users(), 1):
-            print(f"Last name {num}-го пользователя - {lastname}\n")
-
-    def show_usernames_users(usernames=__get_db_usernames_users) -> None:
-        """
-        Функция выводит в консоль usernames пользователей Telegram-бота из документов коллекции users дазы данных
-        users_db в MongoDB Atlas
-
-        :param usernames: результат вызова функции get_db_usernames_users() - список строковых объектов - значения всех
-        документов коллекции users базы данных users_db в MongoDB Atlas по ключу 'user_name'
-
-        :return: строковое представление нумерованных значений всех документов коллекции users базы данных users_db в
-        MongoDB Atlas по ключу 'user_name'
-        """
-        for num, username in enumerate(DB.__get_db_usernames_users(), 1):
-            print(f"User name {num}-го пользователя - {username}\n")
+        for num, users in enumerate(DB.__get_db_users(), 1):
+            print(
+                f"Персональные данные {num}-го пользователя:\n"
+                f"User ID - {users.get('user_id')}\n"
+                f"First name - {users.get('first_name')}\n"
+                f"Last name - {users.get('last_name')}\n"
+                f"User name - {users.get('user_name')}\n\n"
+                )
 
 
 if __name__ == '__main__':
     query = DB(mdb)
-    print(query.show_users_id())
+    print(query.show_users())

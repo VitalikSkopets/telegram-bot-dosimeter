@@ -1,32 +1,26 @@
 import unittest
-from unittest import TestCase
 from unittest.mock import Mock
 from utilities import scraper
 
-ADMINISTRATIVE_DIVISION = {
-    "Брестская область": ['Высокое', 'Пружаны', 'Брест', 'Ивацевичи', 'Пинск', 'Барановичи',
-                          'Полесская, болотная', 'Дрогичин', 'Мокраны', 'Олтуш', 'Верхний Теребежов'],
-    "Витебская область": ['Полоцк', 'Шарковщина', 'Лынтупы', 'Орша', 'Витебск', 'Нарочь, озерная',
-                          'Верхнедвинск', 'Сенно'],
-    "Гродненская область": ['Волковыск', 'Ошмяны', 'Лида', 'Гродно, АМСГ'],
-    "Могилевская область": ['Могилев', 'Мстиславль', 'Славгорорд', 'Горки', 'Костюковичи', 'Бобруйск'],
-    "Минск и Минская область": ['Минск', 'Слуцк', 'Вилейка', 'Борисов', 'Березино', 'Столбцы',
-                                'Нарочь, озерная', 'Воложин'],
-    "Гомельская область": ['Брагин', 'Мозырь', 'Василевичи', 'Жлобин', 'Октябрь', 'Житковичи',
-                           'Гомель', 'Глушкевичи', 'Словечно', 'Словечно']
-}
 
-update = Mock()
-update.effective_user = {'first_name': 'Test_name'}
+mock_update = Mock()
+mock_update.effective_user = {'first_name': 'Test_name'}
 
 
-class ScraperTestCase(TestCase):
+class TestScraper(unittest.TestCase):
 
-    def test_scraper_1(self):
-        result = scraper(update=update, region=ADMINISTRATIVE_DIVISION.get('Брестская область'))
+    def test_scraper(self):
+        result = scraper(update=mock_update, region=['Волковыск', 'Ошмяны', 'Лида', 'Гродно, АМСГ'])
         self.assertEqual(result, None)
-        self.assertIsNone(result, None)
-        print(update.message.reply_text)
+        self.assertIsNone(result)
+        print(mock_update.message.reply_text.call_count)
+
+
+@unittest.skip('test works when a wrong url is entered')
+class TestBadScraper(unittest.TestCase):
+
+    def test_bad_scraper(self):
+        self.assertRaises(Exception, scraper(update=mock_update, region='Волковыск'))
 
 
 if __name__ == '__main__':
