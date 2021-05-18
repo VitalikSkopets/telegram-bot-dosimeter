@@ -1,13 +1,11 @@
 import config
-import locale
 import re
-from datetime import datetime
 from geopy import distance
-from typing import Final, Optional, Any
+from typing import Optional, Any
 from loguru import logger
 from telegram import ReplyKeyboardMarkup, ParseMode
 from telegram.ext import CallbackContext
-from config import LOCATION_OF_MONITORING_POINTS, ADMINISTRATIVE_DIVISION
+from config import LOCATION_OF_MONITORING_POINTS, ADMINISTRATIVE_DIVISION, today
 from mongodb import DB
 from utilities import (main_keyboard,
                        get_html,
@@ -15,9 +13,6 @@ from utilities import (main_keyboard,
                        text_messages,
                        greeting,
                        )
-
-locale.setlocale(category=locale.LC_ALL, locale="Russian")
-today: Final = datetime.now().strftime("%a %d-%b-%Y %H:%M")
 
 
 class Handlers:
@@ -116,15 +111,16 @@ class Handlers:
                                       f' ресурсов и охраны окружающей среды Беларусь по состоянию на сегодняшний день '
                                       f'составляет <b>{avg_indication:.2f}</b> мкЗв/ч.', parse_mode=ParseMode.HTML
                                       )
-        except ZeroDivisionError:
-            logger.exception('ERROR division by zero. Not available on the resource https://rad.org.by/radiation.xml',
-                             traceback=True
+        except ZeroDivisionError as ex:
+            logger.exception(f'ERROR division by zero. Not available on the resource https://rad.org.by/radiation.xml. '
+                             f'Exception is {ex}', traceback=True
                              )
             update.message.reply_text(f"К сожалению, <b>{user['first_name']}</b>, " + text_messages['info'],
                                       parse_mode=ParseMode.HTML
                                       )
-        except Exception:
-            logger.exception('ERROR while performing the radioactive_monitoring() function', traceback=True)
+        except Exception as ex:
+            logger.exception(f'ERROR while performing the radioactive_monitoring() function. Exception is {ex}',
+                             traceback=True)
             update.message.reply_text(f"К сожалению, <b>{user['first_name']}</b>, " + text_messages['info'],
                                       parse_mode=ParseMode.HTML
                                       )
@@ -155,8 +151,8 @@ class Handlers:
         """
         Функция-обработчик нажатия пользователем кнопки "Брестская область". Функция вызывет метод scraper(), которая,
         в свою очередь, вызывает метод get_html(). Последний отправляет get-запрос и скрайпит html-структуру
-        https://rad.org.by/radiation.xml . Результаты скрайпинга в цикле for сравниваются на равенство с названиями
-        пунктов наблюдения, расположенныъ в Брестской области, и вместе с текущей датой подставляются в ответное
+        https://rad.org.by/radiation.xml. Результаты скрайпинга в цикле for сравниваются на равенство с названиями
+        пунктов наблюдения, расположенных в Брестской области, и вместе с текущей датой подставляются в ответное
         сообщение пользователю
 
         :param update: словарь Update с информацией о пользователе Telegram
@@ -168,15 +164,15 @@ class Handlers:
         user = update.effective_user
         scraper(update, region=ADMINISTRATIVE_DIVISION["Брестская область"])
         logger.info('User press button "Brest region"')
-        DB.add_db_scraper_Brest(user)
+        DB.add_db_scraper_region(user, "Brest region")
 
     @staticmethod
     def scraper_Vitebsk(update: Optional[Any], context: CallbackContext) -> None:
         """
         Функция-обработчик нажатия пользователем кнопки "Витебская область". Функция вызывет метод scraper(), которая,
         в свою очередь, вызывает метод get_html(). Последний отправляет get-запрос и скрайпит html-структуру
-        https://rad.org.by/radiation.xml . Результаты скрайпинга в цикле for сравниваются на равенство с названиями
-        пунктов наблюдения, расположенныъ в Витебской области, и вместе с текущей датой подставляются в ответное
+        https://rad.org.by/radiation.xml. Результаты скрайпинга в цикле for сравниваются на равенство с названиями
+        пунктов наблюдения, расположенных в Витебской области, и вместе с текущей датой подставляются в ответное
         сообщение пользователю
 
         :param update: словарь Update с информацией о пользователе Telegram
@@ -188,15 +184,15 @@ class Handlers:
         user = update.effective_user
         scraper(update, region=ADMINISTRATIVE_DIVISION["Витебская область"])
         logger.info('User press button "Vitebsk region"')
-        DB.add_db_scraper_Vitebsk(user)
+        DB.add_db_scraper_region(user, "Vitebsk region")
 
     @staticmethod
     def scraper_Gomel(update: Optional[Any], context: CallbackContext) -> None:
         """
         Функция-обработчик нажатия пользователем кнопки "Гомельская область". Функция вызывет метод scraper(), которая,
         в свою очередь, вызывает метод get_html(). Последний отправляет get-запрос и скрайпит html-структуру
-        https://rad.org.by/radiation.xml . Результаты скрайпинга в цикле for сравниваются на равенство с названиями
-        пунктов наблюдения, расположенныъ в Гомельской области, и вместе с текущей датой подставляются в ответное
+        https://rad.org.by/radiation.xml. Результаты скрайпинга в цикле for сравниваются на равенство с названиями
+        пунктов наблюдения, расположенных в Гомельской области, и вместе с текущей датой подставляются в ответное
         сообщение пользователю
 
         :param update: словарь Update с информацией о пользователе Telegram
@@ -208,15 +204,15 @@ class Handlers:
         user = update.effective_user
         scraper(update, region=ADMINISTRATIVE_DIVISION["Гомельская область"])
         logger.info('User press button "Gomel region"')
-        DB.add_db_scraper_Gomel(user)
+        DB.add_db_scraper_region(user, "Gomel region")
 
     @staticmethod
     def scraper_Grodno(update: Optional[Any], context: CallbackContext) -> None:
         """
         Функция-обработчик нажатия пользователем кнопки "Гродненская область". Функция вызывет метод scraper(), которая,
         в свою очередь, вызывает метод get_html(). Последний отправляет get-запрос и скрайпит html-структуру
-        https://rad.org.by/radiation.xml . Результаты скрайпинга в цикле for сравниваются на равенство с названиями
-        пунктов наблюдения, расположенныъ в Гродненской области, и вместе с текущей датой подставляются в ответное
+        https://rad.org.by/radiation.xml. Результаты скрайпинга в цикле for сравниваются на равенство с названиями
+        пунктов наблюдения, расположенных в Гродненской области, и вместе с текущей датой подставляются в ответное
         сообщение пользователю
 
         :param update: словарь Update с информацией о пользователе Telegram
@@ -228,15 +224,15 @@ class Handlers:
         user = update.effective_user
         scraper(update, region=ADMINISTRATIVE_DIVISION["Гродненская область"])
         logger.info('User press button "Grodno region"')
-        DB.add_db_scraper_Grodno(user)
+        DB.add_db_scraper_region(user, "Grodno region")
 
     @staticmethod
     def scraper_Minsk(update: Optional[Any], context: CallbackContext) -> None:
         """
         Функция-обработчик нажатия пользователем кнопки "Минск и Минская область". Функция вызывет метод scraper(),
         которая, в свою очередь, вызывает метод get_html(). Последний отправляет get-запрос и скрайпит html-структуру
-        https://rad.org.by/radiation.xml . Результаты скрайпинга в цикле for сравниваются на равенство с названиями
-        пунктов наблюдения, расположенныъ в Минске и Минской области, и вместе с текущей датой подставляются в ответное
+        https://rad.org.by/radiation.xml. Результаты скрайпинга в цикле for сравниваются на равенство с названиями
+        пунктов наблюдения, расположенных в Минске и Минской области, и вместе с текущей датой подставляются в ответное
         сообщение пользователю
 
         :param update: словарь Update с информацией о пользователе Telegram
@@ -248,15 +244,15 @@ class Handlers:
         user = update.effective_user
         scraper(update, region=ADMINISTRATIVE_DIVISION["Минск и Минская область"])
         logger.info('User press button "Minsk region"')
-        DB.add_db_scraper_Minsk(user)
+        DB.add_db_scraper_region(user, "Minsk region")
 
     @staticmethod
     def scraper_Mogilev(update: Optional[Any], context: CallbackContext) -> None:
         """
         Функция-обработчик нажатия пользователем кнопки "Могилевская область". Функция вызывет метод scraper(), которая,
         в свою очередь, вызывает метод get_html(). Последний отправляет get-запрос и скрайпит html-структуру
-        https://rad.org.by/radiation.xml . Результаты скрайпинга в цикле for сравниваются на равенство с названиями
-        пунктов наблюдения, расположенныъ в Могилевскойй области, и вместе с текущей датой подставляются в ответное
+        https://rad.org.by/radiation.xml. Результаты скрайпинга в цикле for сравниваются на равенство с названиями
+        пунктов наблюдения, расположенных в Могилевскойй области, и вместе с текущей датой подставляются в ответное
         сообщение пользователю
 
         :param update: словарь Update с информацией о пользователе Telegram
@@ -268,7 +264,7 @@ class Handlers:
         user = update.effective_user
         scraper(update, region=ADMINISTRATIVE_DIVISION["Могилевская область"])
         logger.info('User press button "Mogilev region"')
-        DB.add_db_scraper_Mogilev(user)
+        DB.add_db_scraper_region(user, "Mogilev region")
 
     @staticmethod
     def master_menu(update: Optional[Any], context: CallbackContext) -> None:
@@ -335,8 +331,8 @@ class Handlers:
                                               parse_mode=ParseMode.HTML
                                               )
                     break
-        except Exception:
-            logger.exception('ERROR while performing the geolocation() function', traceback=True)
+        except Exception as ex:
+            logger.exception(f'ERROR while performing the geolocation() function. Exception is {ex}', traceback=True)
             update.message.reply_text(f"К сожалению, <b>{user['first_name']}</b>, " + text_messages['info'],
                                       parse_mode=ParseMode.HTML
                                       )

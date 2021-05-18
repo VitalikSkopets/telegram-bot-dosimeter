@@ -1,12 +1,21 @@
 import os
+import pytz
+import locale
+from datetime import datetime
+from pymongo import MongoClient
 from typing import Final
 
+
+locale.setlocale(category=locale.LC_ALL, locale="Russian")
+tz_minsk: Final = pytz.timezone('Europe/Minsk')
+today: Final = datetime.now(tz_minsk).strftime("%a %d-%b-%Y %H:%M:%S")
 TOKEN: Final = os.environ.get("TOKEN")  # token Telegram Bot API
 MONGODB_REF = "mongodb+srv://DosimeterBot:dG7ntC7sa1RrDpBp@cluster.s3cxd.mongodb.net/users_db?retryWrites=true&w" \
               "=majority"
 MONGO_DB: Final = "users_db"
 LOGIN_MONGO_DB: Final = "DosimeterBot"
 PASSWORD_MONGO_DB: Final = os.environ.get("PASSWORD_MONGO_DB")
+mdb: Final = MongoClient(MONGODB_REF)[MONGO_DB]
 URL1: Final = 'https://rad.org.by/radiation.xml'
 URL2: Final = 'https://rad.org.by/monitoring/radiation'
 DESCRIPTION = 'Этот бот может информировать пользователя по состоянию на текущую дату о радиационной обстановке ' \

@@ -67,13 +67,13 @@ def get_html(url='https://rad.org.by/radiation.xml') -> BeautifulSoup:
     :return: объект класса bs4.BeautifulSoup - html-разметка веб-ресурса https://rad.org.by/radiation.xml
     """
     try:
-        response = requests.get(url, headers={'User-Agent': UserAgent().random})
+        response = requests.get(url, verify=False, headers={'User-Agent': UserAgent().random})
         soup = BeautifulSoup(response.text, 'html.parser')
         return soup
-    except ConnectionError:
-        logger.exception('ERROR connecting with resource websites.', traceback=True)
-    except Exception:
-        logger.exception('ERROR while performing the get_html() function', traceback=True)
+    except ConnectionError as ex:
+        logger.exception(f'ERROR connecting with resource websites. Exception is {ex}', traceback=True)
+    except Exception as ex:
+        logger.exception(f'ERROR while performing the get_html() function. Exception is {ex}', traceback=True)
 
 
 def format_string(string: str, min_length: int = 20) -> str:
@@ -127,15 +127,15 @@ def scraper(update: Update, region: List[str]) -> None:
                                   'природных ресурсов и охраны окружающей среды Беларуси составляет *{:.1f}* мкЗв/ч.'
                                   .format(avg_indication_region), parse_mode=ParseMode.MARKDOWN
                                   )
-    except ZeroDivisionError:
-        logger.exception('ERROR division by zero. Not available on the resource https://rad.org.by/radiation.xml',
-                         traceback=True
+    except ZeroDivisionError as ex:
+        logger.exception(f'ERROR division by zero. Not available on the resource https://rad.org.by/radiation.xml. '
+                         f'Exception is {ex}', traceback=True
                          )
         update.message.reply_text(f"К сожалению, <b>{user['first_name']}</b>, " + text_messages['info'],
                                   parse_mode=ParseMode.HTML
                                   )
-    except Exception:
-        logger.exception('ERROR while performing the scraper() function', traceback=True)
+    except Exception as ex:
+        logger.exception(f'ERROR while performing the scraper() function. Exception is {ex}', traceback=True)
         update.message.reply_text(f"К сожалению, <b>{user['first_name']}</b>, " + text_messages['info'],
                                   parse_mode=ParseMode.HTML
                                   )

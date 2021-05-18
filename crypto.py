@@ -7,13 +7,17 @@ class Crypt:
 
     def __init__(self, line: str) -> None:
         """
-        Конструктор инициализации объектов класса Crypt, генерации и записи в файлы публичного и приватного ключей для
-        ассиметричного RSA шифрования строковых объектов
+        Конструктор инициализации объектов класса Crypt. В ходе выполнения проверяет наличие в заданной дериктории
+        файлов 'private.pem' и 'public.pem' с записанными в них публичным и приватным ключами шифрования/дешифрования,
+        и в случае их отсутствия генерирует и записывает в файлы связку из публичного и приватного ключей необходимых
+        для ассиметричного RSA шифрования строковых объектов
 
         :param line: строковый объект -> идентификацуионные данные пользователя - значения ключей first_name, last_name,
         username из словаря update.effective_user -> подлежэащий шифрованию
         """
         self.line = line
+        if os.path.exists('private.pem' and 'public.pem'):
+            return
         (pubkey, privkey) = rsa.newkeys(512, accurate=False)
         pubkey_pem = pubkey.save_pkcs1()
         privkey_pem = privkey.save_pkcs1()
@@ -36,12 +40,12 @@ class Crypt:
         чисел для последующего помещения в коллекцию users базы данных MongoDB Atlas в полях с ключами first_name,
         last_name и username
         """
-        if os.path.exists('private.pem' and 'public.pem'):
+        if isinstance(line, str):
             with open('public.pem', mode='rb') as pubfile:
                 pubkeydata = pubfile.read()
                 pubkey = rsa.PublicKey.load_pkcs1(pubkeydata)
             return list(rsa.encrypt(line.encode(), pubkey))
-        Crypt.__init__(line)
+        return None
 
     @staticmethod
     def decrypt(token: list[int]) -> str:
