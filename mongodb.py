@@ -176,30 +176,8 @@ class DB:
         :return: None
         """
         try:
-            if region == "Brest region":
-                mdb.users.update_one({'user_id': user['id']},
-                                     {'$push': {'press button "Brest region"': today}})
-                logger.info('In mdb added date and time user press button "Brest region"')
-            elif region == "Vitebsk region":
-                mdb.users.update_one({'user_id': user['id']},
-                                     {'$push': {'press button "Vitebsk region"': today}})
-                logger.info('In mdb added date and time user press button "Vitebsk region"')
-            elif region == "Gomel region":
-                mdb.users.update_one({'user_id': user['id']},
-                                     {'$push': {'press button "Gomel region"': today}})
-                logger.info('In mdb added date and time user press button "Gomel region"')
-            elif region == "Grodno region":
-                mdb.users.update_one({'user_id': user['id']},
-                                     {'$push': {'press button "Grodno region"': today}})
-                logger.info('In mdb added date and time user press button "Grodno region"')
-            elif region == "Minsk region":
-                mdb.users.update_one({'user_id': user['id']},
-                                     {'$push': {'press button "Minsk region"': today}})
-                logger.info('In mdb added date and time user press button "Minsk region"')
-            elif region == "Mogilev region":
-                mdb.users.update_one({'user_id': user['id']},
-                                     {'$push': {'press button "Mogilev region"': today}})
-                logger.info('In mdb added date and time user press button "Mogilev region"')
+            mdb.users.update_one({'user_id': user['id']},
+                                 {'$push': {f'press button {region}': today}})
         except ConnectionError as ex:
             logger.exception(f'ERROR connecting to database, Exception is {ex}', traceback=True)
         except Exception as ex:

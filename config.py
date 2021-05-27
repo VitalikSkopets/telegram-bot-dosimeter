@@ -2,13 +2,14 @@ import os
 import pytz
 import locale
 from datetime import datetime
+from mtranslate import translate
 from pymongo import MongoClient
 from typing import Final
 
 
 locale.setlocale(category=locale.LC_ALL, locale="Russian")
 tz_minsk: Final = pytz.timezone('Europe/Minsk')
-today: Final = datetime.now(tz_minsk).strftime("%a %d-%b-%Y %H:%M:%S")
+today: Final = translate(datetime.now(tz_minsk).strftime("%d-%b-%Y"), 'ru')
 TOKEN: Final = os.environ.get("TOKEN")  # token Telegram Bot API
 MONGODB_REF = "mongodb+srv://DosimeterBot:dG7ntC7sa1RrDpBp@cluster.s3cxd.mongodb.net/users_db?retryWrites=true&w" \
               "=majority"

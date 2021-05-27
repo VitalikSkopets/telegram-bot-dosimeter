@@ -1,16 +1,17 @@
 from bs4 import BeautifulSoup
-from datetime import datetime
+from config import today
 from emoji.core import emojize
 from fake_useragent import UserAgent
 from loguru import logger
 from typing import Final, List
 from telegram import ReplyKeyboardMarkup, KeyboardButton, ParseMode, Update
 import requests
+import urllib3
 import locale
 
 
 locale.setlocale(category=locale.LC_ALL, locale="Russian")
-today: Final = datetime.now().strftime("%a %d-%b-%Y %H:%M")
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 commands = {'start': 'Start using this bot',
             'help': 'Useful information about this bot'
