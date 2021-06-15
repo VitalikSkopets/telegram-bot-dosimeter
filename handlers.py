@@ -99,7 +99,7 @@ class Handlers:
         user = update.effective_user
         try:
             text_lst = str(get_html(url=config.URL2).find_all('span'))
-            pattern = r"(?:...*)(радиационная...*загрязнения)(?:<\/span>)"
+            pattern = r"(?:...*)(радиационная...*АЭС.)(?:<\/span>)"
             text = re.findall(pattern, text_lst)
             indications = get_html().find_all('rad')
             avg_indication = sum([float(indication.text) for indication in indications]) / len(indications)
