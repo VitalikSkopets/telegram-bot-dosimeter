@@ -35,12 +35,6 @@ class DB:
                         'sent a welcome text message': [],
                         'press button "Radioactive monitoring"': [],
                         'press button "Observation points"': [],
-                        'press button "Brest region"': [],
-                        'press button "Vitebsk region"': [],
-                        'press button "Gomel region"': [],
-                        'press button "Grodno region"': [],
-                        'press button "Minsk region"': [],
-                        'press button "Mogilev region"': [],
                         'press button "Send geolocation"': []
                         }
         return current_user
@@ -177,7 +171,7 @@ class DB:
         """
         try:
             mdb.users.update_one({'user_id': user['id']},
-                                 {'$push': {f'press button {region}': today}})
+                                 {'$push': {f'press button "{region}"': today}})
         except ConnectionError as ex:
             logger.exception(f'ERROR connecting to database, Exception is {ex}', traceback=True)
         except Exception as ex:
