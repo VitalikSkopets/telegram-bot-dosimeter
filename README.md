@@ -11,7 +11,7 @@ The bot does not store the geographical coordinates of the user. However, the bo
 - last name
 - user name
 
-###Implementing asymmetric encryption of RSA data in code using a cryptographic library:
+### Implementing asymmetric encryption of RSA data in code using a cryptographic library:
 ```python
 import rsa
 
