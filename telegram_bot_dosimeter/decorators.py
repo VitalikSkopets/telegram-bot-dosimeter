@@ -1,15 +1,18 @@
 from functools import wraps
+from logging import Logger
 from typing import Any, Callable, NoReturn, Sequence, Union
 
-from telegram import Update
+from telegram import ParseMode, Update
 from telegram.ext import CallbackContext
 
 from telegram_bot_dosimeter.analytics.measurement_protocol import send_analytics
 from telegram_bot_dosimeter.logging_config import get_logger
 
-__all__ = ("restricted", "send_action", "log_error", "analytics")
+__all__ = ("restricted", "send_action", "debug_handler", "analytics")
 
-logger = get_logger(__name__)
+from telegram_bot_dosimeter.utils import text_messages
+
+logger = get_logger("default")
 
 ADMIN_ID: int = 12345678
 LIST_OF_ADMIN_IDS: Sequence[int] = (12345678, 87654321)
@@ -85,26 +88,40 @@ def analytics(func: Callable) -> Callable:
     return measurement
 
 
-def log_error(func: Callable) -> Callable:
+def debug_handler(log_handler: Logger = logger) -> Callable:
     """
     Logs errors raised when executing functions and class methods built into the
-    python-telegram-bot library and sends an error message to the admin
+    python-telegram-bot library and sends an error message to the admin chat.
 
-    :param func: Callable object - handler method.
+    :param log_handler: The object of class logging.Logger.
 
     :return: Callable object - handler method.
     """
 
-    @wraps(func)
-    def inner(*args: Any, **kwargs: Any) -> None:
-        try:
-            return func(*args, **kwargs)
-        except Exception as ex:
-            error_message = f"[ADMIN] - [ERROR]: {ex}"
-            update = args[0]
-            if update and hasattr(update, "message"):
-                update.bot.send_message(chat_id=ADMIN_ID, text=error_message)
-            logger.error(f"Raised exception {ex}")
-            raise ex
+    def log_error(func: Callable) -> Callable:
+        @wraps(func)
+        def inner(*args: Any, **kwargs: Any) -> None:
+            try:
+                log_handler.debug(f"Callback handler called {func.__name__}")
+                return func(*args, **kwargs)
+            except Exception as ex:
+                update = args[0]
+                user = update.message.from_user
+                message = text_messages.get("info")
+                error_message = f"[ADMIN] - [ERROR]: {ex}"
 
-    return inner
+                update.message.reply_text(  # type: ignore
+                    f"К сожалению, *{user.first_name}*, {message}",
+                    parse_mode=ParseMode.MARKDOWN_V2,
+                )
+
+                if update and hasattr(update, "message"):
+                    update.bot.send_message(chat_id=ADMIN_ID, text=error_message)
+
+                log_handler.error(
+                    f"In the callback handler {func.__name__} an error occurred {ex}"
+                )
+
+        return inner
+
+    return log_error
