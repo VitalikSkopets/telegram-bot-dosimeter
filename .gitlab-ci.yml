@@ -1,0 +1,41 @@
+default:
+  image: python:3.10
+
+variables:
+  APP: "telegram_bot_dosimeter"
+
+before_script:
+  - pip install --upgrade pip
+  - pip install poetry
+  - poetry config virtualenvs.create false
+  - poetry install
+  - source `poetry env info --path`/bin/activate
+
+stages:
+  - Static Analysis
+  - Type checking
+
+isort:
+  stage: Static Analysis
+  script:
+    - echo "Running the Static Analysis stage..."
+    - poetry run isort .
+
+flake8:
+  stage: Static Analysis
+  script:
+    - poetry run flake8 ${APP}/*.py
+
+black:
+  stage: Static Analysis
+  script:
+    - poetry run black .
+    - echo "linting done!"
+
+mypy:
+  stage: Type checking
+  needs: [isort, flake8, black]
+  script:
+    - echo "Running the Type checking stage..."
+    - poetry run mypy .
+    - echo "Type checking done!"

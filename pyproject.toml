@@ -1,0 +1,83 @@
+[tool.poetry]
+name = "telegram-bot-dosimeter"
+version = "0.1.0"
+description = """
+    This bot can inform the user about the current state of the radiation encounter in Belarus
+    and about the power level of the equivalent concentration-concentration recorded in the radiation
+    monitoring network of the Ministry of Natural Resources and Environmental Protection of Belarus.
+    Source: ©rad.org.by Designed by: ©itrexgroup.com
+"""
+license = "MIT"
+authors = ["Vitaly Skopets <vitaly.skopets@gitrexgroup.com>"]
+readme = "README.md"
+homepage = "https://gitlab.itrexgroup.com/vitaly.skopets/telegram-bot-desimeter"
+repository = "https://gitlab.itrexgroup.com/vitaly.skopets/telegram-bot-desimeter"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pymongo = "^4.1.1"
+pytz = "^2022.1"
+mtranslate = "^1.8"
+rsa = "^4.8"
+python-telegram-bot = "^13.13"
+fake-useragent = "^0.1.11"
+requests = "^2.28.1"
+urllib3 = "^1.26.10"
+bs4 = "^0.0.1"
+emoji = "^1.7.0"
+python-json-logger = "^2.0.4"
+geopy = "^2.2.0"
+types-emoji = "^1.7.4"
+types-pytz = "^2022.1.2"
+types-requests = "^2.28.2"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.1.2"
+flake8 = "^4.0.1"
+flake8-bugbear = "^22.7.1"
+flake8-builtins = "^1.5.3"
+pre-commit = "^2.19.0"
+black = "^22.6.0"
+isort = "^5.10.1"
+flake8-broken-line = "^0.4.0"
+flake8-tidy-imports = "^4.8.0"
+flake8-coding = "^1.3.2"
+mypy = "^0.961"
+pytest-cov = "^3.0.0"
+pytest-xdist = "^2.5.0"
+
+[tool.poetry.scripts]
+poetry = 'poetry.console:run'
+main-run = 'telegram-bot-dosimeter.main:run'
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | .pytest_cache
+  | \.pip-cache
+  | \.poetry
+  | \.venv
+  | \.vscode
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+skip = ".pytest_cache,.pip-cache,.mypy_cache,.poetry,venv,.venv"
+profile = "black"
+line_length = 88
+multi_line_output = 3
+include_trailing_comma = true
