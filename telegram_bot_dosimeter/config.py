@@ -15,6 +15,7 @@ __all__ = (
     "WEBHOOK_MODE",
     "MEASUREMENT_ID",
     "API_SECRET",
+    "SENTRY_SDK",
     "URL_RADIATION",
     "URL_MONITORING",
 )
@@ -50,6 +51,9 @@ MEASUREMENT_ID: str = os.getenv("MEASUREMENT_ID", "")
 
 # Google Analytics
 API_SECRET: str = os.getenv("API_SECRET", "")
+
+# Sentry SDK
+SENTRY_SDK: str = os.getenv("SENTRY_SDK", "")
 
 DESCRIPTION: str = """
     Этот бот может информировать пользователя по состоянию на текущую дату о

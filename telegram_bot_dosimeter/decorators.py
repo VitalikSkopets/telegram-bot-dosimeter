@@ -2,6 +2,7 @@ from functools import wraps
 from logging import Logger
 from typing import Any, Callable, NoReturn, Sequence, Union
 
+import sentry_sdk
 from telegram import ParseMode, Update
 from telegram.ext import CallbackContext
 
@@ -121,6 +122,7 @@ def debug_handler(log_handler: Logger = logger) -> Callable:
                 log_handler.error(
                     f"In the callback handler {func.__name__} an error occurred {ex}"
                 )
+                sentry_sdk.capture_exception(error=ex)
 
         return inner
 

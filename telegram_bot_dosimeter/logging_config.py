@@ -2,8 +2,11 @@ import logging
 import logging.config
 import os
 
+import sentry_sdk
+
 __all__ = ("get_logger",)
 
+from telegram_bot_dosimeter import config
 
 FOLDER_LOG = "logs"
 LOG_FILENAME = "main.log"
@@ -94,3 +97,7 @@ def get_logger(name: str = __name__) -> logging.Logger:
     create_log_folder()
     logging.config.dictConfig(LOGGING_CONFIG)
     return logging.getLogger(name)
+
+
+# Sentry
+sentry_sdk.init(dsn=config.SENTRY_SDK, traces_sample_rate=1.0)
