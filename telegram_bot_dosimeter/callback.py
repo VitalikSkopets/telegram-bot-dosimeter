@@ -64,9 +64,10 @@ class Callback:
 
         :return: Non-return
         """
+        start_message = text_messages.get("start")
         self.update.message.reply_text(  # type: ignore
             f"""
-            Рад нашему знакомству, *{self.user.first_name}*!{text_messages.get("start")}
+            Рад нашему знакомству, *{self.user.first_name}*!{start_message}
             """,
             reply_markup=main_keyboard(),
             parse_mode=ParseMode.MARKDOWN_V2,
@@ -89,8 +90,9 @@ class Callback:
 
         :return: Non-return
         """
+        help_message = text_messages.get("help")
         self.update.message.reply_text(  # type: ignore
-            text_messages.get("help"),  # type: ignore
+            help_message,  # type: ignore
             reply_markup=main_keyboard(),
             parse_mode=ParseMode.MARKDOWN_V2,
         )
@@ -115,9 +117,11 @@ class Callback:
 
         :return: Non-return
         """
+        greet_message = text_messages.get("greet")
+        unknown_message = text_messages.get("unknown")
         if self.update.message.text.lower() in greeting:  # type: ignore
             self.update.message.reply_text(  # type: ignore
-                f"Привет, *{self.user.first_name}*!{text_messages.get('greet')}",
+                f"Привет, *{self.user.first_name}*!{greet_message}",
                 reply_markup=main_keyboard(),
                 parse_mode=ParseMode.MARKDOWN_V2,
             )
@@ -130,7 +134,7 @@ class Callback:
             logger.info(f"User {self.user.id} sent a welcome text message")
         else:
             self.update.message.reply_text(  # type: ignore
-                text_messages.get("unknown"),  # type: ignore
+                unknown_message,  # type: ignore
                 parse_mode=ParseMode.MARKDOWN_V2,
             )
             send_analytics(
@@ -196,7 +200,7 @@ class Callback:
         self.update.message.reply_text(  # type: ignore
             "Выбери интересующий регион",
             reply_markup=ReplyKeyboardMarkup(
-                (
+                [
                     [Brest_region.name],
                     [Vitebsk_region.name],
                     [Gomel_region.name],
@@ -204,7 +208,7 @@ class Callback:
                     [Minsk_region.name],
                     [Mogilev_region.name],
                     ["Главное меню"],
-                ),
+                ],
                 resize_keyboard=True,
             ),
         )

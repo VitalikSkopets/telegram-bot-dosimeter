@@ -6,7 +6,7 @@ import urllib3
 from bs4 import BeautifulSoup
 from emoji.core import emojize  # type: ignore
 from fake_useragent import UserAgent
-from telegram import KeyboardButton, ParseMode, ReplyKeyboardMarkup, Update, User
+from telegram import KeyboardButton, ParseMode, ReplyKeyboardMarkup, Update
 
 from telegram_bot_dosimeter import config
 from telegram_bot_dosimeter.constants import MonitoringPoint
@@ -127,7 +127,7 @@ greeting: tuple[str, ...] = (
 )
 
 
-def get_html(url: str | None = config.URL_RADIATION) -> BeautifulSoup:
+def get_html(url: str = config.URL_RADIATION) -> BeautifulSoup:
     """
     Function for scribing https://rad.org.by/radiation.xml
 
@@ -136,24 +136,22 @@ def get_html(url: str | None = config.URL_RADIATION) -> BeautifulSoup:
     :return: object bs4.BeautifulSoup class - web resource
     https://rad.org.by/radiation.xml html markup
     """
-    try:
-        response = requests.get(
-            url,  # type: ignore
-            verify=False,
-            headers={"User-Agent": UserAgent().random},
-        )
-        soup = BeautifulSoup(response.text, features="xml")
-        return soup
-    except ConnectionError:
-        logger.exception(f"Connection error. Website {url} resources are unavailable.")
-    except Exception as ex:
-        logger.error(f"Raised exception {ex}")
+    response = requests.get(
+        url,
+        verify=False,
+        headers={"User-Agent": UserAgent().random},
+    )
+    soup = BeautifulSoup(response.text, features="xml")
+    return soup
 
 
 def get_cleaned_data() -> list[tuple[str, str]]:
     """
+    The function returns a list of tuples with the names of radiation monitoring
+    points and values of the equivalent dose rate of gamma radiation.
 
-    :return:
+    :return: List of tuples with the names of radiation monitoring
+    points and values of the equivalent dose rate of gamma radiation.
     """
     soup: BeautifulSoup = get_html()
 
@@ -198,54 +196,38 @@ def scraper(update: Update, region: tuple[MonitoringPoint]) -> None:
     :param region: кортеж из объектов датакласса MonitoringPoint - пункты наблюдения
     из модуля constants.py
 
-    :return: None
+    :return: No-return
     """
-    user: User = update.effective_user  # type: ignore
-    try:
-        values_region: list[float] = []
-        table: list[str] = []
+    values_region: list[float] = []
+    table: list[str] = []
 
-        for point, value in get_cleaned_data():
-            if point in [monitoring_point.name for monitoring_point in region]:
-                values_region.append(float(value))
-                table.append(
-                    f"""
-                    |`{format_string(point)}`|`{value + " мкЗв/ч":^13}`|
-                    """
-                )
-        update.message.reply_text(  # type: ignore
-            "По состоянию на _{}_\n\n|`{:^20}`|`{:^13}`|\n".format(
-                config.TODAY, "Пункт наблюдения", "Мощность дозы"
+    for point, value in get_cleaned_data():
+        if point in [monitoring_point.name for monitoring_point in region]:
+            values_region.append(float(value))
+            table.append(
+                f"""
+                |`{format_string(point)}`|`{value + " мкЗв/ч":^13}`|
+                """
             )
-            + "\n".join(table)
-            + "\n\n*Среднее* значение уровня МД гамма-излучения в сети региоанльных"
-            " пунктов радиационного мониторинга Министерства природных ресурсов и"
-            " охраны окружающей среды Беларуси составляет *{:.1f}* мкЗв/ч.".format(
-                sum(values_region) / len(values_region)
-            ),
-            parse_mode=ParseMode.MARKDOWN_V2,
+    update.message.reply_text(  # type: ignore
+        "По состоянию на _{}_\n\n|`{:^20}`|`{:^13}`|\n".format(
+            config.TODAY, "Пункт наблюдения", "Мощность дозы"
         )
-    except ZeroDivisionError:
-        logger.exception(
-            f"Information on the {config.URL_RADIATION} resource is not available."
-        )
-        update.message.reply_text(  # type: ignore
-            f"К сожалению, *{user.first_name}*, {text_messages.get('info')}",
-            parse_mode=ParseMode.MARKDOWN_V2,
-        )
-    except Exception as ex:
-        logger.error(f"Raised exception {ex}")
-        update.message.reply_text(  # type: ignore
-            f"К сожалению, *{user.first_name}*, {text_messages.get('info')}",
-            parse_mode=ParseMode.MARKDOWN_V2,
-        )
+        + "\n".join(table)
+        + "\n\n*Среднее* значение уровня МД гамма-излучения в сети региоанльных"
+        " пунктов радиационного мониторинга Министерства природных ресурсов и"
+        " охраны окружающей среды Беларуси составляет *{:.1f}* мкЗв/ч.".format(
+            sum(values_region) / len(values_region)
+        ),
+        parse_mode=ParseMode.MARKDOWN_V2,
+    )
 
 
 def main_keyboard() -> ReplyKeyboardMarkup:
     """
-    Функция возвращает пользовтелю кнопки меню вместо стандартной клавиатуры
+    The function returns the menu buttons to the user instead of the standard keyboard
 
-    :return: объект класса telegram.ReplyKeyboardMarkup
+    :return: The object of class telegram.ReplyKeyboardMarkup.
     """
     location_keyboard = KeyboardButton(
         "Отправить мою геопозицию", request_location=True

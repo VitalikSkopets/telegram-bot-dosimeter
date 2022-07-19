@@ -107,11 +107,11 @@ def debug_handler(log_handler: Logger = logger) -> Callable:
             except Exception as ex:
                 update = args[0]
                 user = update.message.from_user
-                message = text_messages.get("info")
+                info_message = text_messages.get("info")
                 error_message = f"[ADMIN] - [ERROR]: {ex}"
 
                 update.message.reply_text(  # type: ignore
-                    f"К сожалению, *{user.first_name}*, {message}",
+                    f"К сожалению, *{user.first_name}*, {info_message}",
                     parse_mode=ParseMode.MARKDOWN_V2,
                 )
 

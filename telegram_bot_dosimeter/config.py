@@ -29,27 +29,27 @@ TODAY: str = translate(DATE, DEFAULT_LOCALE)
 TOKEN: str = os.getenv("API_TOKEN", "")
 
 # MongoDB Atlas
-MONGO_DB_NAME: str | None = os.getenv("MONGO_DB_NAME")
-MONGO_DB_LOGIN: str | None = os.getenv("MONGO_DB_LOGIN")
-MONGO_DB_PASSWORD: str | None = os.getenv("MONGO_DB_PASSWORD")
+MONGO_DB_NAME: str = os.getenv("MONGO_DB_NAME", "")
+MONGO_DB_LOGIN: str = os.getenv("MONGO_DB_LOGIN", "")
+MONGO_DB_PASSWORD: str = os.getenv("MONGO_DB_PASSWORD", "")
 MONGO_DB_LINK: str = f"""
     mongodb+srv://{MONGO_DB_LOGIN}:{MONGO_DB_PASSWORD}@cluster.s3cxd.mongodb.net/
     {MONGO_DB_NAME}?retryWrites=true&w=majority"""
 PORT: int = int(os.getenv("PORT", "8443"))
 
 # Heroku
-HEROKU_APP_NAME: str | None = os.getenv("HEROKU_APP_NAME")
+HEROKU_APP_NAME: str = os.getenv("HEROKU_APP_NAME", "")
 WEBHOOK_MODE: bool = bool(os.getenv("WEBHOOK_MODE", 1))
 
 # Source data
-URL_RADIATION: str | None = os.getenv("URL_RADIATION")
-URL_MONITORING: str | None = os.getenv("URL_MONITORING")
+URL_RADIATION: str = os.getenv("URL_RADIATION", "")
+URL_MONITORING: str = os.getenv("URL_MONITORING", "")
 
 # Measurement Protocol API (Google Analytics 4)
-MEASUREMENT_ID: str | None = os.getenv("MEASUREMENT_ID")
+MEASUREMENT_ID: str = os.getenv("MEASUREMENT_ID", "")
 
 # Google Analytics
-API_SECRET: str | None = os.getenv("API_SECRET")
+API_SECRET: str = os.getenv("API_SECRET", "")
 
 DESCRIPTION: str = """
     Этот бот может информировать пользователя по состоянию на текущую дату о
