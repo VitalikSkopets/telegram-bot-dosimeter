@@ -1,5 +1,3 @@
-import re
-
 from geopy import distance
 from telegram import ChatAction, ParseMode, ReplyKeyboardMarkup, Update, User
 from telegram.ext import CallbackContext
@@ -21,8 +19,8 @@ from telegram_bot_dosimeter.main import command_handler
 from telegram_bot_dosimeter.storage.mongodb import MongoDataBase
 from telegram_bot_dosimeter.utils import (
     get_avg_radiation_level,
-    get_cleaned_data,
-    get_html,
+    get_info_about_radiation_monitoring,
+    get_points_with_radiation_level,
     greeting,
     main_keyboard,
     scraper,
@@ -165,13 +163,11 @@ class Callback:
 
         :return: Non-return
         """
-        text_lst = str(get_html(url=config.URL_MONITORING).find_all("span"))
-        pattern = r"(?:...*)(радиационная...*АЭС.)(?:<\/span>)"
-        text = re.findall(pattern, text_lst)
+        response = get_info_about_radiation_monitoring()
         mean = get_avg_radiation_level()
         self.update.message.reply_text(  # type: ignore
             f"""
-            По состоянию на _{config.TODAY}_ {text[0]}\n\nПо стране
+            По состоянию на _{config.TODAY}_ {response}\n\nПо стране
             _среднее_ значение уровня МД гамма-излучения в сети пунктов
             радиационного мониторинга Министерства природных ресурсов и охраны
             окружающей среды Беларусь по состоянию на сегодняшний день составляет
@@ -406,7 +402,7 @@ class Callback:
         https://rad.org.by/radiation.xml. Результаты выполнения метода distance() и
         функции скрайпинга вместе с текущей датой и временем подставляются в
         интерполированную строку, которая отправляется пользователю в качестве
-        ответного сообщения
+        ответного сообщения.
 
         :return: Non-return
         """
@@ -424,7 +420,7 @@ class Callback:
             )
         min_distance: tuple[float, str] = min(distance_list)
 
-        for point, value in get_cleaned_data():  # type: ignore
+        for point, value in get_points_with_radiation_level():  # type: ignore
             if min_distance[1] == point:
                 self.update.message.reply_text(  # type: ignore
                     f"""

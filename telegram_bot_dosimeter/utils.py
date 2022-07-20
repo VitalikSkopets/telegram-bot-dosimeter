@@ -14,8 +14,9 @@ from telegram_bot_dosimeter.logging_config import get_logger
 
 __all__ = (
     "get_html",
-    "get_cleaned_data",
+    "get_points_with_radiation_level",
     "get_avg_radiation_level",
+    "get_info_about_radiation_monitoring",
     "greeting",
     "main_keyboard",
     "scraper",
@@ -145,7 +146,9 @@ def get_html(url: str = config.URL_RADIATION) -> BeautifulSoup:
     return soup
 
 
-def get_cleaned_data(markup: BeautifulSoup | None = None) -> list[tuple[str, str]]:
+def get_points_with_radiation_level(
+    markup: BeautifulSoup | None = None,
+) -> list[tuple[str, str]]:
     """
     The function returns a list of tuples with the names of radiation monitoring
     points and values of the equivalent dose rate of gamma radiation.
@@ -180,6 +183,33 @@ def get_avg_radiation_level() -> float:
     mean_level = sum([float(level) for level in rad_level]) / len(rad_level)
 
     return mean_level
+
+
+def get_info_about_radiation_monitoring() -> str:
+    """
+    The function makes a GET request and scripts the html markup
+    https://rad.org.by/monitoring/radiation.
+
+    :return: String object.
+    """
+    markup = get_html(url=config.URL_MONITORING)
+    lines = [span.text for span in markup.find_all("span")]
+    data = """По состоянию на текущую дату радиационная обстановка на территории
+    Республики Беларусь стабильная, мощность дозы гамма-излучения (МД) на пунктах
+    наблюдений радиационного мониторинга атмосферного воздуха соответствует
+    установившимся многолетним значениям. Как и прежде, повышенный уровень МД
+    гамма-излучения зарегистрирован в пункте наблюдения города Брагин, находящегося в
+    зоне радиоактивного загрязнения, обусловленного катастрофой на Чернобыльской АЭС.
+    """
+    cleaned_data = ""
+    for line in lines:
+        if line.startswith("По состоянию") and line.endswith("АЭС."):
+            data = line.strip()
+    if "натекущую датурадиационная" in data:
+        cleaned_data = data.replace(
+            "натекущую датурадиационная", "на текущую дату радиационная"
+        )
+    return cleaned_data or data
 
 
 def format_string(string: str, min_length: int = 20) -> str:
@@ -219,7 +249,7 @@ def scraper(update: Update, region: tuple[MonitoringPoint]) -> None:
     values_region: list[float] = []
     table: list[str] = []
 
-    for point, value in get_cleaned_data():
+    for point, value in get_points_with_radiation_level():
         if point in [monitoring_point.name for monitoring_point in region]:
             values_region.append(float(value))
             table.append(
@@ -251,10 +281,10 @@ def main_keyboard() -> ReplyKeyboardMarkup:
         "Отправить мою геопозицию", request_location=True
     )
     return ReplyKeyboardMarkup(
-        (
+        [
             ["Радиационный мониторинг"],
             ["Пункты наблюдения"],
             [location_keyboard],
-        ),
+        ],
         resize_keyboard=True,
     )
