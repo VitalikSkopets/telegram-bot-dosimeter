@@ -130,11 +130,11 @@ greeting: tuple[str, ...] = (
 
 def get_html(url: str = config.URL_RADIATION) -> BeautifulSoup:
     """
-    Function for scribing HTML markup of the web resource
+    Function for scribing HTML markup of the web resource.
 
-    :param url: String object with HTML markup of the web resource
+    :param url: String object with HTML markup of the web resource.
 
-    :return: Object of the class bs4.BeautifulSoup - HTML markup of the web resource
+    :return: Object of the class bs4.BeautifulSoup - HTML markup of the web resource.
     """
     response = requests.get(
         url,
@@ -151,7 +151,7 @@ def get_cleaned_data(markup: BeautifulSoup | None = None) -> list[tuple[str, str
     points and values of the equivalent dose rate of gamma radiation.
 
     :param markup: Object of the class bs4.BeautifulSoup - HTML markup of the web
-    resource
+    resource.
 
     :return: List of tuples with the names of radiation monitoring
     points and values of the equivalent dose rate of gamma radiation.
@@ -169,7 +169,7 @@ def get_cleaned_data(markup: BeautifulSoup | None = None) -> list[tuple[str, str
 
 def get_avg_radiation_level() -> float:
     """
-    The function returns the value of the average level of radiation.
+    The function returns the float value of the average level of radiation.
 
     :return: The value of the average level of radiation.
     """
@@ -184,15 +184,15 @@ def get_avg_radiation_level() -> float:
 
 def format_string(string: str, min_length: int = 20) -> str:
     """
-    Функция увеличивает длину строкового объекта до 20 символов заполняя "-"
-    пробельные символы
+    The function increases the length of the string object to 20 characters by
+    filling in "-" spaces.
 
-    :param string: строковый объект - название пункта наблюдения в сети радиационного
-    мониторинга
+    :param string: String object - the name of the observation point in the radiation
+    monitoring network.
 
-    :param min_length: длина строкового объекта по умолчанию 20 симовлов
+    :param min_length: Default string object length is 20 characters.
 
-    :return: строковый объект (название пункта наблюдения) длиной 20 символов
+    :return: String object (observation point name) 20 characters long.
     """
     while len(string) < min_length:
         string += "-"
@@ -201,18 +201,18 @@ def format_string(string: str, min_length: int = 20) -> str:
 
 def scraper(update: Update, region: tuple[MonitoringPoint]) -> None:
     """
-    Функция вызывает метод get_html(), который отправляет GET-запрос и скрайпит
-    HTML-структуру веб-ресурса https://rad.org.by/radiation.xml. Результаты
-    скрайпинга в цикле for сравниваются на равенство с названиями пунктов наблюдения,
-    расположенныъ в соответстсвующей области, и вместе с текущей датой подставляются
-    в ответное сообщение пользователю. Также, функция расчитывает среднее
-    арифметическое значение уровня радиации в сети соответствующих региоанльных
-    пунктов радиационного мониторинга
+    The function calls the get_html() method, which sends a GET request and scripts
+    the HTML markup of the https://rad.org.by/radiation.xml web resource. The results
+    of scripting in the for loop are compared for equality with the names of the
+    observation points located in the corresponding area, and together with the
+    current date are substituted in the response message to the user. Also,
+    the function calculates the arithmetic mean of the radiation level in the network
+    of the corresponding regional radiation monitoring stations.
 
-    :param update: словарь Update с информацией о пользователе Telegram
+    :param update: Update dictionary with information about a Telegram user.
 
-    :param region: кортеж из объектов датакласса MonitoringPoint - пункты наблюдения
-    из модуля constants.py
+    :param region: Tuple of MonitoringPoint dataclass objects - monitoring points
+    from the constants.py module.
 
     :return: No-return
     """
