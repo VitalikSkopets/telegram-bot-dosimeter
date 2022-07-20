@@ -20,6 +20,7 @@ from telegram_bot_dosimeter.logging_config import get_logger
 from telegram_bot_dosimeter.main import command_handler
 from telegram_bot_dosimeter.storage.mongodb import MongoDataBase
 from telegram_bot_dosimeter.utils import (
+    get_avg_radiation_level,
     get_cleaned_data,
     get_html,
     greeting,
@@ -160,15 +161,14 @@ class Callback:
         типу данных float и расчитывает среднее арефметическое значение уровня
         радиации всех пунктов наблюдения. Среднее арефметическое значение уровня
         радиации, также подставляются в интерполированную строку - ответное сообщение
-        пользователю
+        пользователю.
 
         :return: Non-return
         """
         text_lst = str(get_html(url=config.URL_MONITORING).find_all("span"))
         pattern = r"(?:...*)(радиационная...*АЭС.)(?:<\/span>)"
         text = re.findall(pattern, text_lst)
-        values = get_html().find_all("rad")
-        mean = sum([float(indication.text) for indication in values]) / len(values)
+        mean = get_avg_radiation_level()
         self.update.message.reply_text(  # type: ignore
             f"""
             По состоянию на _{config.TODAY}_ {text[0]}\n\nПо стране

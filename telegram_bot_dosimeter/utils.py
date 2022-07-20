@@ -15,6 +15,7 @@ from telegram_bot_dosimeter.logging_config import get_logger
 __all__ = (
     "get_html",
     "get_cleaned_data",
+    "get_avg_radiation_level",
     "greeting",
     "main_keyboard",
     "scraper",
@@ -129,12 +130,11 @@ greeting: tuple[str, ...] = (
 
 def get_html(url: str = config.URL_RADIATION) -> BeautifulSoup:
     """
-    Function for scribing https://rad.org.by/radiation.xml
+    Function for scribing HTML markup of the web resource
 
-    :param url: string object with URL address 'https://rad.org.by/radiation.xml'
+    :param url: String object with HTML markup of the web resource
 
-    :return: object bs4.BeautifulSoup class - web resource
-    https://rad.org.by/radiation.xml html markup
+    :return: Object of the class bs4.BeautifulSoup - HTML markup of the web resource
     """
     response = requests.get(
         url,
@@ -145,15 +145,18 @@ def get_html(url: str = config.URL_RADIATION) -> BeautifulSoup:
     return soup
 
 
-def get_cleaned_data() -> list[tuple[str, str]]:
+def get_cleaned_data(markup: BeautifulSoup | None = None) -> list[tuple[str, str]]:
     """
     The function returns a list of tuples with the names of radiation monitoring
     points and values of the equivalent dose rate of gamma radiation.
 
+    :param markup: Object of the class bs4.BeautifulSoup - HTML markup of the web
+    resource
+
     :return: List of tuples with the names of radiation monitoring
     points and values of the equivalent dose rate of gamma radiation.
     """
-    soup: BeautifulSoup = get_html()
+    soup = markup or get_html()
 
     points: list[str] = [point.text for point in soup.find_all("title")]
     points.reverse()
@@ -162,6 +165,21 @@ def get_cleaned_data() -> list[tuple[str, str]]:
     values.reverse()
 
     return list(zip(points, values))
+
+
+def get_avg_radiation_level() -> float:
+    """
+    The function returns the value of the average level of radiation.
+
+    :return: The value of the average level of radiation.
+    """
+    soup = get_html()
+    rad_level: list[str] = [value.text for value in soup.find_all("rad")]
+    rad_level.reverse()
+
+    mean_level = sum([float(level) for level in rad_level]) / len(rad_level)
+
+    return mean_level
 
 
 def format_string(string: str, min_length: int = 20) -> str:
