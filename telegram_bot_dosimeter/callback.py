@@ -20,10 +20,11 @@ from telegram_bot_dosimeter.storage.mongodb import MongoDataBase
 from telegram_bot_dosimeter.utils import (
     get_avg_radiation_level,
     get_info_about_radiation_monitoring,
+    get_info_about_region,
     get_points_with_radiation_level,
+    get_user_message,
     greeting,
     main_keyboard,
-    scraper,
     text_messages,
 )
 
@@ -220,17 +221,19 @@ class Callback:
     @send_action(ChatAction.TYPING)
     def brest_callback(self) -> None:
         """
-        Метод-обработчик нажатия пользователем кнопки "Брестская область". Метод
-        вызывет фунцию scraper(), которая, в свою очередь, вызывает функцию get_html().
-        Последний отправляет get-запрос и скрайпит html-структуру
-        https://rad.org.by/radiation.xml. Результаты скрайпинга в цикле for
-        сравниваются на равенство с названиями пунктов наблюдения, расположенных в
-        Брестской области, и вместе с текущей датой подставляются в ответное
-        сообщение пользователю
+        Handler method for pressing the "Brest region" button by the user.
 
         :return: Non-return
         """
-        scraper(self.update, region=Brest_region.monitoring_points)  # type: ignore
+        table, values_by_region = get_info_about_region(
+            region=Brest_region.monitoring_points  # type: ignore
+        )
+
+        self.update.message.reply_text(  # type: ignore
+            get_user_message(table, values_by_region),
+            parse_mode=ParseMode.MARKDOWN_V2,
+        )
+
         self.repo.add_region(self.user, "Brest region")
         send_analytics(
             user_id=self.user.id,
@@ -243,19 +246,20 @@ class Callback:
     @send_action(ChatAction.TYPING)
     def vitebsk_callback(self) -> None:
         """
-        Метод-обработчик нажатия пользователем кнопки "Витебская область". Метод
-        вызывет функцию scraper(), которая, в свою очередь, вызывает функцию get_html().
-        Последний отправляет get-запрос и скрайпит html-структуру
-        https://rad.org.by/radiation.xml. Результаты скрайпинга в цикле for
-        сравниваются на равенство с названиями пунктов наблюдения, расположенных в
-        Витебской области, и вместе с текущей датой подставляются в ответное
-        сообщение пользователю
+        Handler method for pressing the "Vitebsk region" button by the user.
 
         :return: Non-return
         """
-        user: User = self.update.effective_user  # type: ignore
-        scraper(self.update, region=Vitebsk_region.monitoring_points)  # type: ignore
-        self.repo.add_region(user, "Vitebsk region")
+        table, values_by_region = get_info_about_region(
+            region=Vitebsk_region.monitoring_points  # type: ignore
+        )
+
+        self.update.message.reply_text(  # type: ignore
+            get_user_message(table, values_by_region),
+            parse_mode=ParseMode.MARKDOWN_V2,
+        )
+
+        self.repo.add_region(self.user, "Vitebsk region")
         send_analytics(
             user_id=self.user.id,
             user_lang_code=self.user.language_code,  # type: ignore
@@ -267,17 +271,19 @@ class Callback:
     @send_action(ChatAction.TYPING)
     def gomel_callback(self) -> None:
         """
-        Метод-обработчик нажатия пользователем кнопки "Гомельская область". Метод
-        вызывет функцию scraper(), которая, в свою очередь, вызывает функцию get_html().
-        Последний отправляет get-запрос и скрайпит html-структуру
-        https://rad.org.by/radiation.xml. Результаты скрайпинга в цикле for
-        сравниваются на равенство с названиями пунктов наблюдения, расположенных в
-        Гомельской области, и вместе с текущей датой подставляются в ответное
-        сообщение пользователю
+        Handler method for pressing the "Gomel region" button by the user.
 
         :return: Non-return
         """
-        scraper(self.update, region=Gomel_region.monitoring_points)  # type: ignore
+        table, values_by_region = get_info_about_region(
+            region=Gomel_region.monitoring_points  # type: ignore
+        )
+
+        self.update.message.reply_text(  # type: ignore
+            get_user_message(table, values_by_region),
+            parse_mode=ParseMode.MARKDOWN_V2,
+        )
+
         self.repo.add_region(self.user, "Gomel region")
         send_analytics(
             user_id=self.user.id,
@@ -290,17 +296,19 @@ class Callback:
     @send_action(ChatAction.TYPING)
     def grodno_callback(self) -> None:
         """
-        Метод-обработчик нажатия пользователем кнопки "Гродненская область".
-        Метод вызывет функцию scraper(), которая, в свою очередь, вызывает функцию
-        get_html(). Последний отправляет get-запрос и скрайпит html-структуру
-        https://rad.org.by/radiation.xml. Результаты скрайпинга в цикле for
-        сравниваются на равенство с названиями пунктов наблюдения, расположенных в
-        Гродненской области, и вместе с текущей датой подставляются в ответное
-        сообщение пользователю
+        Handler method for pressing the "Grodno region" button by the user.
 
         :return: non-return
         """
-        scraper(self.update, region=Grodno_region.monitoring_points)  # type: ignore
+        table, values_by_region = get_info_about_region(
+            region=Grodno_region.monitoring_points  # type: ignore
+        )
+
+        self.update.message.reply_text(  # type: ignore
+            get_user_message(table, values_by_region),
+            parse_mode=ParseMode.MARKDOWN_V2,
+        )
+
         self.repo.add_region(self.user, "Grodno region")
         send_analytics(
             user_id=self.user.id,
@@ -313,17 +321,19 @@ class Callback:
     @send_action(ChatAction.TYPING)
     def minsk_callback(self) -> None:
         """
-        Метод-обработчик нажатия пользователем кнопки "Минск и Минская область".
-        Метод вызывет функцию scraper(), которая, в свою очередь, вызывает функцию
-        get_html(). Последний отправляет get-запрос и скрайпит html-структуру
-        https://rad.org.by/radiation.xml. Результаты скрайпинга в цикле for
-        сравниваются на равенство с названиями пунктов наблюдения, расположенных в
-        Минске и Минской области, и вместе с текущей датой подставляются в ответное
-        сообщение пользователю
+        Handler method for pressing the "Minsk region" button by the user.
 
         :return: Non-return
         """
-        scraper(self.update, region=Minsk_region.monitoring_points)  # type: ignore
+        table, values_by_region = get_info_about_region(
+            region=Minsk_region.monitoring_points  # type: ignore
+        )
+
+        self.update.message.reply_text(  # type: ignore
+            get_user_message(table, values_by_region),
+            parse_mode=ParseMode.MARKDOWN_V2,
+        )
+
         self.repo.add_region(self.user, "Minsk region")
         send_analytics(
             user_id=self.user.id,
@@ -336,18 +346,20 @@ class Callback:
     @send_action(ChatAction.TYPING)
     def mogilev_callback(self) -> None:
         """
-        Метод-обработчик нажатия пользователем кнопки "Могилевская область".
-        Метод вызывет функцию scraper(), которая, в свою очередь, вызывает функцию
-        get_html(). Последний отправляет get-запрос и скрайпит html-структуру
-        https://rad.org.by/radiation.xml. Результаты скрайпинга в цикле for
-        сравниваются на равенство с названиями пунктов наблюдения, расположенных в
-        Могилевскойй области, и вместе с текущей датой подставляются в ответное
-        сообщение пользователю
+        Handler method for pressing the "Mogilev region" button by the user.
 
         :return: None
         """
-        scraper(self.update, region=Mogilev_region.monitoring_points)  # type: ignore
-        self.repo.add_region(self.user, "Mogilev region")
+        table, values_by_region = get_info_about_region(
+            region=Mogilev_region.monitoring_points  # type: ignore
+        )
+
+        self.update.message.reply_text(  # type: ignore
+            get_user_message(table, values_by_region),
+            parse_mode=ParseMode.MARKDOWN_V2,
+        )
+
+        self.repo.add_region(self.user, "Mogilev region")  # type: ignore
         send_analytics(
             user_id=self.user.id,
             user_lang_code=self.user.language_code,  # type: ignore

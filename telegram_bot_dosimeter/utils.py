@@ -6,7 +6,7 @@ import urllib3
 from bs4 import BeautifulSoup
 from emoji.core import emojize  # type: ignore
 from fake_useragent import UserAgent
-from telegram import KeyboardButton, ParseMode, ReplyKeyboardMarkup, Update
+from telegram import KeyboardButton, ReplyKeyboardMarkup
 
 from telegram_bot_dosimeter import config
 from telegram_bot_dosimeter.constants import MonitoringPoint
@@ -18,8 +18,9 @@ __all__ = (
     "get_avg_radiation_level",
     "get_info_about_radiation_monitoring",
     "greeting",
+    "get_user_message",
     "main_keyboard",
-    "scraper",
+    "get_info_about_region",
     "text_messages",
 )
 
@@ -229,7 +230,9 @@ def format_string(string: str, min_length: int = 20) -> str:
     return string
 
 
-def scraper(update: Update, region: tuple[MonitoringPoint]) -> None:
+def get_info_about_region(
+    region: tuple[MonitoringPoint],
+) -> tuple[list[str], list[float]]:
     """
     The function calls the get_html() method, which sends a GET request and scripts
     the HTML markup of the https://rad.org.by/radiation.xml web resource. The results
@@ -239,36 +242,36 @@ def scraper(update: Update, region: tuple[MonitoringPoint]) -> None:
     the function calculates the arithmetic mean of the radiation level in the network
     of the corresponding regional radiation monitoring stations.
 
-    :param update: Update dictionary with information about a Telegram user.
-
     :param region: Tuple of MonitoringPoint dataclass objects - monitoring points
     from the constants.py module.
 
     :return: No-return
     """
-    values_region: list[float] = []
+    values_by_region: list[float] = []
     table: list[str] = []
 
     for point, value in get_points_with_radiation_level():
         if point in [monitoring_point.name for monitoring_point in region]:
-            values_region.append(float(value))
+            values_by_region.append(float(value))
             table.append(
                 f"""
                 |`{format_string(point)}`|`{value + " мкЗв/ч":^13}`|
                 """
             )
-    update.message.reply_text(  # type: ignore
-        "По состоянию на _{}_\n\n|`{:^20}`|`{:^13}`|\n".format(
-            config.TODAY, "Пункт наблюдения", "Мощность дозы"
-        )
-        + "\n".join(table)
-        + "\n\n*Среднее* значение уровня МД гамма-излучения в сети региоанльных"
-        " пунктов радиационного мониторинга Министерства природных ресурсов и"
-        " охраны окружающей среды Беларуси составляет *{:.1f}* мкЗв/ч.".format(
-            sum(values_region) / len(values_region)
-        ),
-        parse_mode=ParseMode.MARKDOWN_V2,
+    return table, values_by_region
+
+
+def get_user_message(table: list[str], values_by_region: list[float]) -> str:
+    part_one = "По состоянию на _{}_\n\n|`{:^20}`|`{:^13}`|\n".format(
+        config.TODAY, "Пункт наблюдения", "Мощность дозы"
     )
+    part_two = "\n".join(table)
+    part_three = "\n\n*Среднее* значение уровня МД гамма-излучения в сети региоанльных"
+    " пунктов радиационного мониторинга Министерства природных ресурсов и"
+    " охраны окружающей среды Беларуси составляет *{:.1f}* мкЗв/ч.".format(
+        sum(values_by_region) / len(values_by_region)
+    )
+    return part_one + part_two + part_three
 
 
 def main_keyboard() -> ReplyKeyboardMarkup:
