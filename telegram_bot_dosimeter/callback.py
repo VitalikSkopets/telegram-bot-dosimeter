@@ -1,11 +1,9 @@
-from geopy import distance
 from telegram import ChatAction, ParseMode, ReplyKeyboardMarkup, Update, User
 from telegram.ext import CallbackContext
 
 from telegram_bot_dosimeter import config
 from telegram_bot_dosimeter.analytics.measurement_protocol import send_analytics
 from telegram_bot_dosimeter.constants import (
-    MONITORING_POINTS,
     Brest_region,
     Gomel_region,
     Grodno_region,
@@ -14,6 +12,7 @@ from telegram_bot_dosimeter.constants import (
     Vitebsk_region,
 )
 from telegram_bot_dosimeter.decorators import debug_handler, send_action
+from telegram_bot_dosimeter.geolocation import get_nearest_point_location
 from telegram_bot_dosimeter.logging_config import get_logger
 from telegram_bot_dosimeter.main import command_handler
 from telegram_bot_dosimeter.storage.mongodb import MongoDataBase
@@ -43,7 +42,6 @@ class Callback:
     def __init__(self, storage: MongoDataBase = MongoDB) -> None:
         """
         Constructor method for initializing objects of class Handlers.
-
         :param storage: object of the class pymongo.MongoClient class to connect to
         users_db database in MongoDB Atlas
 
@@ -59,7 +57,6 @@ class Callback:
     def start_callback(self) -> None:
         """
         Start command handler method.
-
         :return: Non-return
         """
         start_message = text_messages.get("start")
@@ -82,7 +79,6 @@ class Callback:
     def help_callback(self) -> None:
         """
         Help command handler method.
-
         :return: Non-return
         """
         help_message = text_messages.get("help")
@@ -104,7 +100,6 @@ class Callback:
     def messages_callback(self) -> None:
         """
         Handler method for an incoming text message from the user.
-
         :return: Non-return
         """
         greet_message = text_messages.get("greet")
@@ -139,7 +134,6 @@ class Callback:
     def radiation_monitoring_callback(self) -> None:
         """
         Handler method for pressing the "Radiation monitoring" button by the user.
-
         :return: Non-return
         """
         response = get_info_about_radiation_monitoring()
@@ -167,7 +161,6 @@ class Callback:
     def monitoring_points_callback(self) -> None:
         """
         Handler method for pressing the "Monitoring points" button by the user.
-
         :return: Non-return
         """
         self.update.message.reply_text(  # type: ignore
@@ -198,7 +191,6 @@ class Callback:
     def brest_callback(self) -> None:
         """
         Handler method for pressing the "Brest region" button by the user.
-
         :return: Non-return
         """
         table, values_by_region = get_info_about_region(
@@ -223,7 +215,6 @@ class Callback:
     def vitebsk_callback(self) -> None:
         """
         Handler method for pressing the "Vitebsk region" button by the user.
-
         :return: Non-return
         """
         table, values_by_region = get_info_about_region(
@@ -248,7 +239,6 @@ class Callback:
     def gomel_callback(self) -> None:
         """
         Handler method for pressing the "Gomel region" button by the user.
-
         :return: Non-return
         """
         table, values_by_region = get_info_about_region(
@@ -273,7 +263,6 @@ class Callback:
     def grodno_callback(self) -> None:
         """
         Handler method for pressing the "Grodno region" button by the user.
-
         :return: non-return
         """
         table, values_by_region = get_info_about_region(
@@ -298,7 +287,6 @@ class Callback:
     def minsk_callback(self) -> None:
         """
         Handler method for pressing the "Minsk region" button by the user.
-
         :return: Non-return
         """
         table, values_by_region = get_info_about_region(
@@ -323,8 +311,7 @@ class Callback:
     def mogilev_callback(self) -> None:
         """
         Handler method for pressing the "Mogilev region" button by the user.
-
-        :return: None
+        :return: Non-return
         """
         table, values_by_region = get_info_about_region(
             region=Mogilev_region.monitoring_points  # type: ignore
@@ -348,7 +335,6 @@ class Callback:
     def main_menu_callback(self) -> None:
         """
         Handler method for pressing the "Main menu" button by the user.
-
         :return: Non-return
         """
         self.update.message.reply_text(  # type: ignore
@@ -377,29 +363,21 @@ class Callback:
     def send_location_callback(self) -> None:
         """
         Handler method for pressing the "Send location" button by the user.
-
         :return: Non-return
         """
-        user_coordinates: tuple[float, float] = (
-            self.update.message.location.latitude,  # type: ignore
-            self.update.message.location.longitude,  # type: ignore
+        distance_to_nearest_point, nearest_point_name = get_nearest_point_location(
+            latitude=self.update.message.location.latitude,  # type: ignore
+            longitude=self.update.message.location.longitude,  # type: ignore
         )
-        distance_list: list[tuple[float, str]] = []
-        for point in MONITORING_POINTS:
-            distance_list.append(
-                (
-                    distance.distance(user_coordinates, point.coordinates).km,
-                    point.name,
-                ),
-            )
-        min_distance: tuple[float, str] = min(distance_list)
+
+        distance = f"{distance_to_nearest_point:,} м".replace(",", " ")
 
         for point, value in get_points_with_radiation_level():  # type: ignore
-            if min_distance[1] == point:
+            if nearest_point_name == point:
                 self.update.message.reply_text(  # type: ignore
                     f"""
-                    _{min_distance[0]:.3f} м_ до ближайшего пункта наблюдения
-                    "{min_distance[1]}".\n\nВ пункте наблюдения "{point}"
+                    _{distance}_ до ближайшего пункта наблюдения
+                    "{nearest_point_name}".\n\nВ пункте наблюдения "{point}"
                     по состоянию на _{config.TODAY}_ уровень эквивалентной
                     дозы радиации составляет *{value}* мкЗв/ч.
                     """,

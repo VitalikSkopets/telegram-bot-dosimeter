@@ -133,9 +133,7 @@ greeting: tuple[str, ...] = (
 def get_html(url: str = config.URL_RADIATION) -> BeautifulSoup:
     """
     Function for scribing HTML markup of the web resource.
-
-    :param url: String object with HTML markup of the web resource.
-
+    :param url: string object with HTML markup of the web resource.
     :return: Object of the class bs4.BeautifulSoup - HTML markup of the web resource.
     """
     response = requests.get(
@@ -153,10 +151,8 @@ def get_points_with_radiation_level(
     """
     The function returns a list of tuples with the names of radiation monitoring
     points and values of the equivalent dose rate of gamma radiation.
-
-    :param markup: Object of the class bs4.BeautifulSoup - HTML markup of the web
+    :param markup: object of the class bs4.BeautifulSoup - HTML markup of the web
     resource.
-
     :return: List of tuples with the names of radiation monitoring
     points and values of the equivalent dose rate of gamma radiation.
     """
@@ -174,7 +170,6 @@ def get_points_with_radiation_level(
 def get_avg_radiation_level() -> float:
     """
     The function returns the float value of the average level of radiation.
-
     :return: The value of the average level of radiation.
     """
     soup = get_html()
@@ -190,7 +185,6 @@ def get_info_about_radiation_monitoring() -> str:
     """
     The function makes a GET request and scripts the html markup
     https://rad.org.by/monitoring/radiation.
-
     :return: String object.
     """
     markup = get_html(url=config.URL_MONITORING)
@@ -217,12 +211,9 @@ def format_string(string: str, min_length: int = 20) -> str:
     """
     The function increases the length of the string object to 20 characters by
     filling in "-" spaces.
-
-    :param string: String object - the name of the observation point in the radiation
+    :param string: the name of the observation point in the radiation
     monitoring network.
-
-    :param min_length: Default string object length is 20 characters.
-
+    :param min_length: default string object length is 20 characters.
     :return: String object (observation point name) 20 characters long.
     """
     while len(string) < min_length:
@@ -241,10 +232,8 @@ def get_info_about_region(
     current date are substituted in the response message to the user. Also,
     the function calculates the arithmetic mean of the radiation level in the network
     of the corresponding regional radiation monitoring stations.
-
-    :param region: Tuple of MonitoringPoint dataclass objects - monitoring points
+    :param region: tuple of MonitoringPoint dataclass objects - monitoring points
     from the constants.py module.
-
     :return: No-return
     """
     values_by_region: list[float] = []
@@ -277,7 +266,6 @@ def get_user_message(table: list[str], values_by_region: list[float]) -> str:
 def main_keyboard() -> ReplyKeyboardMarkup:
     """
     The function returns the menu buttons to the user instead of the standard keyboard
-
     :return: The object of class telegram.ReplyKeyboardMarkup.
     """
     location_keyboard = KeyboardButton(

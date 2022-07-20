@@ -22,8 +22,7 @@ class MongoDataBase(DocumentRepository):
 
     def __init__(self, client: MongoClient = client_mdb) -> None:
         """
-        Constructor method for initializing objects of the MongoDataBase class
-
+        Constructor method for initializing objects of the MongoDataBase class.
         :param client: object pymongo.MongoClient class for connection with users_db
         in MongoDB Atlas
         """
@@ -42,10 +41,8 @@ class MongoDataBase(DocumentRepository):
         Значения ключей first_name, last_name и username добавляются в словарь в
         зашифрованном виде с использованием метода encrypt() из класса DataEncrypt,
         а значениями "действий" бота являются пустые массивы (списки), в которые
-        впоследствии будут добавлятся дата и время их совершения
-
+        впоследствии будут добавлятся дата и время их совершения.
         :param user: object telegram.User class with information about user
-
         :return: словарь current_user, являющийся схемой документа для добавления в
         коллекцию users БД users_db в MongoDB
         """
@@ -71,10 +68,8 @@ class MongoDataBase(DocumentRepository):
         """
         Метод добавляет дату и время вызова пользователем команды /start
         в массив с ключом "selected /start command" коллекции users users_db
-        в MongoDB Atlas
-
+        в MongoDB Atlas.
         :param user: object telegram.User class with information about user
-
         :return: None
         """
         try:
@@ -100,10 +95,8 @@ class MongoDataBase(DocumentRepository):
         """
         Метод добавляет текущую дату и время вызова команды /help пользователя
         Telegram в массив с ключом "selected /help command" коллекции users users_db
-        в MongoDB Atlas
-
+        в MongoDB Atlas.
         :param user: object telegram.User class with information about user
-
         :return: None
         """
         try:
@@ -129,10 +122,8 @@ class MongoDataBase(DocumentRepository):
         """
         Метод добавляет дату и время отправки пользователем приветственного
         сообщения в массив с ключом "sent a welcome text message" коллекции users
-        users_db в MongoDB Atlas
-
+        users_db в MongoDB Atlas.
         :param user: object telegram.User class with information about user
-
         :return: None
         """
         try:
@@ -161,10 +152,8 @@ class MongoDataBase(DocumentRepository):
         Метод добавляет дату и время использования пользователем кнопки
         "Радиационный мониторирг" в массив с ключом "press button 'Radioactive
         monitoring'" соответствующего документа коллекции users базы данных users_db
-        в MongoDB Atlas
-
+        в MongoDB Atlas.
         :param user: object telegram.User class with information about user
-
         :return: None
         """
         try:
@@ -184,10 +173,8 @@ class MongoDataBase(DocumentRepository):
         """
         Метод добавляет дату и время использования пользователем кнопки
         "Пункты наблюдения" в массив с ключом "press button 'Observation points'"
-        соответствующего документа коллекции users users_db в MongoDB Atlas
-
+        соответствующего документа коллекции users users_db в MongoDB Atlas.
         :param user: object telegram.User class with information about user
-
         :return: None
         """
         try:
@@ -207,13 +194,10 @@ class MongoDataBase(DocumentRepository):
         """
         Метод добавляет дату и время использования пользователем кнопки
         "Брестская область" в массив с ключом "press button 'Observation points'"
-        соответствующего документа коллекции users users_db в MongoDB Atlas
-
+        соответствующего документа коллекции users users_db в MongoDB Atlas.
         :param region: строковый объект - наименование региона, которое передается
         при выполнении метода scraper_*() класса Callback
-
         :param user: object telegram.User class with information about user
-
         :return: None
         """
         try:
@@ -230,10 +214,8 @@ class MongoDataBase(DocumentRepository):
         """
         Метод добавляет текущую дату и время использования пользователем кнопки
         "Отправить мою геолокацию" в массив с ключом "press button 'Send
-        location'" соответствующего документа коллекции users users_db в MongoDB Atlas
-
+        location'" соответствующего документа коллекции users users_db в MongoDB Atlas.
         :param user: object telegram.User class with information about user
-
         :return: None
         """
         try:
@@ -257,8 +239,7 @@ class MongoDataBase(DocumentRepository):
         """
         Метод запрашивает из базы данных и выводит в консоль выборку id
         пользователей Telegram-бота из документов коллекции users базы данных
-        users_db в MongoDB Atlas
-
+        users_db в MongoDB Atlas.
         :return: строковое представление нумерованных значений всех документов
         коллекции users базы данных users_db в MongoDB Atlas по ключу 'user_id'
         """
@@ -271,8 +252,7 @@ class MongoDataBase(DocumentRepository):
         """
         Метод запрашивает из базы данных и выводит в консоль выборку User ID,
         first/last/user names пользователей Telegram-бота из документов коллекции
-        users базы данных users_db в MongoDB Atlas
-
+        users базы данных users_db в MongoDB Atlas.
         :return: значенаия полей всех документов коллекции users базы данных users_db
         в MongoDB Atlas по ключам user_id, first_name, last_name и user_name
         """

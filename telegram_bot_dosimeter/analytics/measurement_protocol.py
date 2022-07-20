@@ -18,14 +18,10 @@ URL: str = f"""
 def send_analytics(user_id: int, user_lang_code: str, action_name: str) -> None:
     """
     Send record to Google Analytics 4.
-
     :param user_id: integer - user ID.
-
     :param user_lang_code: string object - user locale.
-
     :param action_name: string object - action name.
-
-    :return: non-return
+    :return: Non-return
     """
     params = {
         "client_id": str(user_id),
