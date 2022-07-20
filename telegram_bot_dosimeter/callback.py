@@ -37,15 +37,15 @@ MongoDB = MongoDataBase()
 
 class Callback:
     """
-    Класс, инкапсулирующий методы обработки команд Telegram-бота
+    A class that encapsulates methods for processing Telegram bot commands.
     """
 
     def __init__(self, storage: MongoDataBase = MongoDB) -> None:
         """
-        Метод-конструктор для инициализации объектов класса Handlers
+        Constructor method for initializing objects of class Handlers.
 
-        :param storage: object pymongo.MongoClient class для
-        соединения с базой данных users_db в MongoDB Atlas
+        :param storage: object of the class pymongo.MongoClient class to connect to
+        users_db database in MongoDB Atlas
 
         """
         self.repo = storage
@@ -58,17 +58,13 @@ class Callback:
     @command_handler("start")
     def start_callback(self) -> None:
         """
-        Метод-обработчик команды Start. При выборе пользователем команды Start
-        возвращает приветственное сообщение и кнопки меню Telegram-бота вместо
-        стандартной клавиатуры
+        Start command handler method.
 
         :return: Non-return
         """
         start_message = text_messages.get("start")
         self.update.message.reply_text(  # type: ignore
-            f"""
-            Рад нашему знакомству, *{self.user.first_name}*!{start_message}
-            """,
+            f"Рад нашему знакомству, *{self.user.first_name}*!{start_message}",
             reply_markup=main_keyboard(),
             parse_mode=ParseMode.MARKDOWN_V2,
         )
@@ -85,8 +81,7 @@ class Callback:
     @command_handler("help")
     def help_callback(self) -> None:
         """
-        Метод-обработчик команды Help. При выборе пользователем команды Help
-        возвращает текстовое сообщение и кнопки меню вместо стандартной клавиатуры
+        Help command handler method.
 
         :return: Non-return
         """
@@ -108,12 +103,7 @@ class Callback:
     @send_action(ChatAction.TYPING)
     def messages_callback(self) -> None:
         """
-        Метод-обработчик входящего текстового сообщения от пользователя. Если в
-        текстовом сообщении пользователя есть строка из списка greeting, метод
-        возвращает пользователю приветственное текстовое сообщение и кнопки меню
-        вместо стандартной клавиатуры. Если в сообщении пользователя строки
-        невходящие в список greeting, метод возвращает пользователю текстовое
-        сообщение с предложением выбрать команду Help
+        Handler method for an incoming text message from the user.
 
         :return: Non-return
         """
@@ -148,19 +138,7 @@ class Callback:
     @send_action(ChatAction.TYPING)
     def radiation_monitoring_callback(self) -> None:
         """
-        Метод-обработчик нажатия кнопки "Радиационный мониторинг". В теле метода
-        вызывается кастомная функцию get_html(), которая осуществляет GET-запрос и
-        скрайпит html-структуру https://rad.org.by/monitoring/radiation на основе
-        регулярного выражения. Результаты скрайпинга в виде строкового объекта вместе
-        с текущей датой подставляются в интерполированную строку - ответное сообщение
-        пользователю. Также, в теле метода происходит повторный вызов кастомной
-        функцию get_html(), которая в результате скрайпинга
-        https://rad.org.by/radiation.xml возвращает строковые значения радиации всех
-        пунктов наблюдения, после чего приводит строковые значения уровня радиации к
-        типу данных float и расчитывает среднее арефметическое значение уровня
-        радиации всех пунктов наблюдения. Среднее арефметическое значение уровня
-        радиации, также подставляются в интерполированную строку - ответное сообщение
-        пользователю.
+        Handler method for pressing the "Radiation monitoring" button by the user.
 
         :return: Non-return
         """
@@ -188,9 +166,7 @@ class Callback:
     @send_action(ChatAction.TYPING)
     def monitoring_points_callback(self) -> None:
         """
-        Метод-обработчик нажатия пользователем кнопки "Пункты наблюдения".
-        Возвращает пользователю кнопки меню с названиями областей вместо стандартной
-        клавиатуры
+        Handler method for pressing the "Monitoring points" button by the user.
 
         :return: Non-return
         """
@@ -371,10 +347,7 @@ class Callback:
     @send_action(ChatAction.TYPING)
     def main_menu_callback(self) -> None:
         """
-        Метод-обработчик нажатия пользователем кнопки "Главное меню". В качестве
-        ответного сообщения пользователю обработчик вызывает кастомную функцию
-        main_keyboard(), которая возвращает пользователю сообщение и кнопки меню
-        вместо стандартной клавиатуры
+        Handler method for pressing the "Main menu" button by the user.
 
         :return: Non-return
         """
@@ -403,18 +376,7 @@ class Callback:
     @send_action(ChatAction.FIND_LOCATION)
     def send_location_callback(self) -> None:
         """
-        Метод-обработчик нажатия кнопки "Отправить мою геолокацию". В теле метода
-        происходит вызов aeyrwbb distance() из библиотеки geopy, которому в качестве
-        оргументов передаются географические координаты пользователя и пунктов
-        наблюдения из словаря MONITORING_POINTS. Метод distance() расчитывает
-        расстояние в метрах от каждого пункта наблюдения до пользователя. С помощью
-        встроенной функции min() определяется расстояние до ближайшего к пользователю
-        пунтка наблюдения. Также, в теле функция производит вызов кастомной функцию
-        get_html(), которая осуществляет скрайпинг html-структуры
-        https://rad.org.by/radiation.xml. Результаты выполнения метода distance() и
-        функции скрайпинга вместе с текущей датой и временем подставляются в
-        интерполированную строку, которая отправляется пользователю в качестве
-        ответного сообщения.
+        Handler method for pressing the "Send location" button by the user.
 
         :return: Non-return
         """
