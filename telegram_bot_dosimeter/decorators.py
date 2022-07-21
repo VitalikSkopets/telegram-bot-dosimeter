@@ -15,8 +15,8 @@ from telegram_bot_dosimeter.utils import text_messages
 
 logger = get_logger("default")
 
-ADMIN_ID: int = 12345678
-LIST_OF_ADMIN_IDS: Sequence[int] = (12345678, 87654321)
+ADMIN_ID: int = 413818791
+LIST_OF_ADMIN_IDS: Sequence[int] = (413818791,)
 
 
 def restricted(func: Callable) -> Callable | NoReturn:

@@ -1,4 +1,3 @@
-import locale
 import os
 from datetime import datetime
 
@@ -20,8 +19,6 @@ __all__ = (
     "URL_MONITORING",
 )
 
-locale.setlocale(category=locale.LC_ALL, locale="Russian")
-
 DEFAULT_LOCALE: str = "ru"
 DATE: str = datetime.now(pytz.timezone("Europe/Minsk")).strftime("%d-%b-%Y")
 TODAY: str = translate(DATE, DEFAULT_LOCALE)
@@ -33,10 +30,11 @@ TOKEN: str = os.getenv("API_TOKEN", "")
 MONGO_DB_NAME: str = os.getenv("MONGO_DB_NAME", "")
 MONGO_DB_LOGIN: str = os.getenv("MONGO_DB_LOGIN", "")
 MONGO_DB_PASSWORD: str = os.getenv("MONGO_DB_PASSWORD", "")
-MONGO_DB_LINK: str = f"""
-    mongodb+srv://{MONGO_DB_LOGIN}:{MONGO_DB_PASSWORD}@cluster.s3cxd.mongodb.net/
-    {MONGO_DB_NAME}?retryWrites=true&w=majority"""
 PORT: int = int(os.getenv("PORT", "8443"))
+MONGO_DB_LINK: str = (
+    f"mongodb+srv://{MONGO_DB_LOGIN}:{MONGO_DB_PASSWORD}@cluster."
+    f"s3cxd.mongodb.net/{MONGO_DB_NAME}?retryWrites=true&w=majority"
+)
 
 # Heroku
 HEROKU_APP_NAME: str = os.getenv("HEROKU_APP_NAME", "")

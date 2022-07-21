@@ -15,7 +15,7 @@ repository = "https://gitlab.itrexgroup.com/vitaly.skopets/telegram-bot-desimete
 
 [tool.poetry.dependencies]
 python = "^3.10"
-pymongo = "^4.1.1"
+pymongo = {extras = ["snappy", "gssapi", "srv", "tls"], version = "^4.2.0"}
 pytz = "^2022.1"
 mtranslate = "^1.8"
 rsa = "^4.8"

@@ -59,7 +59,7 @@ LOGGING_CONFIG = {
             "class": "logging.handlers.RotatingFileHandler",
             "level": "DEBUG",
             "formatter": "json",
-            "filename": "../%s/%s" % (FOLDER_LOG, LOG_FILENAME),
+            "filename": "/%s/%s" % (FOLDER_LOG, LOG_FILENAME),
             "maxBytes": 10485760,  # 10Mb
             "backupCount": 2,
             "encoding": "utf-8",
@@ -68,7 +68,7 @@ LOGGING_CONFIG = {
             "class": "logging.handlers.TimedRotatingFileHandler",
             "level": "ERROR",
             "formatter": "json",
-            "filename": "../%s/%s" % (FOLDER_LOG, ERROR_LOG_FILENAME),
+            "filename": "/%s/%s" % (FOLDER_LOG, ERROR_LOG_FILENAME),
             "when": "d",
             "interval": 1,
             "backupCount": 7,

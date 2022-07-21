@@ -12,7 +12,9 @@ __all__ = ("MongoDataBase",)
 
 logger = get_logger(__name__)
 
-client_mdb: MongoClient = MongoClient(config.MONGO_DB_LINK)
+client_mdb: MongoClient = MongoClient(
+    config.MONGO_DB_LINK, serverSelectionTimeoutMS=5000
+)
 
 
 class MongoDataBase(DocumentRepository):
@@ -23,28 +25,17 @@ class MongoDataBase(DocumentRepository):
     def __init__(self, client: MongoClient = client_mdb) -> None:
         """
         Constructor method for initializing objects of the MongoDataBase class.
-        :param client: object pymongo.MongoClient class for connection with users_db
-        in MongoDB Atlas
         """
         try:
-            self.mdb = client
-        except ConnectionError:
-            logger.exception("Connecting error to the database.")
+            self.mdb = client.users_db
+            logger.info(f"Info about server: {client.server_info()}")
         except Exception as ex:
-            logger.error(f"Raised exception {ex}")
+            logger.error(f"Unable to connect to the server. Raised exception: {ex}")
 
     @staticmethod
     def create_collection(user: User) -> dict[str, Any]:
         """
-        Метод создает объект с типом данных "словарь", содержащий в качестве ключей
-        "идентификационные данные пользователя" и доступный перечень "действий" бота.
-        Значения ключей first_name, last_name и username добавляются в словарь в
-        зашифрованном виде с использованием метода encrypt() из класса DataEncrypt,
-        а значениями "действий" бота являются пустые массивы (списки), в которые
-        впоследствии будут добавлятся дата и время их совершения.
-        :param user: object telegram.User class with information about user
-        :return: словарь current_user, являющийся схемой документа для добавления в
-        коллекцию users БД users_db в MongoDB
+        Method for creating a document base stored in a data collection.
         """
         first_name: DataEncrypt = DataEncrypt(user.first_name)
         last_name: DataEncrypt = DataEncrypt(user.last_name)  # type: ignore
@@ -55,193 +46,159 @@ class MongoDataBase(DocumentRepository):
             "first_name": first_name.encrypt(),
             "last_name": last_name.encrypt(),
             "user_name": user_name.encrypt(),
-            "selected /start command": [],
-            "selected /help command": [],
-            "sent a welcome text message": [],
-            'press button "Radioactive monitoring"': [],
-            'press button "Observation points"': [],
-            'press button "Send geolocation"': [],
+            "start command": [],
+            "help command": [],
+            "sent greeting message": [],
+            "radiation monitoring": [],
+            "monitoring points": [],
+            "sent location": [],
         }
+        logger.info("Collection created")
         return current_user
 
     def add_start(self, user: User) -> Any:
         """
-        Метод добавляет дату и время вызова пользователем команды /start
-        в массив с ключом "selected /start command" коллекции users users_db
-        в MongoDB Atlas.
-        :param user: object telegram.User class with information about user
-        :return: None
+        Method for adding information to the database about the user's call to the
+        Start command.
         """
-        try:
-            if not self.mdb.users.find_one({"user_id": user.id}):
-                self.mdb.users.insert_one(self.create_collection(user))
-                self.mdb.users.update_one(
-                    {"user_id": user.id},
-                    {"$push": {"selected /start command": config.TODAY}},
-                )
-                logger.info("User added in mdb after select /start command")
-            if self.mdb.users.find_one({"user_id": user.id}):
-                self.mdb.users.update_one(
-                    {"user_id": user.id},
-                    {"$push": {"selected /start command": config.TODAY}},
-                )
-                logger.info("In mdb updated date and time user select /start command")
-        except ConnectionError:
-            logger.exception("Connecting error to the database.")
-        except Exception as ex:
-            logger.error(f"Raised exception {ex}")
-
-    def add_help(self, user: User) -> Any:
-        """
-        Метод добавляет текущую дату и время вызова команды /help пользователя
-        Telegram в массив с ключом "selected /help command" коллекции users users_db
-        в MongoDB Atlas.
-        :param user: object telegram.User class with information about user
-        :return: None
-        """
-        try:
-            if not self.mdb.users.find_one({"user_id": user.id}):
-                self.mdb.users.insert_one(self.create_collection(user))
-                self.mdb.users.update_one(
-                    {"user_id": user.id},
-                    {"$push": {"selected /help command": config.TODAY}},
-                )
-                logger.info("User added in mdb after select /help command")
-            if self.mdb.users.find_one({"user_id": user.id}):
-                self.mdb.users.update_one(
-                    {"user_id": user.id},
-                    {"$push": {"selected /help command": config.TODAY}},
-                )
-                logger.info("In mdb updated date and time user select /help command")
-        except ConnectionError:
-            logger.exception("Connecting error to the database.")
-        except Exception as ex:
-            logger.error(f"Raised exception {ex}")
-
-    def add_messages(self, user: User) -> Any:
-        """
-        Метод добавляет дату и время отправки пользователем приветственного
-        сообщения в массив с ключом "sent a welcome text message" коллекции users
-        users_db в MongoDB Atlas.
-        :param user: object telegram.User class with information about user
-        :return: None
-        """
-        try:
-            if not self.mdb.users.find_one({"user_id": user.id}):
-                self.mdb.users.insert_one(self.create_collection(user))
-                self.mdb.users.update_one(
-                    {"user_id": user.id},
-                    {"$push": {"sent a welcome text message": config.TODAY}},
-                )
-                logger.info("User added in mdb after send a welcome text message")
-            if self.mdb.users.find_one({"user_id": user.id}):
-                self.mdb.users.update_one(
-                    {"user_id": user.id},
-                    {"$push": {"sent a welcome text message": config.TODAY}},
-                )
-                logger.info(
-                    "In mdb updated date and time user send a welcome text message"
-                )
-        except ConnectionError:
-            logger.exception("Connecting error to the database.")
-        except Exception as ex:
-            logger.error(f"Raised exception {ex}")
-
-    def add_radiation_monitoring(self, user: User) -> Any:
-        """
-        Метод добавляет дату и время использования пользователем кнопки
-        "Радиационный мониторирг" в массив с ключом "press button 'Radioactive
-        monitoring'" соответствующего документа коллекции users базы данных users_db
-        в MongoDB Atlas.
-        :param user: object telegram.User class with information about user
-        :return: None
-        """
-        try:
-            self.mdb.users.update_one(
-                {"user_id": user.id},
-                {"$push": {'press button "Radioactive monitoring"': config.TODAY}},
-            )
-            logger.info(
-                'In mdb added date and time user press button "Radioactive monitoring"'
-            )
-        except ConnectionError:
-            logger.exception("Connecting error to the database.")
-        except Exception as ex:
-            logger.error(f"Raised exception {ex}")
-
-    def add_monitoring_points(self, user: User) -> Any:
-        """
-        Метод добавляет дату и время использования пользователем кнопки
-        "Пункты наблюдения" в массив с ключом "press button 'Observation points'"
-        соответствующего документа коллекции users users_db в MongoDB Atlas.
-        :param user: object telegram.User class with information about user
-        :return: None
-        """
-        try:
-            self.mdb.users.update_one(
-                {"user_id": user.id},
-                {"$push": {'press button "Observation points"': config.TODAY}},
-            )
-            logger.info(
-                'In mdb added date and time user press button "Observation points"'
-            )
-        except ConnectionError:
-            logger.exception("Connecting error to the database.")
-        except Exception as ex:
-            logger.error(f"Raised exception {ex}")
-
-    def add_region(self, user: User, region: str) -> Any:
-        """
-        Метод добавляет дату и время использования пользователем кнопки
-        "Брестская область" в массив с ключом "press button 'Observation points'"
-        соответствующего документа коллекции users users_db в MongoDB Atlas.
-        :param region: строковый объект - наименование региона, которое передается
-        при выполнении метода scraper_*() класса Callback
-        :param user: object telegram.User class with information about user
-        :return: None
-        """
-        try:
-            self.mdb.users.update_one(
-                {"user_id": user.id},
-                {"$push": {f'press button "{region}"': config.TODAY}},
-            )
-        except ConnectionError:
-            logger.exception("Connecting error to the database")
-        except Exception as ex:
-            logger.error(f"Raised exception {ex}")
-
-    def add_location(self, user: User) -> Any:
-        """
-        Метод добавляет текущую дату и время использования пользователем кнопки
-        "Отправить мою геолокацию" в массив с ключом "press button 'Send
-        location'" соответствующего документа коллекции users users_db в MongoDB Atlas.
-        :param user: object telegram.User class with information about user
-        :return: None
-        """
-        try:
+        if not self.mdb.users.find_one({"user_id": user.id}):
+            self.mdb.users.insert_one(self.create_collection(user))
             self.mdb.users.update_one(
                 {"user_id": user.id},
                 {
                     "$push": {
-                        'press button "Send geolocation"': config.TODAY,
-                    }
+                        "start command": config.TODAY,
+                    },
                 },
             )
-            logger.info(
-                'Into DataBase added date and time user press button "Send location"'
+        if self.mdb.users.find_one({"user_id": user.id}):
+            self.mdb.users.update_one(
+                {"user_id": user.id},
+                {
+                    "$push": {
+                        "start command": config.TODAY,
+                    },
+                },
             )
-        except ConnectionError:
-            logger.exception("Connecting error to the database")
-        except Exception as ex:
-            logger.error(f"Raised exception {ex}")
+        logger.info(f"Info about action 'Start command' by user {user.id} added to DB.")
+
+    def add_help(self, user: User) -> Any:
+        """
+        Method for adding information to the database about the user calling the Help
+        command.
+        """
+        if not self.mdb.users.find_one({"user_id": user.id}):
+            self.mdb.users.insert_one(self.create_collection(user))
+            self.mdb.users.update_one(
+                {"user_id": user.id},
+                {"$push": {"help command": config.TODAY}},
+            )
+        if self.mdb.users.find_one({"user_id": user.id}):
+            self.mdb.users.update_one(
+                {"user_id": user.id},
+                {
+                    "$push": {
+                        "help command": config.TODAY,
+                    },
+                },
+            )
+        logger.info(f"Info about action 'Help command' by user {user.id} added to DB.")
+
+    def add_messages(self, user: User) -> Any:
+        """
+        Method for adding to the database information about the user sending a
+        greeting message.
+        """
+        if not self.mdb.users.find_one({"user_id": user.id}):
+            self.mdb.users.insert_one(self.create_collection(user))
+            self.mdb.users.update_one(
+                {"user_id": user.id},
+                {
+                    "$push": {
+                        "sent greeting message": config.TODAY,
+                    },
+                },
+            )
+        if self.mdb.users.find_one({"user_id": user.id}):
+            self.mdb.users.update_one(
+                {"user_id": user.id},
+                {
+                    "$push": {
+                        "sent greeting message": config.TODAY,
+                    },
+                },
+            )
+        logger.info(
+            f"Info about action 'Greeting message sent' by user {user.id} added to DB."
+        )
+
+    def add_radiation_monitoring(self, user: User) -> Any:
+        """
+        Method for adding information about a user who used Radiation Monitoring to
+        the database.
+        """
+        self.mdb.users.update_one(
+            {"user_id": user.id},
+            {
+                "$push": {
+                    "radiation monitoring": config.TODAY,
+                },
+            },
+        )
+        logger.info(
+            f"Info about action 'Radiation monitoring' by user {user.id} added to DB."
+        )
+
+    def add_monitoring_points(self, user: User) -> Any:
+        """
+        Method for adding information about a user who used Monitoring Points to the
+        database.
+        """
+        self.mdb.users.update_one(
+            {"user_id": user.id},
+            {
+                "$push": {
+                    "monitoring points": config.TODAY,
+                },
+            },
+        )
+        logger.info(
+            f"Info about action 'Monitoring points' by user {user.id} added to DB."
+        )
+
+    def add_region(self, user: User, region: str) -> Any:
+        """
+        Method for adding information about a user who used Region to the database.
+        """
+        self.mdb.users.update_one(
+            {"user_id": user.id},
+            {
+                "$push": {
+                    f"{region}": config.TODAY,
+                },
+            },
+        )
+        logger.info(f"Info about action '{region}' by user {user.id} added to DB.")
+
+    def add_location(self, user: User) -> Any:
+        """
+        Method for adding information about the user who sent his geolocation to the
+        database.
+        """
+        self.mdb.users.update_one(
+            {"user_id": user.id},
+            {
+                "$push": {
+                    "sent location": config.TODAY,
+                },
+            },
+        )
+        logger.info(f"Info about action 'Sent location' by user {user.id} added to DB.")
 
     def show_users_id(self) -> Any:
         """
-        Метод запрашивает из базы данных и выводит в консоль выборку id
-        пользователей Telegram-бота из документов коллекции users базы данных
-        users_db в MongoDB Atlas.
-        :return: строковое представление нумерованных значений всех документов
-        коллекции users базы данных users_db в MongoDB Atlas по ключу 'user_id'
+        The method queries the database and outputs a selection of User IDs to the
+        console.
         """
         for num, user_id in enumerate(  # type: ignore
             self.mdb.users.distinct("user_id"), 1
@@ -250,11 +207,7 @@ class MongoDataBase(DocumentRepository):
 
     def show_users_data(self) -> Any:
         """
-        Метод запрашивает из базы данных и выводит в консоль выборку User ID,
-        first/last/user names пользователей Telegram-бота из документов коллекции
-        users базы данных users_db в MongoDB Atlas.
-        :return: значенаия полей всех документов коллекции users базы данных users_db
-        в MongoDB Atlas по ключам user_id, first_name, last_name и user_name
+        The method queries the database and outputs a selection of users to the console.
         """
         for num, user_data in enumerate(self.mdb.users.find(), 1):  # type: ignore
             print(
