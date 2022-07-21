@@ -9,20 +9,14 @@ logger = get_logger(__name__)
 
 GOOGLE_DOMEN: str = "www.google-analytics.com"
 PROTOKOL: str = "https"
-URL: str = f"""
-    {PROTOKOL}://{GOOGLE_DOMEN}/mp/collect?measurement_id={config.MEASUREMENT_ID}
-    &api_secret={config.API_SECRET}
-    """
+URL: str = (
+    f"{PROTOKOL}://{GOOGLE_DOMEN}/mp/collect?"
+    f"measurement_id={config.MEASUREMENT_ID}&api_secret={config.API_SECRET}"
+)
 
 
 def send_analytics(user_id: int, user_lang_code: str, action_name: str) -> None:
-    """
-    Send record to Google Analytics 4.
-    :param user_id: integer - user ID.
-    :param user_lang_code: string object - user locale.
-    :param action_name: string object - action name.
-    :return: Non-return
-    """
+    """Send record to Google Analytics 4."""
     params = {
         "client_id": str(user_id),
         "user_id": str(user_id),
@@ -38,7 +32,5 @@ def send_analytics(user_id: int, user_lang_code: str, action_name: str) -> None:
     }
     try:
         requests.post(URL, json=params)
-    except ConnectionError:
-        logger.exception(f"Error connecting to '{GOOGLE_DOMEN}'.")
     except Exception as ex:
-        logger.error(f"Raised exception {ex}")
+        logger.error(f"Unable to connect to '{GOOGLE_DOMEN}'. Raised exception: {ex}")

@@ -120,11 +120,7 @@ def command_handler(command: str) -> Callable:
 
 
 def main() -> None:
-    """
-     Application entry point. Bot launch function.
-
-    :return: Non-return
-    """
+    """Application entry point. Bot launch function."""
 
     if not WEBHOOK_MODE:
         logger.info("Application running in in pooling mode...")

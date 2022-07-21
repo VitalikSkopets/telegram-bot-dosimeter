@@ -35,17 +35,10 @@ MongoDB = MongoDataBase()
 
 
 class Callback:
-    """
-    A class that encapsulates methods for processing Telegram bot commands.
-    """
+    """A class that encapsulates methods for processing Telegram bot commands."""
 
     def __init__(self, storage: MongoDataBase = MongoDB) -> None:
-        """
-        Constructor method for initializing objects of class Handlers.
-        :param storage: object of the class pymongo.MongoClient class to connect to
-        users_db database in MongoDB Atlas
-
-        """
+        """Constructor method for initializing objects of class Handlers."""
         self.repo = storage
         self.update = Update
         self.context = CallbackContext
@@ -55,10 +48,7 @@ class Callback:
     @send_action(ChatAction.TYPING)
     @command_handler("start")
     def start_callback(self) -> None:
-        """
-        Start command handler method.
-        :return: Non-return
-        """
+        """Start command handler method."""
         start_message = text_messages.get("start")
         self.update.message.reply_text(  # type: ignore
             f"Рад нашему знакомству, *{self.user.first_name}*!{start_message}",
@@ -77,10 +67,7 @@ class Callback:
     @send_action(ChatAction.TYPING)
     @command_handler("help")
     def help_callback(self) -> None:
-        """
-        Help command handler method.
-        :return: Non-return
-        """
+        """Help command handler method."""
         help_message = text_messages.get("help")
         self.update.message.reply_text(  # type: ignore
             help_message,  # type: ignore
@@ -98,10 +85,7 @@ class Callback:
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
     def messages_callback(self) -> None:
-        """
-        Handler method for an incoming text message from the user.
-        :return: Non-return
-        """
+        """Handler method for an incoming text message from the user."""
         greet_message = text_messages.get("greet")
         unknown_message = text_messages.get("unknown")
         if self.update.message.text.lower() in greeting:  # type: ignore
@@ -132,10 +116,7 @@ class Callback:
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
     def radiation_monitoring_callback(self) -> None:
-        """
-        Handler method for pressing the "Radiation monitoring" button by the user.
-        :return: Non-return
-        """
+        """Handler method for pressing the "Radiation monitoring" button by the user."""
         response = get_info_about_radiation_monitoring()
         mean = get_avg_radiation_level()
         self.update.message.reply_text(  # type: ignore
@@ -159,10 +140,7 @@ class Callback:
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
     def monitoring_points_callback(self) -> None:
-        """
-        Handler method for pressing the "Monitoring points" button by the user.
-        :return: Non-return
-        """
+        """Handler method for pressing the "Monitoring points" button by the user."""
         self.update.message.reply_text(  # type: ignore
             "Выбери интересующий регион",
             reply_markup=ReplyKeyboardMarkup(
@@ -189,10 +167,7 @@ class Callback:
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
     def brest_callback(self) -> None:
-        """
-        Handler method for pressing the "Brest region" button by the user.
-        :return: Non-return
-        """
+        """Handler method for pressing the "Brest region" button by the user."""
         table, values_by_region = get_info_about_region(
             region=Brest_region.monitoring_points  # type: ignore
         )
@@ -213,10 +188,7 @@ class Callback:
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
     def vitebsk_callback(self) -> None:
-        """
-        Handler method for pressing the "Vitebsk region" button by the user.
-        :return: Non-return
-        """
+        """Handler method for pressing the "Vitebsk region" button by the user."""
         table, values_by_region = get_info_about_region(
             region=Vitebsk_region.monitoring_points  # type: ignore
         )
@@ -237,10 +209,7 @@ class Callback:
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
     def gomel_callback(self) -> None:
-        """
-        Handler method for pressing the "Gomel region" button by the user.
-        :return: Non-return
-        """
+        """Handler method for pressing the "Gomel region" button by the user."""
         table, values_by_region = get_info_about_region(
             region=Gomel_region.monitoring_points  # type: ignore
         )
@@ -261,10 +230,7 @@ class Callback:
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
     def grodno_callback(self) -> None:
-        """
-        Handler method for pressing the "Grodno region" button by the user.
-        :return: non-return
-        """
+        """Handler method for pressing the "Grodno region" button by the user."""
         table, values_by_region = get_info_about_region(
             region=Grodno_region.monitoring_points  # type: ignore
         )
@@ -285,10 +251,7 @@ class Callback:
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
     def minsk_callback(self) -> None:
-        """
-        Handler method for pressing the "Minsk region" button by the user.
-        :return: Non-return
-        """
+        """Handler method for pressing the "Minsk region" button by the user."""
         table, values_by_region = get_info_about_region(
             region=Minsk_region.monitoring_points  # type: ignore
         )
@@ -309,10 +272,7 @@ class Callback:
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
     def mogilev_callback(self) -> None:
-        """
-        Handler method for pressing the "Mogilev region" button by the user.
-        :return: Non-return
-        """
+        """Handler method for pressing the "Mogilev region" button by the user."""
         table, values_by_region = get_info_about_region(
             region=Mogilev_region.monitoring_points  # type: ignore
         )
@@ -333,10 +293,7 @@ class Callback:
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
     def main_menu_callback(self) -> None:
-        """
-        Handler method for pressing the "Main menu" button by the user.
-        :return: Non-return
-        """
+        """Handler method for pressing the "Main menu" button by the user."""
         self.update.message.reply_text(  # type: ignore
             f"""
             *{self.user.first_name}*, чтобы узнать по состоянию на _текущую
@@ -361,10 +318,7 @@ class Callback:
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.FIND_LOCATION)
     def send_location_callback(self) -> None:
-        """
-        Handler method for pressing the "Send location" button by the user.
-        :return: Non-return
-        """
+        """Handler method for pressing the "Send location" button by the user."""
         distance_to_nearest_point, nearest_point_name = get_nearest_point_location(
             latitude=self.update.message.location.latitude,  # type: ignore
             longitude=self.update.message.location.longitude,  # type: ignore

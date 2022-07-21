@@ -18,14 +18,10 @@ client_mdb: MongoClient = MongoClient(
 
 
 class MongoDataBase(DocumentRepository):
-    """
-    MongoDB client.
-    """
+    """MongoDB client."""
 
     def __init__(self, client: MongoClient = client_mdb) -> None:
-        """
-        Constructor method for initializing objects of the MongoDataBase class.
-        """
+        """Constructor method for initializing objects of the MongoDataBase class."""
         try:
             self.mdb = client.users_db
             logger.info(f"Info about server: {client.server_info()}")
@@ -34,9 +30,7 @@ class MongoDataBase(DocumentRepository):
 
     @staticmethod
     def create_collection(user: User) -> dict[str, Any]:
-        """
-        Method for creating a document base stored in a data collection.
-        """
+        """Method for creating a document base stored in a data collection."""
         first_name: DataEncrypt = DataEncrypt(user.first_name)
         last_name: DataEncrypt = DataEncrypt(user.last_name)  # type: ignore
         user_name: DataEncrypt = DataEncrypt(user.username)  # type: ignore
@@ -195,7 +189,16 @@ class MongoDataBase(DocumentRepository):
         )
         logger.info(f"Info about action 'Sent location' by user {user.id} added to DB.")
 
-    def show_users_id(self) -> Any:
+    def get_user_by_id(self, user_id: int) -> Any:
+        """Method for getting info about the user by id from the database."""
+        query = {"user_id": user_id}
+        print(self.mdb.users.find_one(query))
+
+    def get_users_count(self) -> Any:
+        """Method for getting the number of users from the database."""
+        print(self.mdb.users.count_documents({}))
+
+    def get_all_users_ids(self) -> Any:
         """
         The method queries the database and outputs a selection of User IDs to the
         console.
@@ -203,25 +206,27 @@ class MongoDataBase(DocumentRepository):
         for num, user_id in enumerate(  # type: ignore
             self.mdb.users.distinct("user_id"), 1
         ):
-            print(f"{num}th user ID - {user_id}")
+            print(f"{num}th user ID: {user_id}")
 
-    def show_users_data(self) -> Any:
+    def get_all_users_data(self) -> Any:
         """
         The method queries the database and outputs a selection of users to the console.
         """
         for num, user_data in enumerate(self.mdb.users.find(), 1):  # type: ignore
             print(
                 f"""
-                Personal date of the {num}th user:\n
-                ID - {user_data.get("user_id")}\n
-                First name - {user_data.get("first_name")}\n
-                Last name - {user_data.get("last_name")}\n
-                User name - {user_data.get("user_name")}\n\n
+                Personal date of the {num}th user:
+                ID:         {user_data.get("user_id")}
+                First name: {user_data.get("first_name")}
+                Last name:  {user_data.get("last_name")}
+                User name:  {user_data.get("user_name")}
                 """
             )
 
 
 if __name__ == "__main__":
-    query = MongoDataBase(client_mdb)
-    print(query.show_users_data())
-    print(query.show_users_id())
+    session = MongoDataBase(client_mdb)
+    print(session.get_user_by_id(413818791))
+    print(session.get_all_users_data())
+    print(session.get_all_users_ids())
+    print(session.get_users_count())

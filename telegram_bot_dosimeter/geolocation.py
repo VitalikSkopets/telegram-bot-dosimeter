@@ -11,10 +11,6 @@ def get_nearest_point_location(
     """
     The function calculates the minimum distance in meters relative to the user's
     location to the nearest monitoring point
-    :param latitude: user latitude coordinate
-    :param longitude: user latitude longitude
-    :return: tuple containing the distance in meters to the nearest monitoring point
-    and the name of the monitoring point
     """
     user_coordinates = (latitude, longitude)
     distance_list = []

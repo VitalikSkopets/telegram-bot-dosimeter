@@ -23,8 +23,6 @@ def restricted(func: Callable) -> Callable | NoReturn:
     """
     Allows you to restrict the access of a handler to only the user_ids specified in
     LIST_OF_ADMINS.
-    :param func: callable object - handler method.
-    :return: Callable object or non-return.
     """
 
     @wraps(func)
@@ -40,11 +38,7 @@ def restricted(func: Callable) -> Callable | NoReturn:
 
 
 def send_action(action: Any) -> Callable:
-    """
-    Sends `action` while processing callback handler func command.
-    :param action: ChatAction class variables to provide different chat actions.
-    :return: Callable object.
-    """
+    """Sends `action` while processing callback handler func command."""
 
     def decorator(func: Callable) -> Callable:
         @wraps(func)
@@ -63,11 +57,7 @@ def send_action(action: Any) -> Callable:
 
 
 def analytics(func: Callable) -> Callable:
-    """
-    Send record to Google Analytics 4.
-    :param func: callable object - handler method.
-    :return: Callable object - handler method.
-    """
+    """Send record to Google Analytics 4."""
 
     @wraps(func)
     def measurement(*args: Any, **kwargs: Any) -> Callable:
@@ -87,8 +77,6 @@ def debug_handler(log_handler: Logger = logger) -> Callable:
     """
     Logs errors raised when executing functions and class methods built into the
     python-telegram-bot library and sends an error message to the admin chat.
-    :param log_handler: the object of class logging.Logger.
-    :return: Callable object - handler method.
     """
 
     def log_error(func: Callable) -> Callable:

@@ -1,6 +1,5 @@
 import base64
 import os
-from typing import NoReturn
 
 import rsa
 
@@ -8,18 +7,16 @@ __all__ = ("DataEncrypt",)
 
 
 class DataEncrypt:
-    def __init__(self, line: str, token: str | bytes | None = None) -> None:
+    def __init__(
+        self, line: str | None = None, *, token: str | bytes | None = None
+    ) -> None:
         """
-        Конструктор инициализации объектов класса DataEncrypt. В ходе выполнения
-        проверяет наличие в заданной дериктории файлов 'private.pem' и 'public.pem' с
-        записанными в них публичным и приватным ключами шифрования/дешифрования,
-        и в случае их отсутствия генерирует и записывает в файлы связку из публичного
-        и приватного ключей необходимых для ассиметричного RSA шифрования строковых
-        объектов
-        :param line: строковый объект -> идентификацуионные данные пользователя -
-        значения ключей first_name, last_name, username
-        :param token: зашифрованный строковый объект - идентификацуионные данные
-        пользователя - значения ключей first_name, last_name, username
+        Constructor for initializing objects of the DataEncrypt class. In the course
+        of execution, it checks for the presence in the specified directory of the
+        private.pem and public.pem files with the public and private
+        encryption/decryption keys stored in them, and if they are absent,
+        it generates and writes to the files a bunch of public and private keys
+        necessary for asymmetric RSA encryption of string objects.
         """
         self.line = line
         self.token = token
@@ -34,15 +31,14 @@ class DataEncrypt:
             privatefile.write(privkey_pem)
             publicfile.write(pubkey_pem)
 
-    def encrypt(self) -> str | NoReturn:
+    def encrypt(self) -> str | None:
         """
-        Функция ассиметричного RSA шифрования строковых объектов - идентификацуионных
-        данных пользователей. Данные шифруются с использованием публичного ключа,
-        который читается из файла public.pem, после чего преобразуются в строковый
-        объект в кодировке base64 для последующего долговременного хранениния в
-        коллекции users базы данных MongoDB Atlas в полях с ключами first_name,
-        last_name и username
-        :return строковый объект в кодировке base64
+        The function of asymmetric RSA encryption of string objects - user
+        identification data. The data is encrypted using the public key, which is
+        read from the public.pem file, and then converted into a base64 encoded
+        string object for subsequent long-term storage in the users collection of the
+        MongoDB Atlas database in the fields with the keys first_name, last_name and
+        username.
         """
         if isinstance(self.line, str):
             with open("../public.pem", mode="rb") as pubfile:
@@ -51,17 +47,14 @@ class DataEncrypt:
             pre_token = rsa.encrypt(self.line.encode(), pub_key)  # type: ignore
             self.token = base64.b64encode(pre_token)
             return self.token.decode("UTF-8")
-        return
+        return None
 
     def decrypt(self) -> str:
         """
-        Функция дешифрования строковых объектов - идентификацуионных данных
-        пользователей, хранящихся в коллекции users базы данных MongoDB Atlas в полях
-        с ключами first_name, last_name и username. Данные дешифруются с использованием
-        приватного (закрытого) ключа, который читается из файла privat.pem
-        :return line: дешифрованный стрковый объект - - идентификацуионные данные
-        пользователя из коллекции users базы данных MongoDB Atlas в полях с ключами
-        first_name, last_name и username
+        A function for decrypting string objects - user identification data stored in
+        the users collection of the MongoDB Atlas database in fields with the keys
+        first_name, last_name and username. The data is decrypted using a private (
+        private) key, which is read from the privat.pem file.
         """
         with open("../private.pem", mode="rb") as privfile:
             privkeydata = privfile.read()
@@ -72,7 +65,12 @@ class DataEncrypt:
 
 
 if __name__ == "__main__":
-    a = DataEncrypt("Test string")
-    ciphertext = a.encrypt()
-    print(ciphertext)
-    print(a.decrypt())
+    text = DataEncrypt("Test string")
+    ciphertext = text.encrypt()
+    print(f"Encrypted string: {ciphertext}")
+    print(f"Decrypted string: {text.decrypt()}")
+    enc_text = DataEncrypt(
+        token="H32DeNHeTB2rb6m5WyRUsaT5qCN9Cj1D5LEQJ4D/EEJYBDRH"
+        "+uraSb2JpwTwBmdr/anTnSlnMa3+iD2wwLi6Cw=="
+    )
+    print(f"Decrypted string: {enc_text.decrypt()}")
