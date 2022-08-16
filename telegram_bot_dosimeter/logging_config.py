@@ -1,6 +1,6 @@
 import logging
 import logging.config
-import os
+from pathlib import Path
 
 import sentry_sdk
 
@@ -10,17 +10,15 @@ from telegram_bot_dosimeter import config
 
 FOLDER_LOG = "logs"
 LOG_FILENAME = "main.log"
-ERROR_LOG_FILENAME = "main-errors.log"
+ERROR_LOG_FILENAME = "errors.log"
 
 LOGGING_CONFIG = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
         "default": {
-            "format": """
-                    %(asctime)s - %(processName)-10s - %(name)-10s - %(levelname)
-                    -8s - (%(filename)s).%(funcName)s(%(lineno)d)-5s - %(message)s
-                """,
+            "format": "%(asctime)s - %(processName)-10s - %(name)-10s - %(levelname)-8s"
+            " - (%(filename)s).%(funcName)s(%(lineno)d) - %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
         "json": {
@@ -51,15 +49,15 @@ LOGGING_CONFIG = {
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
-            "level": "INFO",
+            "level": "DEBUG",
             "formatter": "default",
             "stream": "ext://sys.stdout",
         },
         "rotating_file": {
             "class": "logging.handlers.RotatingFileHandler",
-            "level": "DEBUG",
+            "level": "INFO",
             "formatter": "json",
-            "filename": "/%s/%s" % (FOLDER_LOG, LOG_FILENAME),
+            "filename": "%s/%s" % (FOLDER_LOG, LOG_FILENAME),
             "maxBytes": 10485760,  # 10Mb
             "backupCount": 2,
             "encoding": "utf-8",
@@ -68,7 +66,7 @@ LOGGING_CONFIG = {
             "class": "logging.handlers.TimedRotatingFileHandler",
             "level": "ERROR",
             "formatter": "json",
-            "filename": "/%s/%s" % (FOLDER_LOG, ERROR_LOG_FILENAME),
+            "filename": "%s/%s" % (FOLDER_LOG, ERROR_LOG_FILENAME),
             "when": "d",
             "interval": 1,
             "backupCount": 7,
@@ -76,27 +74,43 @@ LOGGING_CONFIG = {
         },
     },
     "loggers": {
-        "default": {
+        "file_logger": {
+            "level": "DEBUG",
             "handlers": [
                 "console",
                 "rotating_file",
                 "time_rotating_file",
             ],
             "propagate": True,
-        }
+        },
+        "console_logger": {
+            "level": "DEBUG",
+            "handlers": [
+                "console",
+            ],
+            "propagate": True,
+        },
     },
 }
 
 
-def create_log_folder(folder: str = FOLDER_LOG) -> None:
-    if not os.path.exists(folder):
-        os.mkdir(folder)
+def create_log_folder(name: str = FOLDER_LOG) -> None:
+    folder = Path(name)
+    if not folder.exists():
+        folder.mkdir(exist_ok=True)
 
 
-def get_logger(name: str = __name__) -> logging.Logger:
+def get_logger(name: str = __name__, template: str = "file_logger") -> logging.Logger:
     create_log_folder()
+    LOGGING_CONFIG["loggers"][name] = LOGGING_CONFIG["loggers"][template]  # type: ignore
     logging.config.dictConfig(LOGGING_CONFIG)
     return logging.getLogger(name)
+
+
+def get_default_logger() -> logging.Logger:
+    create_log_folder()
+    logging.config.dictConfig(LOGGING_CONFIG)
+    return logging.getLogger("console_logger")
 
 
 # Sentry

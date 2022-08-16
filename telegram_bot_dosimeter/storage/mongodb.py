@@ -26,7 +26,10 @@ class MongoDataBase(DocumentRepository):
             self.mdb = client.users_db
             logger.info(f"Info about server: {client.server_info()}")
         except Exception as ex:
-            logger.error(f"Unable to connect to the server. Raised exception: {ex}")
+            logger.error(
+                f"Unable to connect to the server. Raised exception: {ex}",
+                exc_info=True,
+            )
 
     @staticmethod
     def create_collection(user: User) -> dict[str, Any]:

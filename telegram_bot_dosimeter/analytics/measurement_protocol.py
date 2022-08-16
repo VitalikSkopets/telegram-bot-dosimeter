@@ -33,4 +33,7 @@ def send_analytics(user_id: int, user_lang_code: str, action_name: str) -> None:
     try:
         requests.post(URL, json=params)
     except Exception as ex:
-        logger.error(f"Unable to connect to '{GOOGLE_DOMEN}'. Raised exception: {ex}")
+        logger.error(
+            f"Unable to connect to '{GOOGLE_DOMEN}'. Raised exception: {ex}",
+            exc_info=True,
+        )
