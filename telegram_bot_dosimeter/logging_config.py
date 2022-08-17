@@ -1,6 +1,7 @@
 import logging
 import logging.config
 from pathlib import Path
+from typing import Any
 
 import sentry_sdk
 
@@ -8,11 +9,11 @@ __all__ = ("get_logger",)
 
 from telegram_bot_dosimeter import config
 
-FOLDER_LOG = "logs"
-LOG_FILENAME = "main.log"
-ERROR_LOG_FILENAME = "errors.log"
+FOLDER_LOG: str = "logs"
+LOG_FILENAME: str = "main.log"
+ERROR_LOG_FILENAME: str = "errors.log"
 
-LOGGING_CONFIG = {
+LOGGING_CONFIG: dict[str, Any] = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
@@ -102,7 +103,7 @@ def create_log_folder(name: str = FOLDER_LOG) -> None:
 
 def get_logger(name: str = __name__, template: str = "file_logger") -> logging.Logger:
     create_log_folder()
-    LOGGING_CONFIG["loggers"][name] = LOGGING_CONFIG["loggers"][template]  # type: ignore
+    LOGGING_CONFIG["loggers"][name] = LOGGING_CONFIG["loggers"][template]
     logging.config.dictConfig(LOGGING_CONFIG)
     return logging.getLogger(name)
 
