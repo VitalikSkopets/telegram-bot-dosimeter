@@ -12,9 +12,13 @@ __all__ = ("MongoDataBase",)
 
 logger = get_logger(__name__)
 
-client_mdb: MongoClient = MongoClient(
-    config.MONGO_DB_LINK, serverSelectionTimeoutMS=5000
+MONGO_DB_LINK: str = (
+    f"mongodb+srv://{config.MONGO_DB_LOGIN}:{config.MONGO_DB_PASSWORD}@cluster."
+    f"s3cxd.mongodb.net/{config.MONGO_DB_NAME}?retryWrites=true&w=majority"
 )
+logger.debug("Reference to cloud Mongo Database: '%s'" % MONGO_DB_LINK)
+
+client_mdb: MongoClient = MongoClient(MONGO_DB_LINK, serverSelectionTimeoutMS=5000)
 
 
 class MongoDataBase(DocumentRepository):
@@ -35,8 +39,8 @@ class MongoDataBase(DocumentRepository):
     def create_collection(user: User) -> dict[str, Any]:
         """Method for creating a document base stored in a data collection."""
         first_name: DataEncrypt = DataEncrypt(user.first_name)
-        last_name: DataEncrypt = DataEncrypt(user.last_name)  # type: ignore
-        user_name: DataEncrypt = DataEncrypt(user.username)  # type: ignore
+        last_name: DataEncrypt = DataEncrypt(user.last_name)
+        user_name: DataEncrypt = DataEncrypt(user.username)
 
         current_user: dict[str, Any] = {
             "user_id": user.id,
@@ -195,27 +199,29 @@ class MongoDataBase(DocumentRepository):
     def get_user_by_id(self, user_id: int) -> Any:
         """Method for getting info about the user by id from the database."""
         query = {"user_id": user_id}
-        print(self.mdb.users.find_one(query))
+        user = self.mdb.users.find_one(query)
+        logger.debug(f"Info about the user: {user}")
+        return user
 
-    def get_users_count(self) -> Any:
+    def get_users_count(self) -> int:
         """Method for getting the number of users from the database."""
-        print(self.mdb.users.count_documents({}))
+        users_count = self.mdb.users.count_documents({})
+        logger.debug("Users count in the database: %d" % users_count)
+        return users_count
 
     def get_all_users_ids(self) -> Any:
         """
         The method queries the database and outputs a selection of User IDs to the
         console.
         """
-        for num, user_id in enumerate(  # type: ignore
-            self.mdb.users.distinct("user_id"), 1
-        ):
+        for num, user_id in enumerate(self.mdb.users.distinct("user_id"), 1):
             print(f"{num}th user ID: {user_id}")
 
     def get_all_users_data(self) -> Any:
         """
         The method queries the database and outputs a selection of users to the console.
         """
-        for num, user_data in enumerate(self.mdb.users.find(), 1):  # type: ignore
+        for num, user_data in enumerate(self.mdb.users.find(), 1):
             print(
                 f"""
                 Personal date of the {num}th user:

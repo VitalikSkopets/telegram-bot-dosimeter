@@ -68,9 +68,9 @@ class Callback:
     @command_handler("help")
     def help_callback(self) -> None:
         """Help command handler method."""
-        help_message = text_messages.get("help")
+        help_message = text_messages["help"]
         self.update.message.reply_text(  # type: ignore
-            help_message,  # type: ignore
+            help_message,
             reply_markup=main_keyboard(),
             parse_mode=ParseMode.MARKDOWN_V2,
         )
@@ -86,8 +86,8 @@ class Callback:
     @send_action(ChatAction.TYPING)
     def messages_callback(self) -> None:
         """Handler method for an incoming text message from the user."""
-        greet_message = text_messages.get("greet")
-        unknown_message = text_messages.get("unknown")
+        greet_message = text_messages["greet"]
+        unknown_message = text_messages["unknown"]
         if self.update.message.text.lower() in greeting:  # type: ignore
             self.update.message.reply_text(  # type: ignore
                 f"Привет, *{self.user.first_name}*!{greet_message}",
@@ -103,7 +103,7 @@ class Callback:
             logger.info(f"User {self.user.id} sent a welcome text message")
         else:
             self.update.message.reply_text(  # type: ignore
-                unknown_message,  # type: ignore
+                unknown_message,
                 parse_mode=ParseMode.MARKDOWN_V2,
             )
             send_analytics(
@@ -169,7 +169,7 @@ class Callback:
     def brest_callback(self) -> None:
         """Handler method for pressing the "Brest region" button by the user."""
         table, values_by_region = get_info_about_region(
-            region=Brest_region.monitoring_points  # type: ignore
+            region=Brest_region.monitoring_points
         )
 
         self.update.message.reply_text(  # type: ignore
@@ -190,7 +190,7 @@ class Callback:
     def vitebsk_callback(self) -> None:
         """Handler method for pressing the "Vitebsk region" button by the user."""
         table, values_by_region = get_info_about_region(
-            region=Vitebsk_region.monitoring_points  # type: ignore
+            region=Vitebsk_region.monitoring_points
         )
 
         self.update.message.reply_text(  # type: ignore
@@ -211,7 +211,7 @@ class Callback:
     def gomel_callback(self) -> None:
         """Handler method for pressing the "Gomel region" button by the user."""
         table, values_by_region = get_info_about_region(
-            region=Gomel_region.monitoring_points  # type: ignore
+            region=Gomel_region.monitoring_points
         )
 
         self.update.message.reply_text(  # type: ignore
@@ -232,7 +232,7 @@ class Callback:
     def grodno_callback(self) -> None:
         """Handler method for pressing the "Grodno region" button by the user."""
         table, values_by_region = get_info_about_region(
-            region=Grodno_region.monitoring_points  # type: ignore
+            region=Grodno_region.monitoring_points
         )
 
         self.update.message.reply_text(  # type: ignore
@@ -253,7 +253,7 @@ class Callback:
     def minsk_callback(self) -> None:
         """Handler method for pressing the "Minsk region" button by the user."""
         table, values_by_region = get_info_about_region(
-            region=Minsk_region.monitoring_points  # type: ignore
+            region=Minsk_region.monitoring_points
         )
 
         self.update.message.reply_text(  # type: ignore
@@ -274,7 +274,7 @@ class Callback:
     def mogilev_callback(self) -> None:
         """Handler method for pressing the "Mogilev region" button by the user."""
         table, values_by_region = get_info_about_region(
-            region=Mogilev_region.monitoring_points  # type: ignore
+            region=Mogilev_region.monitoring_points
         )
 
         self.update.message.reply_text(  # type: ignore
@@ -282,7 +282,7 @@ class Callback:
             parse_mode=ParseMode.MARKDOWN_V2,
         )
 
-        self.repo.add_region(self.user, "Mogilev region")  # type: ignore
+        self.repo.add_region(self.user, "Mogilev region")
         send_analytics(
             user_id=self.user.id,
             user_lang_code=self.user.language_code,  # type: ignore
@@ -326,7 +326,7 @@ class Callback:
 
         distance = f"{distance_to_nearest_point:,} м".replace(",", " ")
 
-        for point, value in get_points_with_radiation_level():  # type: ignore
+        for point, value in get_points_with_radiation_level():
             if nearest_point_name == point:
                 self.update.message.reply_text(  # type: ignore
                     f"""

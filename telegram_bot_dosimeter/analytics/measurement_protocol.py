@@ -1,4 +1,4 @@
-import requests  # type: ignore
+import requests
 
 from telegram_bot_dosimeter import config
 from telegram_bot_dosimeter.logging_config import get_logger

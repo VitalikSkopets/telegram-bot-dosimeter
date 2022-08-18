@@ -265,7 +265,7 @@ MONITORING_POINTS: tuple[MonitoringPoint, ...] = (
 @dataclass(slots=True, frozen=True)
 class Region:
     name: str
-    monitoring_points: tuple[MonitoringPoint, ...]  # type: ignore
+    monitoring_points: tuple[MonitoringPoint, ...]
 
 
 Brest_region = Region(

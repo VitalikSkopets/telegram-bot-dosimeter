@@ -1,14 +1,13 @@
 import os
 from datetime import datetime
 
-import pytz  # type: ignore
+import pytz
 from mtranslate import translate
 
 __all__ = (
     "TODAY",
     "TOKEN",
     "MONGO_DB_NAME",
-    "MONGO_DB_LINK",
     "PORT",
     "HEROKU_APP_NAME",
     "WEBHOOK_MODE",
@@ -31,10 +30,6 @@ MONGO_DB_NAME: str = os.getenv("MONGO_DB_NAME", "")
 MONGO_DB_LOGIN: str = os.getenv("MONGO_DB_LOGIN", "")
 MONGO_DB_PASSWORD: str = os.getenv("MONGO_DB_PASSWORD", "")
 PORT: int = int(os.getenv("PORT", "8443"))
-MONGO_DB_LINK: str = (
-    f"mongodb+srv://{MONGO_DB_LOGIN}:{MONGO_DB_PASSWORD}@cluster."
-    f"s3cxd.mongodb.net/{MONGO_DB_NAME}?retryWrites=true&w=majority"
-)
 
 # Heroku
 HEROKU_APP_NAME: str = os.getenv("HEROKU_APP_NAME", "")

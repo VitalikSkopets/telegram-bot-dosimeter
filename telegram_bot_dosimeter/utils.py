@@ -1,10 +1,10 @@
 import locale
 from typing import Final
 
-import requests  # type: ignore
+import requests
 import urllib3
 from bs4 import BeautifulSoup
-from emoji.core import emojize  # type: ignore
+from emoji.core import emojize
 from fake_useragent import UserAgent
 from telegram import KeyboardButton, ReplyKeyboardMarkup
 
@@ -206,7 +206,7 @@ def format_string(string: str, min_length: int = 20) -> str:
 
 
 def get_info_about_region(
-    region: tuple[MonitoringPoint],
+    region: tuple[MonitoringPoint, ...],
 ) -> tuple[list[str], list[float]]:
     """
     The function calls the get_html() method, which sends a GET request and scripts

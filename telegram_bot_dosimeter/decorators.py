@@ -1,6 +1,6 @@
 from functools import wraps
 from logging import Logger
-from typing import Any, Callable, NoReturn, Sequence, Union
+from typing import Any, Callable, Optional, Sequence
 
 import sentry_sdk
 from telegram import ParseMode, Update
@@ -19,7 +19,7 @@ ADMIN_ID: int = 413818791
 LIST_OF_ADMIN_IDS: Sequence[int] = (413818791,)
 
 
-def restricted(func: Callable) -> Callable | NoReturn:
+def restricted(func: Callable) -> Optional[Callable]:
     """
     Allows you to restrict the access of a handler to only the user_ids specified in
     LIST_OF_ADMINS.
@@ -28,10 +28,10 @@ def restricted(func: Callable) -> Callable | NoReturn:
     @wraps(func)
     def wrapped(
         update: Update, context: CallbackContext, *args: Any, **kwargs: Any
-    ) -> Union[Callable, None]:
+    ) -> Optional[Callable]:
         user_id = update.effective_user.id  # type: ignore
         if user_id not in LIST_OF_ADMIN_IDS:
-            return  # type: ignore
+            return None
         return func(update, context, *args, **kwargs)
 
     return wrapped
