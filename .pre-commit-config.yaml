@@ -4,7 +4,6 @@ repos:
     rev: v4.3.0
     hooks:
     - id: check-yaml
-    - id: end-of-file-fixer
     - id: trailing-whitespace
 # isort sorts the imports
   - repo: https://github.com/pycqa/isort
