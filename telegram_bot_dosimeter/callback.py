@@ -3,6 +3,7 @@ from telegram.ext import CallbackContext
 
 from telegram_bot_dosimeter import config
 from telegram_bot_dosimeter.analytics.measurement_protocol import send_analytics
+from telegram_bot_dosimeter.config import get_logger
 from telegram_bot_dosimeter.constants import (
     Brest_region,
     Gomel_region,
@@ -13,7 +14,6 @@ from telegram_bot_dosimeter.constants import (
 )
 from telegram_bot_dosimeter.decorators import debug_handler, send_action
 from telegram_bot_dosimeter.geolocation import get_nearest_point_location
-from telegram_bot_dosimeter.logging_config import get_logger
 from telegram_bot_dosimeter.main import command_handler
 from telegram_bot_dosimeter.storage.mongodb import MongoDataBase
 from telegram_bot_dosimeter.utils import (
@@ -31,25 +31,26 @@ __all__ = ("Callback",)
 
 logger = get_logger(__name__)
 
-MongoDB = MongoDataBase()
+mongo_atlas__repo = MongoDataBase()
 
 
 class Callback:
     """A class that encapsulates methods for processing Telegram bot commands."""
 
-    def __init__(self, storage: MongoDataBase = MongoDB) -> None:
+    def __init__(self, repo: MongoDataBase = mongo_atlas__repo) -> None:
         """Constructor method for initializing objects of class Handlers."""
-        self.repo = storage
+        self.repo = repo
         self.update = Update
         self.context = CallbackContext
         self.user: User = self.update.message.from_user  # type: ignore
+        self.logger = get_logger("%s.%s" % (__name__, self.__class__.__qualname__))
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
     @command_handler("start")
     def start_callback(self) -> None:
         """Start command handler method."""
-        start_message = text_messages.get("start")
+        start_message = text_messages["start"]
         self.update.message.reply_text(  # type: ignore
             f"Рад нашему знакомству, *{self.user.first_name}*!{start_message}",
             reply_markup=main_keyboard(),
@@ -61,7 +62,7 @@ class Callback:
             user_lang_code=self.user.language_code,  # type: ignore
             action_name="Start command",
         )
-        logger.info(f"User {self.user.id} selected Start command")
+        self.logger.info("User %d selected Start command" % self.user.id)
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -80,7 +81,7 @@ class Callback:
             user_lang_code=self.user.language_code,  # type: ignore
             action_name="Help command",
         )
-        logger.info(f"User {self.user.id} selected Help command")
+        self.logger.info("User %d selected Help command" % self.user.id)
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -100,7 +101,7 @@ class Callback:
                 user_lang_code=self.user.language_code,  # type: ignore
                 action_name="Greeting message",
             )
-            logger.info(f"User {self.user.id} sent a welcome text message")
+            self.logger.info("User %d sent a welcome text message" % self.user.id)
         else:
             self.update.message.reply_text(  # type: ignore
                 unknown_message,
@@ -111,7 +112,7 @@ class Callback:
                 user_lang_code=self.user.language_code,  # type: ignore
                 action_name="Unknown message",
             )
-            logger.info(f"User {self.user.id} sent unknown text message")
+            self.logger.info("User %d sent unknown text message" % self.user.id)
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -135,7 +136,7 @@ class Callback:
             user_lang_code=self.user.language_code,  # type: ignore
             action_name="Radioactive monitoring",
         )
-        logger.info(f'User {self.user.id} press button "Radioactive monitoring"')
+        self.logger.info('User %d press button "Radioactive monitoring"' % self.user.id)
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -162,7 +163,7 @@ class Callback:
             user_lang_code=self.user.language_code,  # type: ignore
             action_name="Observation points",
         )
-        logger.info(f'User {self.user.id} press button "Observation points"')
+        self.logger.info('User %d press button "Observation points"' % self.user.id)
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -183,7 +184,7 @@ class Callback:
             user_lang_code=self.user.language_code,  # type: ignore
             action_name="Brest region",
         )
-        logger.info(f'User {self.user.id} press button "Brest region"')
+        self.logger.info('User %d press button "Brest region"' % self.user.id)
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -204,7 +205,7 @@ class Callback:
             user_lang_code=self.user.language_code,  # type: ignore
             action_name="Vitebsk region",
         )
-        logger.info(f'User {self.user.id} press button "Vitebsk region"')
+        self.logger.info('User %d press button "Vitebsk region"' % self.user.id)
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -225,7 +226,7 @@ class Callback:
             user_lang_code=self.user.language_code,  # type: ignore
             action_name="Gomel region",
         )
-        logger.info(f'User {self.user.id} press button "Gomel region"')
+        self.logger.info('User %d press button "Gomel region"' % self.user.id)
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -246,7 +247,7 @@ class Callback:
             user_lang_code=self.user.language_code,  # type: ignore
             action_name="Grodno region",
         )
-        logger.info(f'User {self.user.id} press button "Grodno region"')
+        self.logger.info('User %d press button "Grodno region"' % self.user.id)
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -267,7 +268,7 @@ class Callback:
             user_lang_code=self.user.language_code,  # type: ignore
             action_name="Minsk region",
         )
-        logger.info(f'User {self.user.id} press button "Minsk region"')
+        self.logger.info('User %d press button "Minsk region"' % self.user.id)
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -288,7 +289,7 @@ class Callback:
             user_lang_code=self.user.language_code,  # type: ignore
             action_name="Mogilev region",
         )
-        logger.info(f'User {self.user.id} press button "Mogilev region"')
+        self.logger.info('User %d press button "Mogilev region"' % self.user.id)
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -313,7 +314,7 @@ class Callback:
             user_lang_code=self.user.language_code,  # type: ignore
             action_name="Main menu",
         )
-        logger.info(f'User {self.user.id} press button "Main menu"')
+        self.logger.info('User %d press button "Main menu"' % self.user.id)
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.FIND_LOCATION)
@@ -343,5 +344,7 @@ class Callback:
                     user_lang_code=self.user.language_code,  # type: ignore
                     action_name="Send geolocation",
                 )
-                logger.info(f'User {self.user.id} press button "Send geolocation"')
+                self.logger.info(
+                    'User %d press button "Send geolocation"' % self.user.id
+                )
                 break

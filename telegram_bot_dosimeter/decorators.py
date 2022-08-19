@@ -7,13 +7,12 @@ from telegram import ParseMode, Update
 from telegram.ext import CallbackContext
 
 from telegram_bot_dosimeter.analytics.measurement_protocol import send_analytics
-from telegram_bot_dosimeter.logging_config import get_logger
+from telegram_bot_dosimeter.config import get_logger
+from telegram_bot_dosimeter.utils import text_messages
 
 __all__ = ("restricted", "send_action", "debug_handler", "analytics")
 
-from telegram_bot_dosimeter.utils import text_messages
-
-logger = get_logger("default")
+logger = get_logger(__name__)
 
 ADMIN_ID: int = 413818791
 LIST_OF_ADMIN_IDS: Sequence[int] = (413818791,)
@@ -83,12 +82,12 @@ def debug_handler(log_handler: Logger = logger) -> Callable:
         @wraps(func)
         def inner(*args: Any, **kwargs: Any) -> None:
             try:
-                log_handler.debug(f"Callback handler called {func.__name__}")
+                log_handler.debug("Callback handler called %s" % func.__name__)
                 return func(*args, **kwargs)
             except Exception as ex:
                 update = args[0]
                 user = update.message.from_user
-                info_message = text_messages.get("info")
+                info_message = text_messages["info"]
                 error_message = f"[ADMIN] - [ERROR]: {ex}"
 
                 update.message.reply_text(  # type: ignore
@@ -99,8 +98,9 @@ def debug_handler(log_handler: Logger = logger) -> Callable:
                 if update and hasattr(update, "message"):
                     update.bot.send_message(chat_id=ADMIN_ID, text=error_message)
 
-                log_handler.error(
-                    f"In the callback handler {func.__name__} an error occurred {ex}"
+                log_handler.exception(
+                    "In the callback handler %s an error occurred %s"
+                    % (func.__name__, ex)
                 )
                 sentry_sdk.capture_exception(error=ex)
 

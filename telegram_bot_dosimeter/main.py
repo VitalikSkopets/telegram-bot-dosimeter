@@ -5,7 +5,13 @@ from telegram.ext import CommandHandler, Filters, MessageHandler, Updater
 from telegram.utils.request import Request
 
 from telegram_bot_dosimeter.callback import Callback
-from telegram_bot_dosimeter.config import HEROKU_APP_NAME, PORT, TOKEN, WEBHOOK_MODE
+from telegram_bot_dosimeter.config import (
+    HEROKU_APP_NAME,
+    PORT,
+    TOKEN,
+    WEBHOOK_MODE,
+    get_logger,
+)
 from telegram_bot_dosimeter.constants import (
     Brest_region,
     Gomel_region,
@@ -14,7 +20,6 @@ from telegram_bot_dosimeter.constants import (
     Mogilev_region,
     Vitebsk_region,
 )
-from telegram_bot_dosimeter.logging_config import get_logger
 
 __all__ = ("command_handler",)
 
@@ -123,7 +128,7 @@ def main() -> None:
     """Application entry point. Bot launch function."""
 
     if not WEBHOOK_MODE:
-        logger.info("Application running in in pooling mode...")
+        logger.info("Application running in pooling mode...")
         updater.start_polling()
         updater.idle()
         logger.info("Application finished!")

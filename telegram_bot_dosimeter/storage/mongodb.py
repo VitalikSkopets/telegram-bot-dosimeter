@@ -4,8 +4,8 @@ from pymongo import MongoClient
 from telegram import User
 
 from telegram_bot_dosimeter import config
+from telegram_bot_dosimeter.config import get_logger
 from telegram_bot_dosimeter.crypto import DataEncrypt
-from telegram_bot_dosimeter.logging_config import get_logger
 from telegram_bot_dosimeter.storage.repository import DocumentRepository
 
 __all__ = ("MongoDataBase",)
@@ -16,7 +16,7 @@ MONGO_DB_LINK: str = (
     f"mongodb+srv://{config.MONGO_DB_LOGIN}:{config.MONGO_DB_PASSWORD}@cluster."
     f"s3cxd.mongodb.net/{config.MONGO_DB_NAME}?retryWrites=true&w=majority"
 )
-logger.debug("Reference to cloud Mongo Database: '%s'" % MONGO_DB_LINK)
+logger.debug("Reference to cloud Mongo Atlas Database: '%s'" % MONGO_DB_LINK)
 
 client_mdb: MongoClient = MongoClient(MONGO_DB_LINK, serverSelectionTimeoutMS=5000)
 
@@ -26,17 +26,16 @@ class MongoDataBase(DocumentRepository):
 
     def __init__(self, client: MongoClient = client_mdb) -> None:
         """Constructor method for initializing objects of the MongoDataBase class."""
+        self.logger = get_logger("%s.%s" % (__name__, self.__class__.__qualname__))
         try:
             self.mdb = client.users_db
-            logger.info(f"Info about server: {client.server_info()}")
+            self.logger.info(f"Info about server: {client.server_info()}")
         except Exception as ex:
-            logger.error(
-                f"Unable to connect to the server. Raised exception: {ex}",
-                exc_info=True,
+            self.logger.exception(
+                "Unable to connect to the server. Raised exception: %s" % ex
             )
 
-    @staticmethod
-    def create_collection(user: User) -> dict[str, Any]:
+    def create_collection(self, user: User) -> dict[str, Any]:
         """Method for creating a document base stored in a data collection."""
         first_name: DataEncrypt = DataEncrypt(user.first_name)
         last_name: DataEncrypt = DataEncrypt(user.last_name)
@@ -54,7 +53,7 @@ class MongoDataBase(DocumentRepository):
             "monitoring points": [],
             "sent location": [],
         }
-        logger.info("Collection created")
+        self.logger.info("New collection created")
         return current_user
 
     def add_start(self, user: User) -> Any:
@@ -81,7 +80,7 @@ class MongoDataBase(DocumentRepository):
                     },
                 },
             )
-        logger.info(f"Info about action 'Start command' by user {user.id} added to DB.")
+        self.logger.info("Action 'Start command' by user %d added to repo." % user.id)
 
     def add_help(self, user: User) -> Any:
         """
@@ -103,7 +102,7 @@ class MongoDataBase(DocumentRepository):
                     },
                 },
             )
-        logger.info(f"Info about action 'Help command' by user {user.id} added to DB.")
+        self.logger.info("Action 'Help command' by user %d added to repo." % user.id)
 
     def add_messages(self, user: User) -> Any:
         """
@@ -129,8 +128,8 @@ class MongoDataBase(DocumentRepository):
                     },
                 },
             )
-        logger.info(
-            f"Info about action 'Greeting message sent' by user {user.id} added to DB."
+        self.logger.info(
+            "Action 'Greeting message sent' by user %d added to repo." % user.id
         )
 
     def add_radiation_monitoring(self, user: User) -> Any:
@@ -146,8 +145,8 @@ class MongoDataBase(DocumentRepository):
                 },
             },
         )
-        logger.info(
-            f"Info about action 'Radiation monitoring' by user {user.id} added to DB."
+        self.logger.info(
+            "Action 'Radiation monitoring' by user %d added to repo." % user.id
         )
 
     def add_monitoring_points(self, user: User) -> Any:
@@ -163,8 +162,8 @@ class MongoDataBase(DocumentRepository):
                 },
             },
         )
-        logger.info(
-            f"Info about action 'Monitoring points' by user {user.id} added to DB."
+        self.logger.info(
+            "Action 'Monitoring points' by user %d added to repo." % user.id
         )
 
     def add_region(self, user: User, region: str) -> Any:
@@ -179,7 +178,7 @@ class MongoDataBase(DocumentRepository):
                 },
             },
         )
-        logger.info(f"Info about action '{region}' by user {user.id} added to DB.")
+        self.logger.info("Action '%s' by user %d added to repo." % (region, user.id))
 
     def add_location(self, user: User) -> Any:
         """
@@ -194,19 +193,19 @@ class MongoDataBase(DocumentRepository):
                 },
             },
         )
-        logger.info(f"Info about action 'Sent location' by user {user.id} added to DB.")
+        self.logger.info("Action 'Sent location' by user %d added to DB." % user.id)
 
     def get_user_by_id(self, user_id: int) -> Any:
         """Method for getting info about the user by id from the database."""
         query = {"user_id": user_id}
         user = self.mdb.users.find_one(query)
-        logger.debug(f"Info about the user: {user}")
+        self.logger.debug(f"Info about the user: {user}")
         return user
 
     def get_users_count(self) -> int:
         """Method for getting the number of users from the database."""
         users_count = self.mdb.users.count_documents({})
-        logger.debug("Users count in the database: %d" % users_count)
+        self.logger.debug("Users count in the database: %d" % users_count)
         return users_count
 
     def get_all_users_ids(self) -> Any:

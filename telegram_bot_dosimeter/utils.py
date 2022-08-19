@@ -9,8 +9,8 @@ from fake_useragent import UserAgent
 from telegram import KeyboardButton, ReplyKeyboardMarkup
 
 from telegram_bot_dosimeter import config
+from telegram_bot_dosimeter.config import get_logger
 from telegram_bot_dosimeter.constants import MonitoringPoint
-from telegram_bot_dosimeter.logging_config import get_logger
 
 __all__ = (
     "get_html",
@@ -130,14 +130,21 @@ greeting: tuple[str, ...] = (
 )
 
 
-def get_html(url: str = config.URL_RADIATION) -> BeautifulSoup:
+def get_html(url: str = config.URL_RADIATION) -> BeautifulSoup | None:
     """Function for scribing HTML markup of the web resource."""
-    response = requests.get(
-        url,
-        verify=False,
-        headers={"User-Agent": UserAgent().random},
-    )
-    soup = BeautifulSoup(response.text, features="xml")
+    response = None
+    try:
+        response = requests.get(
+            url,
+            verify=False,
+            headers={"User-Agent": UserAgent().random},
+        )
+    except Exception as ex:
+        logger.exception(
+            "Unable to connect to the %s. Raised exception: %s" % (url, ex)
+        )
+
+    soup = BeautifulSoup(response.text, features="xml") if response else None
     return soup
 
 
@@ -150,10 +157,10 @@ def get_points_with_radiation_level(
     """
     soup = markup or get_html()
 
-    points: list[str] = [point.text for point in soup.find_all("title")]
+    points: list[str] = [point.text for point in soup.find_all("title")]  # type: ignore
     points.reverse()
 
-    values: list[str] = [value.text for value in soup.find_all("rad")]
+    values: list[str] = [value.text for value in soup.find_all("rad")]  # type: ignore
     values.reverse()
 
     return list(zip(points, values))
@@ -162,7 +169,7 @@ def get_points_with_radiation_level(
 def get_avg_radiation_level() -> float:
     """The function returns the float value of the average level of radiation."""
     soup = get_html()
-    rad_level: list[str] = [value.text for value in soup.find_all("rad")]
+    rad_level: list[str] = [value.text for value in soup.find_all("rad")]  # type: ignore
     rad_level.reverse()
 
     mean_level = sum([float(level) for level in rad_level]) / len(rad_level)
@@ -170,13 +177,13 @@ def get_avg_radiation_level() -> float:
     return mean_level
 
 
-def get_info_about_radiation_monitoring() -> str:
+def get_info_about_radiation_monitoring() -> str | None:
     """
     The function makes a GET request and scripts the html markup
     https://rad.org.by/monitoring/radiation.
     """
     markup = get_html(url=config.URL_MONITORING)
-    lines = [span.text for span in markup.find_all("span")]
+    lines = [span.text for span in markup.find_all("span")]  # type: ignore
     data = """По состоянию на текущую дату радиационная обстановка на территории
     Республики Беларусь стабильная, мощность дозы гамма-излучения (МД) на пунктах
     наблюдений радиационного мониторинга атмосферного воздуха соответствует
