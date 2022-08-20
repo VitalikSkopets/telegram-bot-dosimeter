@@ -55,21 +55,24 @@ def send_action(action: Any) -> Callable:
     return decorator
 
 
-def analytics(func: Callable) -> Callable:
+def analytics(handler_method_name: str) -> Callable:
     """Send record to Google Analytics 4."""
 
-    @wraps(func)
-    def measurement(*args: Any, **kwargs: Any) -> Callable:
-        update = args[0]
-        if update and hasattr(update, "message"):
-            send_analytics(
-                user_id=update.message.chat_id,
-                user_lang_code=update.message.from_user.language_code,  # type: ignore
-                action_name="Send geolocation",
-            )
-        return func(*args, **kwargs)
+    def decorator(func: Callable) -> Callable:
+        @wraps(func)
+        def measurement(*args: Any, **kwargs: Any) -> Callable:
+            update = args[0]
+            if update and hasattr(update, "message"):
+                send_analytics(
+                    user_id=update.message.chat_id,
+                    user_lang_code=update.message.from_user.language_code,  # type: ignore
+                    action_name=handler_method_name,
+                )
+            return func(*args, **kwargs)
 
-    return measurement
+        return measurement
+
+    return decorator
 
 
 def debug_handler(log_handler: Logger = logger) -> Callable:
