@@ -57,7 +57,7 @@ class MongoDataBase(DocumentRepository):
         self.logger.info("New collection created")
         return current_user
 
-    def add_start(self, user: User) -> Any:
+    def add_start(self, user: User) -> None:
         """
         Method for adding information to the database about the user's call to the
         Start command.
@@ -85,7 +85,7 @@ class MongoDataBase(DocumentRepository):
             "Action '%s' by user %d added to repo." % (Action.START, user.id)
         )
 
-    def add_help(self, user: User) -> Any:
+    def add_help(self, user: User) -> None:
         """
         Method for adding information to the database about the user calling the Help
         command.
@@ -109,7 +109,7 @@ class MongoDataBase(DocumentRepository):
             "Action '%s' by user %d added to repo." % (Action.HELP, user.id)
         )
 
-    def add_messages(self, user: User) -> Any:
+    def add_messages(self, user: User) -> None:
         """
         Method for adding to the database information about the user sending a
         greeting message.
@@ -137,7 +137,7 @@ class MongoDataBase(DocumentRepository):
             "Action '%s' by user %d added to repo." % (Action.GREETING, user.id)
         )
 
-    def add_radiation_monitoring(self, user: User) -> Any:
+    def add_radiation_monitoring(self, user: User) -> None:
         """
         Method for adding information about a user who used Radiation Monitoring to
         the database.
@@ -154,7 +154,7 @@ class MongoDataBase(DocumentRepository):
             "Action '%s' by user %d added to repo." % (Action.MONITORING, user.id)
         )
 
-    def add_monitoring_points(self, user: User) -> Any:
+    def add_monitoring_points(self, user: User) -> None:
         """
         Method for adding information about a user who used Monitoring Points to the
         database.
@@ -171,7 +171,7 @@ class MongoDataBase(DocumentRepository):
             "Action '%s' by user %d added to repo." % (Action.POINTS, user.id)
         )
 
-    def add_region(self, user: User, region: Action) -> Any:
+    def add_region(self, user: User, region: Action) -> None:
         """
         Method for adding information about a user who used Region to the database.
         """
@@ -185,7 +185,7 @@ class MongoDataBase(DocumentRepository):
         )
         self.logger.info("Action '%s' by user %d added to repo." % (region, user.id))
 
-    def add_location(self, user: User) -> Any:
+    def add_location(self, user: User) -> None:
         """
         Method for adding information about the user who sent his geolocation to the
         database.

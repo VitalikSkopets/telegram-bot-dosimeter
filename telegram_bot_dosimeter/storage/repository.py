@@ -1,5 +1,4 @@
 import abc
-from typing import NoReturn
 
 from telegram import User
 
@@ -10,7 +9,7 @@ __all__ = ("DocumentRepository",)
 
 class DocumentRepository(abc.ABC):
     @abc.abstractmethod
-    def add_start(self, user: User) -> NoReturn:
+    def add_start(self, user: User) -> None:
         """
         Method that adds to the repository information about the user's use of the
         Start command.
@@ -18,7 +17,7 @@ class DocumentRepository(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def add_help(self, user: User) -> NoReturn:
+    def add_help(self, user: User) -> None:
         """
         Method that adds to the repository information about the user's use of the
         Help command.
@@ -26,7 +25,7 @@ class DocumentRepository(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def add_messages(self, user: User) -> NoReturn:
+    def add_messages(self, user: User) -> None:
         """
         Method that adds to the repository the information that the user bot has a
         text message.
@@ -34,7 +33,7 @@ class DocumentRepository(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def add_radiation_monitoring(self, user: User) -> NoReturn:
+    def add_radiation_monitoring(self, user: User) -> None:
         """
         Method that adds to the repository information about the user's use of the
         Radiation monitoring command.
@@ -42,7 +41,7 @@ class DocumentRepository(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def add_monitoring_points(self, user: User) -> NoReturn:
+    def add_monitoring_points(self, user: User) -> None:
         """
         Method that adds to the repository information about the user's use of the
         Monitoring points command.
@@ -50,7 +49,7 @@ class DocumentRepository(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def add_region(self, user: User, region: Action) -> NoReturn:
+    def add_region(self, user: User, region: Action) -> None:
         """
         Method that adds information to the repository that the user used a command
         to select the appropriate region.
@@ -58,7 +57,7 @@ class DocumentRepository(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def add_location(self, user: User) -> NoReturn:
+    def add_location(self, user: User) -> None:
         """
         Method that adds to the repository information about the user's use of the
         Send location command.
