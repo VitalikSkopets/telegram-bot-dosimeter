@@ -11,6 +11,7 @@ __all__ = (
     "Minsk_region",
     "Gomel_region",
     "Button",
+    "Action",
 )
 
 
@@ -356,6 +357,7 @@ Gomel_region = Region(
 class Button(str, Enum):
     MAIN_MENU = "Главное меню"
     MONITORING = "Радиационный мониторинг"
+    SEND_LOCATION = "Отправить мою геопозицию"
     POINTS = "Пункты наблюдения"
     BREST = Brest_region.name
     VITEBSK = Vitebsk_region.name
@@ -363,3 +365,20 @@ class Button(str, Enum):
     GRODNO = Grodno_region.name
     MINSK = Minsk_region.name
     MOGILEV = Mogilev_region.name
+
+
+class Action(str, Enum):
+    START = "Start command"
+    HELP = "Help command"
+    GREETING = "Greeting message"
+    MESSAGE = "Unknown message"
+    MONITORING = "Radiation monitoring"
+    LOCATION = "Send geolocation"
+    POINTS = "Monitoring points"
+    BREST = "Brest region"
+    VITEBSK = "Vitebsk region"
+    GOMEL = "Gomel region"
+    GRODNO = "Grodno region"
+    MINSK = "Minsk region"
+    MOGILEV = "Mogilev region"
+    MAIN_MENU = "Main menu"

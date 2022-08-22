@@ -5,6 +5,7 @@ from telegram_bot_dosimeter import config
 from telegram_bot_dosimeter.analytics.measurement_protocol import send_analytics
 from telegram_bot_dosimeter.config import get_logger
 from telegram_bot_dosimeter.constants import (
+    Action,
     Brest_region,
     Button,
     Gomel_region,
@@ -61,9 +62,9 @@ class Callback:
         send_analytics(
             user_id=self.user.id,
             user_lang_code=self.user.language_code,  # type: ignore
-            action_name="Start command",
+            action_name=Action.START,
         )
-        self.logger.info("User %d selected Start command" % self.user.id)
+        self.logger.info("User %d selected '%s'" % (self.user.id, Action.START))
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -80,9 +81,9 @@ class Callback:
         send_analytics(
             user_id=self.user.id,
             user_lang_code=self.user.language_code,  # type: ignore
-            action_name="Help command",
+            action_name=Action.HELP,
         )
-        self.logger.info("User %d selected Help command" % self.user.id)
+        self.logger.info("User %d selected '%s'" % (self.user.id, Action.HELP))
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -100,7 +101,7 @@ class Callback:
             send_analytics(
                 user_id=self.user.id,
                 user_lang_code=self.user.language_code,  # type: ignore
-                action_name="Greeting message",
+                action_name=Action.GREETING,
             )
             self.logger.info("User %d sent a welcome text message" % self.user.id)
         else:
@@ -111,7 +112,7 @@ class Callback:
             send_analytics(
                 user_id=self.user.id,
                 user_lang_code=self.user.language_code,  # type: ignore
-                action_name="Unknown message",
+                action_name=Action.MESSAGE,
             )
             self.logger.info("User %d sent unknown text message" % self.user.id)
 
@@ -135,9 +136,11 @@ class Callback:
         send_analytics(
             user_id=self.user.id,
             user_lang_code=self.user.language_code,  # type: ignore
-            action_name="Radioactive monitoring",
+            action_name=Action.MONITORING,
         )
-        self.logger.info('User %d press button "Radioactive monitoring"' % self.user.id)
+        self.logger.info(
+            "User %d press button '%s'" % (self.user.id, Action.MONITORING)
+        )
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -162,9 +165,9 @@ class Callback:
         send_analytics(
             user_id=self.user.id,
             user_lang_code=self.user.language_code,  # type: ignore
-            action_name="Observation points",
+            action_name=Action.POINTS,
         )
-        self.logger.info('User %d press button "Observation points"' % self.user.id)
+        self.logger.info("User %d press button '%s'" % (self.user.id, Action.POINTS))
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -179,13 +182,13 @@ class Callback:
             parse_mode=ParseMode.MARKDOWN_V2,
         )
 
-        self.repo.add_region(self.user, "Brest region")
+        self.repo.add_region(self.user, Action.BREST)
         send_analytics(
             user_id=self.user.id,
             user_lang_code=self.user.language_code,  # type: ignore
-            action_name="Brest region",
+            action_name=Action.BREST,
         )
-        self.logger.info('User %d press button "Brest region"' % self.user.id)
+        self.logger.info("User %d press button '%s'" % (self.user.id, Action.BREST))
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -200,13 +203,13 @@ class Callback:
             parse_mode=ParseMode.MARKDOWN_V2,
         )
 
-        self.repo.add_region(self.user, "Vitebsk region")
+        self.repo.add_region(self.user, Action.VITEBSK)
         send_analytics(
             user_id=self.user.id,
             user_lang_code=self.user.language_code,  # type: ignore
-            action_name="Vitebsk region",
+            action_name=Action.VITEBSK,
         )
-        self.logger.info('User %d press button "Vitebsk region"' % self.user.id)
+        self.logger.info("User %d press button '%s'" % (self.user.id, Action.VITEBSK))
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -221,13 +224,13 @@ class Callback:
             parse_mode=ParseMode.MARKDOWN_V2,
         )
 
-        self.repo.add_region(self.user, "Gomel region")
+        self.repo.add_region(self.user, Action.GOMEL)
         send_analytics(
             user_id=self.user.id,
             user_lang_code=self.user.language_code,  # type: ignore
-            action_name="Gomel region",
+            action_name=Action.GOMEL,
         )
-        self.logger.info('User %d press button "Gomel region"' % self.user.id)
+        self.logger.info("User %d press button '%s'" % (self.user.id, Action.GOMEL))
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -242,13 +245,13 @@ class Callback:
             parse_mode=ParseMode.MARKDOWN_V2,
         )
 
-        self.repo.add_region(self.user, "Grodno region")
+        self.repo.add_region(self.user, Action.GRODNO)
         send_analytics(
             user_id=self.user.id,
             user_lang_code=self.user.language_code,  # type: ignore
-            action_name="Grodno region",
+            action_name=Action.GRODNO,
         )
-        self.logger.info('User %d press button "Grodno region"' % self.user.id)
+        self.logger.info("User %d press button '%s'" % (self.user.id, Action.GRODNO))
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -263,13 +266,13 @@ class Callback:
             parse_mode=ParseMode.MARKDOWN_V2,
         )
 
-        self.repo.add_region(self.user, "Minsk region")
+        self.repo.add_region(self.user, Action.MINSK)
         send_analytics(
             user_id=self.user.id,
             user_lang_code=self.user.language_code,  # type: ignore
-            action_name="Minsk region",
+            action_name=Action.MINSK,
         )
-        self.logger.info('User %d press button "Minsk region"' % self.user.id)
+        self.logger.info("User %d press button '%s'" % (self.user.id, Action.MINSK))
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -284,13 +287,13 @@ class Callback:
             parse_mode=ParseMode.MARKDOWN_V2,
         )
 
-        self.repo.add_region(self.user, "Mogilev region")
+        self.repo.add_region(self.user, Action.MOGILEV)
         send_analytics(
             user_id=self.user.id,
             user_lang_code=self.user.language_code,  # type: ignore
-            action_name="Mogilev region",
+            action_name=Action.MOGILEV,
         )
-        self.logger.info('User %d press button "Mogilev region"' % self.user.id)
+        self.logger.info("User %d press button '%s'" % (self.user.id, Action.MOGILEV))
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -313,9 +316,9 @@ class Callback:
         send_analytics(
             user_id=self.user.id,
             user_lang_code=self.user.language_code,  # type: ignore
-            action_name="Main menu",
+            action_name=Action.MAIN_MENU,
         )
-        self.logger.info('User %d press button "Main menu"' % self.user.id)
+        self.logger.info("User %d press button '%s'" % (self.user.id, Action.MAIN_MENU))
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.FIND_LOCATION)
@@ -343,9 +346,9 @@ class Callback:
                 send_analytics(
                     user_id=self.user.id,
                     user_lang_code=self.user.language_code,  # type: ignore
-                    action_name="Send geolocation",
+                    action_name=Action.LOCATION,
                 )
                 self.logger.info(
-                    'User %d press button "Send geolocation"' % self.user.id
+                    "User %d press button '%s'" % (self.user.id, Action.LOCATION)
                 )
                 break

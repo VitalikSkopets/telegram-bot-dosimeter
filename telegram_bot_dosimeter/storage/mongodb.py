@@ -5,6 +5,7 @@ from telegram import User
 
 from telegram_bot_dosimeter import config
 from telegram_bot_dosimeter.config import get_logger
+from telegram_bot_dosimeter.constants import Action
 from telegram_bot_dosimeter.crypto import DataEncrypt
 from telegram_bot_dosimeter.storage.repository import DocumentRepository
 
@@ -80,7 +81,9 @@ class MongoDataBase(DocumentRepository):
                     },
                 },
             )
-        self.logger.info("Action 'Start command' by user %d added to repo." % user.id)
+        self.logger.info(
+            "Action '%s' by user %d added to repo." % (Action.START, user.id)
+        )
 
     def add_help(self, user: User) -> Any:
         """
@@ -102,7 +105,9 @@ class MongoDataBase(DocumentRepository):
                     },
                 },
             )
-        self.logger.info("Action 'Help command' by user %d added to repo." % user.id)
+        self.logger.info(
+            "Action '%s' by user %d added to repo." % (Action.HELP, user.id)
+        )
 
     def add_messages(self, user: User) -> Any:
         """
@@ -129,7 +134,7 @@ class MongoDataBase(DocumentRepository):
                 },
             )
         self.logger.info(
-            "Action 'Greeting message sent' by user %d added to repo." % user.id
+            "Action '%s' by user %d added to repo." % (Action.GREETING, user.id)
         )
 
     def add_radiation_monitoring(self, user: User) -> Any:
@@ -146,7 +151,7 @@ class MongoDataBase(DocumentRepository):
             },
         )
         self.logger.info(
-            "Action 'Radiation monitoring' by user %d added to repo." % user.id
+            "Action '%s' by user %d added to repo." % (Action.MONITORING, user.id)
         )
 
     def add_monitoring_points(self, user: User) -> Any:
@@ -163,10 +168,10 @@ class MongoDataBase(DocumentRepository):
             },
         )
         self.logger.info(
-            "Action 'Monitoring points' by user %d added to repo." % user.id
+            "Action '%s' by user %d added to repo." % (Action.POINTS, user.id)
         )
 
-    def add_region(self, user: User, region: str) -> Any:
+    def add_region(self, user: User, region: Action) -> Any:
         """
         Method for adding information about a user who used Region to the database.
         """
@@ -193,7 +198,9 @@ class MongoDataBase(DocumentRepository):
                 },
             },
         )
-        self.logger.info("Action 'Sent location' by user %d added to DB." % user.id)
+        self.logger.info(
+            "Action '%s' by user %d added to repo." % (Action.LOCATION, user.id)
+        )
 
     def get_user_by_id(self, user_id: int) -> Any:
         """Method for getting info about the user by id from the database."""

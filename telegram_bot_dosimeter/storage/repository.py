@@ -3,6 +3,8 @@ from typing import NoReturn
 
 from telegram import User
 
+from telegram_bot_dosimeter.constants import Action
+
 __all__ = ("DocumentRepository",)
 
 
@@ -48,7 +50,7 @@ class DocumentRepository(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def add_region(self, user: User, region: str) -> NoReturn:
+    def add_region(self, user: User, region: Action) -> NoReturn:
         """
         Method that adds information to the repository that the user used a command
         to select the appropriate region.

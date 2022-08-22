@@ -10,7 +10,7 @@ from telegram import KeyboardButton, ReplyKeyboardMarkup
 
 from telegram_bot_dosimeter import config
 from telegram_bot_dosimeter.config import get_logger
-from telegram_bot_dosimeter.constants import MonitoringPoint
+from telegram_bot_dosimeter.constants import Button, MonitoringPoint
 
 __all__ = (
     "get_html",
@@ -255,13 +255,11 @@ def main_keyboard() -> ReplyKeyboardMarkup:
     """
     The function returns the menu buttons to the user instead of the standard keyboard
     """
-    location_keyboard = KeyboardButton(
-        "Отправить мою геопозицию", request_location=True
-    )
+    location_keyboard = KeyboardButton(Button.SEND_LOCATION, request_location=True)
     return ReplyKeyboardMarkup(
         [
-            ["Радиационный мониторинг"],
-            ["Пункты наблюдения"],
+            [Button.MONITORING],
+            [Button.POINTS],
             [location_keyboard],
         ],
         resize_keyboard=True,

@@ -2,8 +2,10 @@ import requests
 
 from telegram_bot_dosimeter import config
 from telegram_bot_dosimeter.config import get_logger
+from telegram_bot_dosimeter.constants import Action
 
 __all__ = ("send_analytics",)
+
 
 logger = get_logger(__name__)
 
@@ -13,7 +15,7 @@ URL: str = (
 )
 
 
-def send_analytics(user_id: int, user_lang_code: str, action_name: str) -> None:
+def send_analytics(user_id: int, user_lang_code: str, action_name: Action) -> None:
     """Send record to Google Analytics 4."""
     params = {
         "client_id": str(user_id),

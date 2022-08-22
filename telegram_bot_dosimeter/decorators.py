@@ -8,6 +8,7 @@ from telegram.ext import CallbackContext
 
 from telegram_bot_dosimeter.analytics.measurement_protocol import send_analytics
 from telegram_bot_dosimeter.config import get_logger
+from telegram_bot_dosimeter.constants import Action
 from telegram_bot_dosimeter.utils import text_messages
 
 __all__ = ("restricted", "send_action", "debug_handler", "analytics")
@@ -55,7 +56,7 @@ def send_action(action: Any) -> Callable:
     return decorator
 
 
-def analytics(handler_method_name: str) -> Callable:
+def analytics(handler_method_name: Action) -> Callable:
     """Send record to Google Analytics 4."""
 
     def decorator(func: Callable) -> Callable:
@@ -102,7 +103,7 @@ def debug_handler(log_handler: Logger = logger) -> Callable:
                     update.bot.send_message(chat_id=ADMIN_ID, text=error_message)
 
                 log_handler.exception(
-                    "In the callback handler %s an error occurred %s"
+                    "In the callback handler %s an error occurred: %s"
                     % (func.__name__, ex)
                 )
                 sentry_sdk.capture_exception(error=ex)
