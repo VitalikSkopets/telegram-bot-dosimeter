@@ -6,6 +6,7 @@ from telegram_bot_dosimeter.analytics.measurement_protocol import send_analytics
 from telegram_bot_dosimeter.config import get_logger
 from telegram_bot_dosimeter.constants import (
     Brest_region,
+    Button,
     Gomel_region,
     Grodno_region,
     Minsk_region,
@@ -146,13 +147,13 @@ class Callback:
             "Выбери интересующий регион",
             reply_markup=ReplyKeyboardMarkup(
                 [
-                    [Brest_region.name],
-                    [Vitebsk_region.name],
-                    [Gomel_region.name],
-                    [Grodno_region.name],
-                    [Minsk_region.name],
-                    [Mogilev_region.name],
-                    ["Главное меню"],
+                    [Button.BREST],
+                    [Button.VITEBSK],
+                    [Button.GOMEL],
+                    [Button.GRODNO],
+                    [Button.MINSK],
+                    [Button.MOGILEV],
+                    [Button.MAIN_MENU],
                 ],
                 resize_keyboard=True,
             ),

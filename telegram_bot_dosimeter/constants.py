@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum
 
 __all__ = (
     "MonitoringPoint",
@@ -9,6 +10,7 @@ __all__ = (
     "Mogilev_region",
     "Minsk_region",
     "Gomel_region",
+    "Button",
 )
 
 
@@ -349,3 +351,15 @@ Gomel_region = Region(
         Slovechno,
     ),
 )
+
+
+class Button(str, Enum):
+    MAIN_MENU = "Главное меню"
+    MONITORING = "Радиационный мониторинг"
+    POINTS = "Пункты наблюдения"
+    BREST = Brest_region.name
+    VITEBSK = Vitebsk_region.name
+    GOMEL = Gomel_region.name
+    GRODNO = Grodno_region.name
+    MINSK = Minsk_region.name
+    MOGILEV = Mogilev_region.name
