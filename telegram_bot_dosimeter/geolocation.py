@@ -13,12 +13,11 @@ def get_nearest_point_location(
     location to the nearest monitoring point
     """
     user_coordinates = (latitude, longitude)
-    distance_list = []
-    for point in MONITORING_POINTS:
-        distance_list.append(
-            (
-                round(distance.distance(user_coordinates, point.coordinates).m, 3),
-                point.name,
-            ),
+    distance_list = [
+        (
+            round(distance.distance(user_coordinates, point.coordinates).m, 3),
+            point.name,
         )
+        for point in MONITORING_POINTS
+    ]
     return min(distance_list)
