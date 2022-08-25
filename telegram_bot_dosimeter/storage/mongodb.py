@@ -215,28 +215,32 @@ class MongoDataBase(DocumentRepository):
         self.logger.debug("Users count in the database: %d" % users_count)
         return users_count
 
-    def get_all_users_ids(self) -> Any:
+    def get_all_users_ids(self) -> str:
         """
         The method queries the database and outputs a selection of User IDs to the
         console.
         """
-        for num, user_id in enumerate(self.mdb.users.distinct("user_id"), 1):
-            print(f"{num}th user ID: {user_id}")
+        response = [
+            f"{num}th user ID: {user_id}"
+            for num, user_id in enumerate(self.mdb.users.distinct("user_id"), 1)
+        ]
+        return "\n".join(response)
 
-    def get_all_users_data(self) -> Any:
+    def get_all_users_data(self) -> str:
         """
         The method queries the database and outputs a selection of users to the console.
         """
-        for num, user_data in enumerate(self.mdb.users.find(), 1):
-            print(
-                f"""
-                Personal date of the {num}th user:
-                ID:         {user_data.get("user_id")}
-                First name: {user_data.get("first_name")}
-                Last name:  {user_data.get("last_name")}
-                User name:  {user_data.get("user_name")}
-                """
-            )
+        response = [
+            f"""
+            Personal date of the {num}th user:
+            ID:         {user_data.get("user_id")}
+            First name: {user_data.get("first_name")}
+            Last name:  {user_data.get("last_name")}
+            User name:  {user_data.get("user_name")}
+            """
+            for num, user_data in enumerate(self.mdb.users.find(), 1)
+        ]
+        return "\n\n".join(response)
 
 
 if __name__ == "__main__":
