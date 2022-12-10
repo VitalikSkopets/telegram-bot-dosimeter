@@ -20,18 +20,18 @@ run:  ## Run main function in main.py file - entry point in app
 
 .PHONY: lint
 lint:  ## Lint and static-check
-	$(POETRY) run isort --check-only --diff .
+	$(POETRY) run isort --check-only --diff $(APP)
 	$(POETRY) run flake8 $(APP)
-	$(POETRY) run black --check --diff .
+	$(POETRY) run black --check --diff $(APP)
 	$(POETRY) run mypy $(APP) --show-error-codes
 
 .PHONY: fmt-isort
 fmt-isort:  ## To apply isort recursively
-	$(POETRY) run isort .
+	$(POETRY) run isort $(APP)
 
 .PHONY: fmt-black
 fmt-black:  ## To get started black recursively
-	$(POETRY) run black .
+	$(POETRY) run black $(APP)
 
 .PHONY: fmt
 fmt: fmt-isort fmt-black
