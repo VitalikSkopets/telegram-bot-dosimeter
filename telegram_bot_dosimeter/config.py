@@ -1,6 +1,7 @@
 import logging
 import logging.config
 import os
+import uuid
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -33,6 +34,8 @@ TODAY: str = translate(DATE, DEFAULT_LOCALE)
 
 DEBUG: bool = False
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+
 # python-telegram-bot API TOKEN
 TOKEN: str = os.getenv("API_TOKEN", "")
 
@@ -64,25 +67,49 @@ FOLDER_LOG: str = "logs"
 LOG_FILENAME: str = "main.log"
 ERROR_LOG_FILENAME: str = "errors.log"
 
+
+class EnvironFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        record.environment = os.environ.get("ENVIRON", "DEV")  # type: ignore
+        return True
+
+
+class RequestFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        record.request_id = str(uuid.uuid4())  # type: ignore
+        return True
+
+
 LOGGING_CONFIG: dict[str, Any] = {
     "version": 1,
     "disable_existing_loggers": False,
+    "filters": {
+        "environ_filter": {
+            "()": EnvironFilter,
+        },
+        "request_filter": {
+            "()": RequestFilter,
+        },
+    },
     "formatters": {
         "default": {
-            "format": "%(asctime)s - %(processName)-10s - %(name)-10s - %(levelname)-8s"
-            " - (%(filename)s).%(funcName)s(%(lineno)d) - %(message)s",
+            "format": "%(asctime)s - [%(environment)s] - %(processName)-10s"
+            " - %(name)-10s - %(levelname)-8s - (%(filename)s).%(funcName)s(%(lineno)d)"
+            " - [%(request_id)s] - %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
         "json": {
             "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
             "format": """
                     asctime: %(asctime)s
+                    environment: %(environment)s
                     created: %(created)f
                     filename: %(filename)s
                     funcName: %(funcName)s
                     levelname: %(levelname)s
                     levelno: %(levelno)s
                     lineno: %(lineno)d
+                    request_id: %(request_id)s
                     message: %(message)s
                     module: %(module)s
                     msec: %(msecs)d
@@ -103,13 +130,15 @@ LOGGING_CONFIG: dict[str, Any] = {
             "class": "logging.StreamHandler",
             "level": "DEBUG",
             "formatter": "default",
+            "filters": ["environ_filter", "request_filter"],
             "stream": "ext://sys.stdout",
         },
         "rotating_file": {
             "class": "logging.handlers.RotatingFileHandler",
             "level": "INFO",
             "formatter": "json",
-            "filename": "%s/%s" % (FOLDER_LOG, LOG_FILENAME),
+            "filters": ["environ_filter", "request_filter"],
+            "filename": f"{BASE_DIR}/{FOLDER_LOG}/{LOG_FILENAME}",
             "maxBytes": 10485760,  # 10Mb
             "backupCount": 2,
             "encoding": "utf-8",
@@ -118,7 +147,8 @@ LOGGING_CONFIG: dict[str, Any] = {
             "class": "logging.handlers.TimedRotatingFileHandler",
             "level": "ERROR",
             "formatter": "json",
-            "filename": "%s/%s" % (FOLDER_LOG, ERROR_LOG_FILENAME),
+            "filters": ["environ_filter", "request_filter"],
+            "filename": f"{BASE_DIR}/{FOLDER_LOG}/{ERROR_LOG_FILENAME}",
             "when": "d",
             "interval": 1,
             "backupCount": 7,
@@ -146,8 +176,8 @@ LOGGING_CONFIG: dict[str, Any] = {
 }
 
 
-def create_log_folder(name: str = FOLDER_LOG) -> None:
-    folder = Path(name)
+def create_log_folder(folder_name: str = FOLDER_LOG) -> None:
+    folder = Path(BASE_DIR / folder_name)
     folder.mkdir(exist_ok=True)
 
 
