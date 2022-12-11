@@ -169,7 +169,7 @@ def get_points_with_radiation_level(
 def get_avg_radiation_level() -> float:
     """The function returns the float value of the average level of radiation."""
     soup = get_html()
-    rad_level: list[str] = [value.text for value in soup.find_all("rad")]  # type: ignore
+    rad_level: list[str] = [val.text for val in soup.find_all("rad")]  # type: ignore
     rad_level.reverse()
 
     mean_level = sum([float(level) for level in rad_level]) / len(rad_level)

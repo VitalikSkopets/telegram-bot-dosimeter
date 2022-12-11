@@ -25,6 +25,8 @@ client_mdb: MongoClient = MongoClient(MONGO_DB_LINK, serverSelectionTimeoutMS=50
 class MongoDataBase(DocumentRepository):
     """MongoDB client."""
 
+    LOG_MSG = "Action '%s' added to Mongo DB."
+
     def __init__(self, client: MongoClient = client_mdb) -> None:
         """Constructor method for initializing objects of the MongoDataBase class."""
         try:
@@ -54,7 +56,7 @@ class MongoDataBase(DocumentRepository):
             "monitoring points": [],
             "sent location": [],
         }
-        logger.info("New collection created")
+        logger.info("New collection created", user_id=user.id)
         return current_user
 
     def add_start(self, user: User) -> None:
@@ -81,7 +83,7 @@ class MongoDataBase(DocumentRepository):
                     },
                 },
             )
-        logger.info("Action '%s' by user %d added to repo." % (Action.START, user.id))
+        logger.info(self.LOG_MSG % Action.START, user_id=user.id)
 
     def add_help(self, user: User) -> None:
         """
@@ -103,7 +105,7 @@ class MongoDataBase(DocumentRepository):
                     },
                 },
             )
-        logger.info("Action '%s' by user %d added to repo." % (Action.HELP, user.id))
+        logger.info(self.LOG_MSG % Action.HELP, user_id=user.id)
 
     def add_messages(self, user: User) -> None:
         """
@@ -129,9 +131,7 @@ class MongoDataBase(DocumentRepository):
                     },
                 },
             )
-        logger.info(
-            "Action '%s' by user %d added to repo." % (Action.GREETING, user.id)
-        )
+        logger.info(self.LOG_MSG % Action.GREETING, user_id=user.id)
 
     def add_radiation_monitoring(self, user: User) -> None:
         """
@@ -146,9 +146,7 @@ class MongoDataBase(DocumentRepository):
                 },
             },
         )
-        logger.info(
-            "Action '%s' by user %d added to repo." % (Action.MONITORING, user.id)
-        )
+        logger.info(self.LOG_MSG % Action.MONITORING, user_id=user.id)
 
     def add_monitoring_points(self, user: User) -> None:
         """
@@ -163,7 +161,7 @@ class MongoDataBase(DocumentRepository):
                 },
             },
         )
-        logger.info("Action '%s' by user %d added to repo." % (Action.POINTS, user.id))
+        logger.info(self.LOG_MSG % Action.POINTS, user_id=user.id)
 
     def add_region(self, user: User, region: Action) -> None:
         """
@@ -177,7 +175,7 @@ class MongoDataBase(DocumentRepository):
                 },
             },
         )
-        logger.info("Action '%s' by user %d added to repo." % (region, user.id))
+        logger.info(self.LOG_MSG % region, user_id=user.id)
 
     def add_location(self, user: User) -> None:
         """
@@ -192,9 +190,7 @@ class MongoDataBase(DocumentRepository):
                 },
             },
         )
-        logger.info(
-            "Action '%s' by user %d added to repo." % (Action.LOCATION, user.id)
-        )
+        logger.info(self.LOG_MSG % Action.LOCATION, user_id=user.id)
 
     def get_user_by_id(self, user_id: int) -> Any:
         """Method for getting info about the user by id from the database."""
@@ -203,11 +199,12 @@ class MongoDataBase(DocumentRepository):
         logger.debug(f"Info about the user: {user}")
         return user
 
-    def get_users_count(self) -> int:
+    def get_users_count(self) -> str:
         """Method for getting the number of users from the database."""
+        msg = "Users count in the database:"
         users_count = self.mdb.users.count_documents({})
-        logger.debug("Users count in the database: %d" % users_count, user_id="12345")
-        return users_count
+        logger.debug("%s %d" % (msg, users_count))
+        return f"{msg} [{users_count}]"
 
     def get_all_users_ids(self) -> str:
         """
