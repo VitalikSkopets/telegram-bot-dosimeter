@@ -27,16 +27,16 @@ class MongoDataBase(DocumentRepository):
 
     def __init__(self, client: MongoClient = client_mdb) -> None:
         """Constructor method for initializing objects of the MongoDataBase class."""
-        self.logger = get_logger("%s.%s" % (__name__, self.__class__.__qualname__))
         try:
             self.mdb = client.users_db
-            self.logger.info(f"Info about server: {client.server_info()}")
+            logger.info(f"Info about server: {client.server_info()}")
         except Exception as ex:
-            self.logger.exception(
+            logger.exception(
                 "Unable to connect to the server. Raised exception: %s" % ex
             )
 
-    def create_collection(self, user: User) -> dict[str, Any]:
+    @staticmethod
+    def create_collection(user: User) -> dict[str, Any]:
         """Method for creating a document base stored in a data collection."""
         first_name: DataEncrypt = DataEncrypt(user.first_name)
         last_name: DataEncrypt = DataEncrypt(user.last_name)
@@ -54,7 +54,7 @@ class MongoDataBase(DocumentRepository):
             "monitoring points": [],
             "sent location": [],
         }
-        self.logger.info("New collection created")
+        logger.info("New collection created")
         return current_user
 
     def add_start(self, user: User) -> None:
@@ -81,9 +81,7 @@ class MongoDataBase(DocumentRepository):
                     },
                 },
             )
-        self.logger.info(
-            "Action '%s' by user %d added to repo." % (Action.START, user.id)
-        )
+        logger.info("Action '%s' by user %d added to repo." % (Action.START, user.id))
 
     def add_help(self, user: User) -> None:
         """
@@ -105,9 +103,7 @@ class MongoDataBase(DocumentRepository):
                     },
                 },
             )
-        self.logger.info(
-            "Action '%s' by user %d added to repo." % (Action.HELP, user.id)
-        )
+        logger.info("Action '%s' by user %d added to repo." % (Action.HELP, user.id))
 
     def add_messages(self, user: User) -> None:
         """
@@ -133,7 +129,7 @@ class MongoDataBase(DocumentRepository):
                     },
                 },
             )
-        self.logger.info(
+        logger.info(
             "Action '%s' by user %d added to repo." % (Action.GREETING, user.id)
         )
 
@@ -150,7 +146,7 @@ class MongoDataBase(DocumentRepository):
                 },
             },
         )
-        self.logger.info(
+        logger.info(
             "Action '%s' by user %d added to repo." % (Action.MONITORING, user.id)
         )
 
@@ -167,9 +163,7 @@ class MongoDataBase(DocumentRepository):
                 },
             },
         )
-        self.logger.info(
-            "Action '%s' by user %d added to repo." % (Action.POINTS, user.id)
-        )
+        logger.info("Action '%s' by user %d added to repo." % (Action.POINTS, user.id))
 
     def add_region(self, user: User, region: Action) -> None:
         """
@@ -183,7 +177,7 @@ class MongoDataBase(DocumentRepository):
                 },
             },
         )
-        self.logger.info("Action '%s' by user %d added to repo." % (region, user.id))
+        logger.info("Action '%s' by user %d added to repo." % (region, user.id))
 
     def add_location(self, user: User) -> None:
         """
@@ -198,7 +192,7 @@ class MongoDataBase(DocumentRepository):
                 },
             },
         )
-        self.logger.info(
+        logger.info(
             "Action '%s' by user %d added to repo." % (Action.LOCATION, user.id)
         )
 
@@ -206,13 +200,13 @@ class MongoDataBase(DocumentRepository):
         """Method for getting info about the user by id from the database."""
         query = {"user_id": user_id}
         user = self.mdb.users.find_one(query)
-        self.logger.debug(f"Info about the user: {user}")
+        logger.debug(f"Info about the user: {user}")
         return user
 
     def get_users_count(self) -> int:
         """Method for getting the number of users from the database."""
         users_count = self.mdb.users.count_documents({})
-        self.logger.debug("Users count in the database: %d" % users_count)
+        logger.debug("Users count in the database: %d" % users_count)
         return users_count
 
     def get_all_users_ids(self) -> str:
