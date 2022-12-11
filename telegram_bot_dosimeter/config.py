@@ -32,7 +32,8 @@ DEFAULT_LOCALE: str = "ru"
 DATE: str = datetime.now(pytz.timezone("Europe/Minsk")).strftime("%d-%b-%Y")
 TODAY: str = translate(DATE, DEFAULT_LOCALE)
 
-DEBUG: bool = False
+DEBUG: bool = True
+ENVIRON: str = "DEV" if DEBUG else "PROD"
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -70,7 +71,7 @@ ERROR_LOG_FILENAME: str = "errors.log"
 
 class EnvironFilter(logging.Filter):
     def filter(self, record: logging.LogRecord) -> bool:
-        record.environment = os.environ.get("ENVIRON", "DEV")  # type: ignore
+        record.environment = ENVIRON  # type: ignore
         return True
 
 
@@ -95,7 +96,12 @@ LOGGING_CONFIG: dict[str, Any] = {
         "default": {
             "format": "%(asctime)s - [%(environment)s] - %(processName)-10s"
             " - %(name)-10s - %(levelname)-8s - (%(filename)s).%(funcName)s(%(lineno)d)"
-            " - [%(request_id)s] - %(message)s",
+            " - request_id: [%(request_id)s] - %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
+        "brief": {
+            "format": "%(asctime)s - [%(environment)s] - %(levelname)-8s -"
+            " (%(filename)s).%(funcName)s(%(lineno)d) - %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
         "json": {
@@ -129,8 +135,8 @@ LOGGING_CONFIG: dict[str, Any] = {
         "console": {
             "class": "logging.StreamHandler",
             "level": "DEBUG",
-            "formatter": "default",
-            "filters": ["environ_filter", "request_filter"],
+            "formatter": "brief",
+            "filters": ["environ_filter"],
             "stream": "ext://sys.stdout",
         },
         "rotating_file": {
@@ -183,7 +189,7 @@ def create_log_folder(folder_name: str = FOLDER_LOG) -> None:
 
 def get_logger(name: str = __name__, template: str = "file_logger") -> logging.Logger:
     create_log_folder()
-    template = "console_logger" if not DEBUG else template
+    template = "console_logger" if DEBUG else template
     LOGGING_CONFIG["loggers"][name] = LOGGING_CONFIG["loggers"][template]
     logging.config.dictConfig(LOGGING_CONFIG)
     return logging.getLogger(name)

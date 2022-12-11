@@ -245,7 +245,7 @@ class MongoDataBase(DocumentRepository):
 
 if __name__ == "__main__":
     session = MongoDataBase(client_mdb)
-    print(session.get_user_by_id(413818791))
-    print(session.get_all_users_data())
-    print(session.get_all_users_ids())
+    # print(session.get_user_by_id(413818791))
+    # print(session.get_all_users_data())
+    # print(session.get_all_users_ids())
     print(session.get_users_count())
