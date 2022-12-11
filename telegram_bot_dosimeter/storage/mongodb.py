@@ -4,14 +4,14 @@ from pymongo import MongoClient
 from telegram import User
 
 from telegram_bot_dosimeter import config
-from telegram_bot_dosimeter.config import get_logger
+from telegram_bot_dosimeter.config import CustomAdapter, get_logger
 from telegram_bot_dosimeter.constants import Action
 from telegram_bot_dosimeter.crypto import DataEncrypt
 from telegram_bot_dosimeter.storage.repository import DocumentRepository
 
 __all__ = ("MongoDataBase",)
 
-logger = get_logger(__name__)
+logger = CustomAdapter(get_logger(__name__), {"user_id": None})
 
 MONGO_DB_LINK: str = (
     f"mongodb+srv://{config.MONGO_DB_LOGIN}:{config.MONGO_DB_PASSWORD}@cluster."
@@ -206,7 +206,7 @@ class MongoDataBase(DocumentRepository):
     def get_users_count(self) -> int:
         """Method for getting the number of users from the database."""
         users_count = self.mdb.users.count_documents({})
-        logger.debug("Users count in the database: %d" % users_count)
+        logger.debug("Users count in the database: %d" % users_count, user_id="12345")
         return users_count
 
     def get_all_users_ids(self) -> str:

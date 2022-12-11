@@ -26,6 +26,7 @@ __all__ = (
     "URL_RADIATION",
     "URL_MONITORING",
     "get_logger",
+    "CustomAdapter",
 )
 
 DEFAULT_LOCALE: str = "ru"
@@ -193,6 +194,12 @@ def get_logger(name: str = __name__, template: str = "file_logger") -> logging.L
     LOGGING_CONFIG["loggers"][name] = LOGGING_CONFIG["loggers"][template]
     logging.config.dictConfig(LOGGING_CONFIG)
     return logging.getLogger(name)
+
+
+class CustomAdapter(logging.LoggerAdapter):
+    def process(self, msg, kwargs):  # type: ignore
+        context = kwargs.pop("user_id", self.extra["user_id"])
+        return "user_id: [%s] - %s" % (context, msg), kwargs
 
 
 # Sentry SDK
