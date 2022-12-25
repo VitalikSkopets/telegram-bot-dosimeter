@@ -1,7 +1,10 @@
 from dataclasses import dataclass
 from enum import Enum
+from typing import Sequence
 
 __all__ = (
+    "ADMIN_ID",
+    "LIST_OF_ADMIN_IDS",
     "MonitoringPoint",
     "MONITORING_POINTS",
     "Brest_region",
@@ -10,9 +13,13 @@ __all__ = (
     "Mogilev_region",
     "Minsk_region",
     "Gomel_region",
+    "Command",
     "Button",
     "Action",
 )
+
+ADMIN_ID: int = 413818791
+LIST_OF_ADMIN_IDS: Sequence[int] = (ADMIN_ID,)
 
 
 @dataclass(slots=True, frozen=True)
@@ -352,6 +359,11 @@ Gomel_region = Region(
         Slovechno,
     ),
 )
+
+
+class Command(str, Enum):
+    START = "start"
+    HELP = "help"
 
 
 class Button(str, Enum):

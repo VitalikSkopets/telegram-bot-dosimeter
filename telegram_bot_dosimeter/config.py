@@ -39,22 +39,24 @@ ENVIRON: str = "DEV" if DEBUG else "PROD"
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # python-telegram-bot API TOKEN
-TOKEN: str = os.getenv("API_TOKEN", "")
+TOKEN: str = os.getenv("API_TOKEN", "1701801984:AAHb4Gl75jSqiC-uIVGuDRdK54ueEIfNQps")
 
 # MongoDB Atlas
-MONGO_DB_NAME: str = os.getenv("MONGO_DB_NAME", "")
-MONGO_DB_LOGIN: str = os.getenv("MONGO_DB_LOGIN", "")
-MONGO_DB_PASSWORD: str = os.getenv("MONGO_DB_PASSWORD", "")
+MONGO_DB_NAME: str = os.getenv("MONGO_DB_NAME", "users_db")
+MONGO_DB_LOGIN: str = os.getenv("MONGO_DB_LOGIN", "DosimeterBot")
+MONGO_DB_PASSWORD: str = os.getenv("MONGO_DB_PASSWORD", "dG7ntC7sa1RrDpBp")
 MONGO_DB_HOST: str = os.getenv("MONGO_DB_HOST", "cluster")
 
 # Heroku
 HEROKU_APP_NAME: str = os.getenv("HEROKU_APP_NAME", "")
-WEBHOOK_MODE: bool = bool(os.getenv("WEBHOOK_MODE", 1))
+WEBHOOK_MODE: bool = bool(os.getenv("WEBHOOK_MODE", 0))
 PORT: int = int(os.getenv("PORT", "8443"))
 
 # Source data
-URL_RADIATION: str = os.getenv("URL_RADIATION", "")
-URL_MONITORING: str = os.getenv("URL_MONITORING", "")
+URL_RADIATION: str = os.getenv("URL_RADIATION", "https://rad.org.by/radiation.xml")
+URL_MONITORING: str = os.getenv(
+    "URL_MONITORING", "https://rad.org.by/monitoring/radiation"
+)
 
 # Measurement Protocol API (Google Analytics 4)
 GOOGLE_DOMEN: str = "www.google-analytics.com"

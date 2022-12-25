@@ -1,22 +1,16 @@
 from functools import wraps
-from logging import Logger
-from typing import Any, Callable, Optional, Sequence
+from typing import Any, Callable, Optional
 
 import sentry_sdk
-from telegram import ParseMode, Update
-from telegram.ext import CallbackContext
 
 from telegram_bot_dosimeter.analytics.measurement_protocol import send_analytics
-from telegram_bot_dosimeter.config import get_logger
-from telegram_bot_dosimeter.constants import Action
-from telegram_bot_dosimeter.utils import text_messages
+from telegram_bot_dosimeter.config import CustomAdapter, get_logger
+from telegram_bot_dosimeter.constants import ADMIN_ID, LIST_OF_ADMIN_IDS, Action
+from telegram_bot_dosimeter.utils import get_uid, sos, text_messages
 
 __all__ = ("restricted", "send_action", "debug_handler", "analytics")
 
-logger = get_logger(__name__)
-
-ADMIN_ID: int = 413818791
-LIST_OF_ADMIN_IDS: Sequence[int] = (413818791,)
+logger = CustomAdapter(get_logger(__name__), {"user_id": get_uid()})
 
 
 def restricted(func: Callable) -> Optional[Callable]:
@@ -26,13 +20,14 @@ def restricted(func: Callable) -> Optional[Callable]:
     """
 
     @wraps(func)
-    def wrapped(
-        update: Update, context: CallbackContext, *args: Any, **kwargs: Any
-    ) -> Optional[Callable]:
-        user_id = update.effective_user.id  # type: ignore
-        if user_id not in LIST_OF_ADMIN_IDS:
+    def wrapped(*args: Any, **kwargs: Any) -> Optional[Callable]:
+        update = args[1]
+        user = update.effective_user
+        if user.id not in LIST_OF_ADMIN_IDS:
+            update.effective_message.reply_text("Hey! You are not allowed to use me!")
+            logger.warning("Denied unauthorized access", user_id=get_uid(user.id))
             return None
-        return func(update, context, *args, **kwargs)
+        return func(*args, **kwargs)
 
     return wrapped
 
@@ -42,14 +37,14 @@ def send_action(action: Any) -> Callable:
 
     def decorator(func: Callable) -> Callable:
         @wraps(func)
-        def command_func(
-            update: Update, context: CallbackContext, *args: Any, **kwargs: Any
-        ) -> Callable:
+        def command_func(*args: Any, **kwargs: Any) -> Callable:
+            update = args[1]
+            context = args[2]
             context.bot.send_chat_action(
                 chat_id=update.effective_message.chat_id,  # type: ignore
                 action=action,
             )
-            return func(update, context, *args, **kwargs)
+            return func(*args, **kwargs)
 
         return command_func
 
@@ -62,11 +57,11 @@ def analytics(handler_method_name: Action) -> Callable:
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def measurement(*args: Any, **kwargs: Any) -> Callable:
-            update = args[0]
+            update = args[1]
             if update and hasattr(update, "message"):
                 send_analytics(
                     user_id=update.message.chat_id,
-                    user_lang_code=update.message.from_user.language_code,  # type: ignore
+                    user_lang_code=update.message.from_user.language_code,
                     action_name=handler_method_name,
                 )
             return func(*args, **kwargs)
@@ -76,7 +71,7 @@ def analytics(handler_method_name: Action) -> Callable:
     return decorator
 
 
-def debug_handler(log_handler: Logger = logger) -> Callable:
+def debug_handler(log_handler: CustomAdapter = logger) -> Callable:
     """
     Logs errors raised when executing functions and class methods built into the
     python-telegram-bot library and sends an error message to the admin chat.
@@ -85,26 +80,29 @@ def debug_handler(log_handler: Logger = logger) -> Callable:
     def log_error(func: Callable) -> Callable:
         @wraps(func)
         def inner(*args: Any, **kwargs: Any) -> None:
+            update, context = args[1], args[2]
+            user = update.effective_user
             try:
-                log_handler.debug("Callback handler called %s" % func.__name__)
+                log_handler.debug(
+                    "Callback handler '%s' called" % func.__name__,
+                    user_id=get_uid(user.id),
+                )
                 return func(*args, **kwargs)
             except Exception as ex:
-                update = args[0]
-                user = update.message.from_user
                 info_message = text_messages["info"]
-                error_message = f"[ADMIN] - [ERROR]: {ex}"
+                error_message = f"{sos} [ADMIN] - [ERROR]: {ex}"
 
-                update.message.reply_text(  # type: ignore
-                    f"К сожалению, *{user.first_name}*, {info_message}",
-                    parse_mode=ParseMode.MARKDOWN_V2,
+                update.message.reply_text(
+                    "К сожалению, <b>{}</b>, {}".format(user.first_name, info_message),
                 )
 
                 if update and hasattr(update, "message"):
-                    update.bot.send_message(chat_id=ADMIN_ID, text=error_message)
+                    context.bot.send_message(chat_id=ADMIN_ID, text=error_message)
 
                 log_handler.exception(
-                    "In the callback handler %s an error occurred: %s"
-                    % (func.__name__, ex)
+                    "In the callback handler '%s' an error occurred: %s"
+                    % (func.__name__, ex),
+                    user_id=get_uid(user.id),
                 )
                 sentry_sdk.capture_exception(error=ex)
 

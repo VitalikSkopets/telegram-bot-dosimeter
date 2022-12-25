@@ -8,10 +8,11 @@ from telegram_bot_dosimeter.config import CustomAdapter, get_logger
 from telegram_bot_dosimeter.constants import Action
 from telegram_bot_dosimeter.crypto import DataEncrypt
 from telegram_bot_dosimeter.storage.repository import DocumentRepository
+from telegram_bot_dosimeter.utils import get_uid
 
 __all__ = ("MongoDataBase",)
 
-logger = CustomAdapter(get_logger(__name__), {"user_id": None})
+logger = CustomAdapter(get_logger(__name__), {"user_id": get_uid()})
 
 MONGO_DB_LINK: str = (
     f"mongodb+srv://{config.MONGO_DB_LOGIN}:{config.MONGO_DB_PASSWORD}@cluster."
@@ -56,7 +57,7 @@ class MongoDataBase(DocumentRepository):
             "monitoring points": [],
             "sent location": [],
         }
-        logger.info("New collection created", user_id=user.id)
+        logger.info("New collection created", user_id=get_uid(user.id))
         return current_user
 
     def add_start(self, user: User) -> None:
@@ -83,7 +84,7 @@ class MongoDataBase(DocumentRepository):
                     },
                 },
             )
-        logger.info(self.LOG_MSG % Action.START, user_id=user.id)
+        logger.info(self.LOG_MSG % Action.START.value, user_id=get_uid(user.id))
 
     def add_help(self, user: User) -> None:
         """
@@ -105,7 +106,7 @@ class MongoDataBase(DocumentRepository):
                     },
                 },
             )
-        logger.info(self.LOG_MSG % Action.HELP, user_id=user.id)
+        logger.info(self.LOG_MSG % Action.HELP.value, user_id=get_uid(user.id))
 
     def add_messages(self, user: User) -> None:
         """
@@ -131,7 +132,7 @@ class MongoDataBase(DocumentRepository):
                     },
                 },
             )
-        logger.info(self.LOG_MSG % Action.GREETING, user_id=user.id)
+        logger.info(self.LOG_MSG % Action.GREETING.value, user_id=get_uid(user.id))
 
     def add_radiation_monitoring(self, user: User) -> None:
         """
@@ -146,7 +147,7 @@ class MongoDataBase(DocumentRepository):
                 },
             },
         )
-        logger.info(self.LOG_MSG % Action.MONITORING, user_id=user.id)
+        logger.info(self.LOG_MSG % Action.MONITORING.value, user_id=get_uid(user.id))
 
     def add_monitoring_points(self, user: User) -> None:
         """
@@ -161,7 +162,7 @@ class MongoDataBase(DocumentRepository):
                 },
             },
         )
-        logger.info(self.LOG_MSG % Action.POINTS, user_id=user.id)
+        logger.info(self.LOG_MSG % Action.POINTS.value, user_id=get_uid(user.id))
 
     def add_region(self, user: User, region: Action) -> None:
         """
@@ -175,7 +176,7 @@ class MongoDataBase(DocumentRepository):
                 },
             },
         )
-        logger.info(self.LOG_MSG % region, user_id=user.id)
+        logger.info(self.LOG_MSG % region, user_id=get_uid(user.id))
 
     def add_location(self, user: User) -> None:
         """
@@ -190,7 +191,7 @@ class MongoDataBase(DocumentRepository):
                 },
             },
         )
-        logger.info(self.LOG_MSG % Action.LOCATION, user_id=user.id)
+        logger.info(self.LOG_MSG % Action.LOCATION.value, user_id=get_uid(user.id))
 
     def get_user_by_id(self, user_id: int) -> Any:
         """Method for getting info about the user by id from the database."""

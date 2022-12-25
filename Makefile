@@ -16,7 +16,7 @@ update-poetry:  ## Updating Poetry to the latest stable version
 
 .PHONY: run
 run:  ## Run main function in main.py file - entry point in app
-	$(POETRY) main-run
+	$(POETRY) run main-run
 
 .PHONY: lint
 lint:  ## Lint and static-check

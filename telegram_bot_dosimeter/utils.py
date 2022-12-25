@@ -1,4 +1,3 @@
-import locale
 from typing import Final
 
 import requests
@@ -10,7 +9,7 @@ from telegram import KeyboardButton, ReplyKeyboardMarkup
 
 from telegram_bot_dosimeter import config
 from telegram_bot_dosimeter.config import get_logger
-from telegram_bot_dosimeter.constants import Button, MonitoringPoint
+from telegram_bot_dosimeter.constants import LIST_OF_ADMIN_IDS, Button, MonitoringPoint
 
 __all__ = (
     "get_html",
@@ -22,11 +21,13 @@ __all__ = (
     "main_keyboard",
     "get_info_about_region",
     "text_messages",
+    "get_uid",
+    "sos",
+    "arrow",
 )
 
 logger = get_logger(__name__)
 
-locale.setlocale(category=locale.LC_ALL, locale="Russian")
 urllib3.disable_warnings()
 
 commands = {
@@ -34,54 +35,58 @@ commands = {
     "help": "Useful information about this bot",
 }
 
-smile_radio: Final = emojize(":radioactive_sign:", use_aliases=True)
-smile_robot: Final = emojize(":robot_face:", use_aliases=True)
+radio: Final = emojize(":radioactive_sign:", use_aliases=True)
+robot: Final = emojize(":robot_face:", use_aliases=True)
+sos: Final = emojize(":SOS_button:", use_aliases=True)
+arrow: Final = emojize(":right_arrow_curving_down:", use_aliases=True)
 
 text_messages: dict[str, str] = {
-    "start": f"""
-        \nЯ бот-дозиметр {smile_radio} \n\nЧтобы узнать по состоянию на _текущую
-        дату_ уровень мощности эквивалентной дозы гамма-излучения,
-        зафиксированного на _ближайшем_ пункте наблюдения, нажми *"Отправить
-        мою геопозицию"*\n\nЧтобы узнать обстановку в сети радиационного
-        мониторинга Беларуси, нажми *"Радиационный мониторинг"*\n\nЧтобы узнать
-        сводку пунктов наблюдения в сети радиационного мониторинга, нажми *"Пункты
-        наблюдения"* и выбери интересующий регион
-        """,
-    "help": """
-        Бот-дозиметр может информировать пользователя по состоянию на
-        _текущую дату_ о радиационной обстановке в Беларуси и об уровне
-        мощности дозы (далее - МД) гамма-излучения, зафиксированного на
-        _ближайшем_ к пользователю пункте наблюдения сети радиационного
-        мониторинга Министерства природных ресурсов и охраны окружающей среды
-        Беларуси (далее - Министерства) \n\nВ соответствии с приказом Министерства
-        от 30.04.2021 №151-ОД, измерение уровней МД гамма-излучения проводится
-        ежедневно в 06:00 часов по Гринвичскому времени дозиметрами или другими
-        средствами измерения со статической погрешностью не более 20% \n\nДля оценки
-        воздействия на организм человека используется понятие мощности эквивалентной
-        дозы, которая измеряется в Зивертах/час\n\nВ быту можно считать, что 1
-        Зиверт = 100 Рентген\n\n_Безопасным_ считается уровень радиации,
-        приблизительно *до 0.5 мкЗв/ч*
-        """,
-    "greet": """
-        \nЯ могу сообщать тебе информацию по состоянию на _текущую дату_ о об
-        уровне мощности эквивалентной дозы (МД) гамма-излучения, зафиксированного на
-        _ближайшем_ пункте наблюдения в сети радиационного мониторинга. Для
-        этого нажми *"Отправить мою геопозицию"*\n\nЧтобы узнать обстановку в
-        сети радиационного мониторинга Беларуси, нажми *"Радиационный
-        мониторинг"*\n\nЧтобы узнать сводку пунктов наблюдения в сети
-        радиационного мониторинга, нажми *"Пункты наблюдения"* и выбери
-        интересующий регион
-        """,
+    "start": "\nЯ бот-дозиметр {}\n\nЧтобы узнать по состоянию на <i>текущую "
+    "дату</i> уровень мощности эквивалентной дозы гамма-излучения, "
+    "зафиксированного на <i>ближайшем</i> пункте наблюдения, "
+    "нажми <b>Отправить мою геопозицию</b>.\n\nЧтобы узнать "
+    "обстановку в сети радиационного мониторинга Беларуси, "
+    "нажми <b>Радиационный мониторинг</b>.\n\nЧтобы узнать сводку "
+    "пунктов наблюдения в сети радиационного мониторинга, нажми <b>Пункты "
+    "наблюдения</b> и выбери интересующий регион.".format(radio),
+    "help": "Бот-дозиметр может информировать пользователя по состоянию на <i>текущую "
+    "дату</i> о радиационной обстановке в Беларуси и об уровне мощности дозы "
+    "(далее - МД) гамма-излучения, зафиксированного на <i>ближайшем</i> к "
+    "пользователю пункте наблюдения сети радиационного мониторинга "
+    "Министерства природных ресурсов и охраны окружающей среды Беларуси ("
+    "далее - Министерства).\n\nВ соответствии с приказом Министерства от "
+    "30.04.2021 №151-ОД, измерение уровней МД гамма-излучения проводится "
+    "ежедневно в 06:00 часов по Гринвичскому времени дозиметрами или другими "
+    "средствами измерения со статической погрешностью не более 20%.\n\nДля "
+    "оценки воздействия на организм человека используется понятие мощности "
+    "эквивалентной дозы, которая измеряется в Зивертах/час.\n\nВ быту можно "
+    "считать, что 1 Зиверт = 100 Рентген.\n\n<i>Безопасным</i> считается "
+    "уровень радиации, приблизительно <b>до 0.5 мкЗв/ч</b>.",
+    "greet": "\nЯ могу сообщать тебе информацию по состоянию на <i>текущую дату</i> о "
+    "об уровне мощности эквивалентной дозы (МД) гамма-излучения, "
+    "зафиксированного на <i>ближайшем</i> пункте наблюдения в сети "
+    "радиационного мониторинга. Для этого нажми <b>Отправить мою "
+    "геопозицию</b>.\n\nЧтобы узнать обстановку в сети радиационного "
+    "мониторинга Беларуси, нажми <b>Радиационный мониторинг</b>.\n\nЧтобы "
+    "узнать сводку пунктов наблюдения в сети радиационного мониторинга, "
+    "нажми <b>Пункты наблюдения</b> и выбери интересующий регион.",
+    "desc": "<b>{}</b>, чтобы узнать по состоянию на <i>текущую дату</i> уровень "
+    "мощности эквивалентной дозы гамма-излучения, зафиксированного на "
+    "<i>ближайшем</i> пункте наблюдения, нажми <b>Отправить мою "
+    "геопозицию</b>.\n\nЧтобы узнать обстановку в сети радиационного "
+    "мониторинга Беларуси, нажми <b>Радиационный мониторинг</b>.\n\nЧтобы "
+    "узнать сводку пунктов наблюдения в сети радиационного мониторинга, "
+    "нажми <b>Пункты наблюдения</b> и выбери интересующий регион.",
+    "location": "<i>{}</i> до ближайшего пункта наблюдения <b>{}</b>.\n\nВ пункте "
+    "наблюдения <b>{}</b> по состоянию на <i>{}</i> уровень эквивалентной "
+    "дозы радиации составляет <b>{}</b> мкЗв/ч.",
     "button1": "Отправить мою геопозицию",
     "button2": "Радиационный мониторинг",
-    "info": f"""
-        в настоящее время актуальная информация о состоянии радиационной обстановки
-        недоступна. Попробуй спросить {smile_robot} в другой раз и обязательно увидишь
-        ответ!
-        """,
-    "unknown": (
-        f"Ничего не понятно, но очень интересно {smile_robot}\nПопробуй команду /help."
-    ),
+    "info": "в настоящее время актуальная информация о состоянии радиационной "
+    "обстановки недоступна. Попробуй спросить {} в другой раз и обязательно "
+    "получишь ответ!".format(robot),
+    "unknown": "Ничего не понятно, но Оoоочень интересно {}\nПопробуй команду "
+    "/help.".format(robot),
 }
 
 greeting: tuple[str, ...] = (
@@ -132,19 +137,18 @@ greeting: tuple[str, ...] = (
 
 def get_html(url: str = config.URL_RADIATION) -> BeautifulSoup | None:
     """Function for scribing HTML markup of the web resource."""
+    ua = UserAgent(
+        browsers=["chrome", "edge", "internet explorer", "firefox", "safari", "opera"]
+    )
     response = None
     try:
-        response = requests.get(
-            url,
-            verify=False,
-            headers={"User-Agent": UserAgent().random},
-        )
+        response = requests.get(url, verify=False, headers={"User-Agent": ua.random})
     except Exception as ex:
         logger.exception(
-            "Unable to connect to the %s. Raised exception: %s" % (url, ex)
+            "Unable to connect to the URL: %s. Raised exception: %s" % (url, ex)
         )
 
-    soup = BeautifulSoup(response.text, features="xml") if response else None
+    soup = BeautifulSoup(response.text, features="lxml-xml") if response else None
     return soup
 
 
@@ -224,31 +228,29 @@ def get_info_about_region(
     the function calculates the arithmetic mean of the radiation level in the network
     of the corresponding regional radiation monitoring stations.
     """
+    line = "|<code>{}</code>|<code>{:^13}</code>|"
     values_by_region: list[float] = []
     table: list[str] = []
 
     for point, value in get_points_with_radiation_level():
         if point in [monitoring_point.name for monitoring_point in region]:
             values_by_region.append(float(value))
-            table.append(
-                f"""
-                |`{format_string(point)}`|`{value + " мкЗв/ч":^13}`|
-                """
-            )
+            table.append(line.format(format_string(point), value + " мкЗв/ч"))
     return table, values_by_region
 
 
-def get_user_message(table: list[str], values_by_region: list[float]) -> str:
-    part_one = "По состоянию на _{}_\n\n|`{:^20}`|`{:^13}`|\n".format(
-        config.TODAY, "Пункт наблюдения", "Мощность дозы"
+def get_user_message(table: list[str], values: list[float]) -> str:
+    line = "По состоянию на <i>{}</i>\n\n|<code>{:^20}</code>|<code>{:^13}</code>|\n"
+    part_1 = line.format(config.TODAY, "Пункт наблюдения", "Мощность дозы")
+    part_2 = "\n".join(table)
+    line2 = (
+        "\n\n<b>Среднее</b> значение уровня МД гамма-излучения в сети "
+        "региоанльных пунктов радиационного мониторинга Министерства природных "
+        "ресурсов и охраны окружающей среды Беларуси составляет <b>{:.1f}</b> "
+        "мкЗв/ч. "
     )
-    part_two = "\n".join(table)
-    part_three = "\n\n*Среднее* значение уровня МД гамма-излучения в сети региоанльных"
-    " пунктов радиационного мониторинга Министерства природных ресурсов и"
-    " охраны окружающей среды Беларуси составляет *{:.1f}* мкЗв/ч.".format(
-        sum(values_by_region) / len(values_by_region)
-    )
-    return part_one + part_two + part_three
+    part_3 = line2.format(sum(values) / len(values))
+    return part_1 + part_2 + part_3
 
 
 def main_keyboard() -> ReplyKeyboardMarkup:
@@ -264,3 +266,11 @@ def main_keyboard() -> ReplyKeyboardMarkup:
         ],
         resize_keyboard=True,
     )
+
+
+def get_uid(uid: str | int | None = None) -> str | int | None:
+    if uid and int(uid) not in LIST_OF_ADMIN_IDS:
+        return int(uid)
+    if uid and int(uid) in LIST_OF_ADMIN_IDS:
+        return "ADMIN"
+    return None

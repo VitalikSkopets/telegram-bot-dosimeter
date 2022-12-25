@@ -15,7 +15,7 @@ pytz = "^2022.1"
 mtranslate = "^1.8"
 rsa = "^4.8"
 python-telegram-bot = "^13.13"
-fake-useragent = "^0.1.11"
+fake-useragent = "^1.1.0"
 requests = "^2.28.1"
 urllib3 = "^1.26.10"
 bs4 = "^0.0.1"
@@ -26,6 +26,7 @@ types-emoji = "^1.7.4"
 types-pytz = "^2022.1.2"
 types-requests = "^2.28.2"
 sentry-sdk = "^1.7.2"
+lxml = "^4.9.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.2"
@@ -44,7 +45,7 @@ pytest-xdist = "^2.5.0"
 
 [tool.poetry.scripts]
 poetry = 'poetry.console:run'
-main-run = 'telegram-bot-dosimeter.main:run'
+main-run = 'telegram_bot_dosimeter.main:main'
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
