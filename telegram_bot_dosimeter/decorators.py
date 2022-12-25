@@ -90,7 +90,7 @@ def debug_handler(log_handler: CustomAdapter = logger) -> Callable:
                 return func(*args, **kwargs)
             except Exception as ex:
                 info_message = text_messages["info"]
-                error_message = f"{sos} [ADMIN] - [ERROR]: {ex}"
+                error_message = f"{sos} [{get_uid(user.id)}] - [ERROR]: {ex}"
 
                 update.message.reply_text(
                     "К сожалению, <b>{}</b>, {}".format(user.first_name, info_message),

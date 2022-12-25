@@ -89,9 +89,9 @@ class Callback:
     def messages_callback(self, update: Update, context: CallbackContext) -> None:
         """Handler method for an incoming text message from the user."""
         user = update.effective_user
-        message = update.message
+        message = update.message.text
         greet_msg = text_messages["greet"]
-        if message and message.text.lower() in greeting:
+        if message and message.lower() in greeting:
             context.bot.send_message(
                 chat_id=update.effective_message.chat_id,
                 text="Привет, <b>{}</b>!{}".format(user.first_name, greet_msg),

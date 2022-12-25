@@ -40,8 +40,8 @@ def main() -> None:
     """Instantiate a Defaults object"""
     defaults = Defaults(parse_mode=ParseMode.HTML, tzinfo=pytz.timezone("Europe/Minsk"))
 
-    """Initial bot application"""
-    request = Request(connect_timeout=0.5)
+    """Initial and check bot application"""
+    request = Request(connect_timeout=0.5, read_timeout=1.0)
     bot = ExtBot(request=request, token=TOKEN, defaults=defaults)
     updater: Final = Updater(bot=bot, use_context=True)
     logger.info(f"Checking bot...{updater.bot.get_me()}")
