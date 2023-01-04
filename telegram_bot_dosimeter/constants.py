@@ -18,7 +18,7 @@ __all__ = (
     "Action",
 )
 
-ADMIN_ID: int = 413818791
+ADMIN_ID: int = 413818791 or 1120930631
 LIST_OF_ADMIN_IDS: Sequence[int] = (ADMIN_ID,)
 
 

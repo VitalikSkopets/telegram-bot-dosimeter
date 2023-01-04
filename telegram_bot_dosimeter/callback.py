@@ -86,7 +86,27 @@ class Callback:
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
-    def messages_callback(self, update: Update, context: CallbackContext) -> None:
+    def message_callback(self, update: Update, context: CallbackContext) -> None:
+        """Handler method for an incoming text messages from the user."""
+        match update.message.text:
+            case Brest_region.name:
+                return self.brest_callback(update, context)
+            case Vitebsk_region.name:
+                return self.vitebsk_callback(update, context)
+            case Gomel_region.name:
+                return self.gomel_callback(update, context)
+            case Grodno_region.name:
+                return self.grodno_callback(update, context)
+            case Minsk_region.name:
+                return self.minsk_callback(update, context)
+            case Mogilev_region.name:
+                return self.mogilev_callback(update, context)
+            case _:
+                return self.greeting_callback(update, context)
+
+    @debug_handler(log_handler=logger)
+    @send_action(ChatAction.TYPING)
+    def greeting_callback(self, update: Update, context: CallbackContext) -> None:
         """Handler method for an incoming text message from the user."""
         user = update.effective_user
         message = update.message.text
