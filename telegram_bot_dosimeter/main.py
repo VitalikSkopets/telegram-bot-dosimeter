@@ -57,6 +57,13 @@ def main() -> None:
     )
     dispatcher.add_handler(help_handler)
 
+    # Total count users admin command handler
+    total_count_users_handler = CommandHandler(
+        Command.TOTAL_COUNT_USERS,
+        handler.get_count_users_callback,  # type: ignore
+    )
+    dispatcher.add_handler(total_count_users_handler)
+
     # Send my location command handler
     send_geolocation_handler = MessageHandler(
         Filters.location,

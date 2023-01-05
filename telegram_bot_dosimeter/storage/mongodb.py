@@ -200,11 +200,13 @@ class MongoDataBase(DocumentRepository):
         logger.debug(f"Info about the user: {user}")
         return user
 
-    def get_users_count(self) -> str:
+    def get_users_count(self, user: User | None = None) -> str:
         """Method for getting the number of users from the database."""
         msg = "Users count in the database:"
         users_count = self.mdb.users.count_documents({})
-        logger.debug("%s %d" % (msg, users_count))
+        logger.debug(
+            "%s %d" % (msg, users_count), user_id=get_uid(user.id) if user else None
+        )
         return f"{msg} [{users_count}]"
 
     def get_all_users_ids(self) -> str:

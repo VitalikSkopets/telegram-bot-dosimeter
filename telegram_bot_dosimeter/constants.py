@@ -364,6 +364,7 @@ Gomel_region = Region(
 class Command(str, Enum):
     START = "start"
     HELP = "help"
+    TOTAL_COUNT_USERS = "get_count_users"
 
 
 class Button(str, Enum):
@@ -382,6 +383,7 @@ class Button(str, Enum):
 class Action(str, Enum):
     START = "Start command"
     HELP = "Help command"
+    GET_COUNT = "Get total count users command"
     GREETING = "Greeting message"
     MESSAGE = "Unknown message"
     MONITORING = "Radiation monitoring"
@@ -404,5 +406,6 @@ class Description(str, Enum):
     природных ресурсов и охраны окружающей среды Беларуси Источник: ©rad.org.by
     Разработано: ©itrexgroup.com
     """
-    START = "Start using this bot"
-    HELP = "Useful information about this bot"
+    START = "Launch this bot / Запустить этого бота"
+    HELP = "Useful information about this bot / Полезная информация об этом боте"
+    TOTAL_COUNT_USERS = "Get total number of users (limited access)"

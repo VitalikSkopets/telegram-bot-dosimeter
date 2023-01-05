@@ -16,7 +16,7 @@ from telegram_bot_dosimeter.constants import (
     MonitoringPoint,
     Vitebsk_region,
 )
-from telegram_bot_dosimeter.decorators import debug_handler, send_action
+from telegram_bot_dosimeter.decorators import debug_handler, restricted, send_action
 from telegram_bot_dosimeter.geolocation import get_nearest_point_location
 from telegram_bot_dosimeter.messages import Message
 from telegram_bot_dosimeter.storage.mongodb import MongoDataBase
@@ -274,3 +274,18 @@ class Callback:
                     self.LOG_MSG % Action.LOCATION.value, user_id=get_uid(user.id)
                 )
                 break
+
+    @debug_handler(log_handler=logger)
+    @send_action(ChatAction.TYPING)
+    @restricted
+    def get_count_users_callback(
+        self, update: Update, context: CallbackContext
+    ) -> None:
+        """Get total count users command handler method."""
+        user = update.effective_user
+        context.bot.send_message(
+            chat_id=update.effective_message.chat_id,
+            text=self.repo.get_users_count(user),
+            reply_markup=main_keyboard(),
+        )
+        logger.debug(self.LOG_MSG % Action.GET_COUNT.value, user_id=get_uid(user.id))
