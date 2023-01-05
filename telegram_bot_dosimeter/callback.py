@@ -9,6 +9,7 @@ from telegram_bot_dosimeter.constants import (
     Action,
     Brest_region,
     Button,
+    Command,
     Gomel_region,
     Grodno_region,
     Minsk_region,
@@ -18,7 +19,11 @@ from telegram_bot_dosimeter.constants import (
 )
 from telegram_bot_dosimeter.decorators import debug_handler, restricted, send_action
 from telegram_bot_dosimeter.geolocation import get_nearest_point_location
-from telegram_bot_dosimeter.keyboards import main_keyboard, points_keyboard
+from telegram_bot_dosimeter.keyboards import (
+    admin_keyboard,
+    main_keyboard,
+    points_keyboard,
+)
 from telegram_bot_dosimeter.messages import Message
 from telegram_bot_dosimeter.storage.mongodb import MongoDataBase
 from telegram_bot_dosimeter.utils import (
@@ -267,6 +272,19 @@ class Callback:
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
     @restricted
+    def admin_callback(self, update: Update, context: CallbackContext) -> None:
+        """Admin command handler method."""
+        user = update.effective_user
+        context.bot.send_message(
+            chat_id=update.effective_message.chat_id,
+            text=Message.ADMIN,
+            reply_markup=admin_keyboard(),
+        )
+        logger.debug(self.LOG_MSG % Action.ADMIN.value, user_id=get_uid(user.id))
+
+    @debug_handler(log_handler=logger)
+    @send_action(ChatAction.TYPING)
+    @restricted
     def get_count_users_callback(
         self, update: Update, context: CallbackContext
     ) -> None:
@@ -278,3 +296,11 @@ class Callback:
             reply_markup=main_keyboard(),
         )
         logger.debug(self.LOG_MSG % Action.GET_COUNT.value, user_id=get_uid(user.id))
+
+    @debug_handler(log_handler=logger)
+    def keyboard_callback(self, update: Update, context: CallbackContext) -> None:
+        """Inline keyboard buttons handler"""
+        query = update.callback_query
+        match query.data:
+            case Command.TOTAL_COUNT_USERS:
+                return self.get_count_users_callback(update, context)

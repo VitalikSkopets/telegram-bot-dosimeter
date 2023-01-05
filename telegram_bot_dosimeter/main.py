@@ -3,6 +3,7 @@ from typing import Final
 import pytz
 from telegram import ParseMode
 from telegram.ext import (
+    CallbackQueryHandler,
     CommandHandler,
     Defaults,
     ExtBot,
@@ -57,12 +58,12 @@ def main() -> None:
     )
     dispatcher.add_handler(help_handler)
 
-    # Total count users admin command handler
-    total_count_users_handler = CommandHandler(
-        Command.TOTAL_COUNT_USERS,
-        handler.get_count_users_callback,  # type: ignore
+    # Admin command handler
+    admin_handler = CommandHandler(
+        Command.ADMIN,
+        handler.admin_callback,  # type: ignore
     )
-    dispatcher.add_handler(total_count_users_handler)
+    dispatcher.add_handler(admin_handler)
 
     # Send my location command handler
     send_geolocation_handler = MessageHandler(
@@ -98,6 +99,13 @@ def main() -> None:
         handler.message_callback,  # type: ignore
     )
     dispatcher.add_handler(message_handler)
+
+    # Inline keyboard button handler
+    button_handler = CallbackQueryHandler(
+        callback=handler.keyboard_callback,
+        pass_chat_data=True,
+    )
+    dispatcher.add_handler(button_handler)
 
     if not WEBHOOK_MODE:
         logger.info("Application running in pooling mode...")

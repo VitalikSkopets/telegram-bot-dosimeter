@@ -1,10 +1,16 @@
-from telegram import KeyboardButton, ReplyKeyboardMarkup
+from telegram import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    KeyboardButton,
+    ReplyKeyboardMarkup,
+)
 
-from telegram_bot_dosimeter.constants import Button
+from telegram_bot_dosimeter.constants import Button, Command
 
 __all__ = (
     "main_keyboard",
     "points_keyboard",
+    "admin_keyboard",
 )
 
 
@@ -39,3 +45,17 @@ def points_keyboard() -> ReplyKeyboardMarkup:
         ],
         resize_keyboard=True,
     )
+
+
+def admin_keyboard() -> InlineKeyboardMarkup:
+    """
+    The admin inline menu buttons
+    """
+    keyboard = [
+        [
+            InlineKeyboardButton(
+                Button.TOTAL_COUNT_USERS, callback_data=Command.TOTAL_COUNT_USERS
+            )
+        ],
+    ]
+    return InlineKeyboardMarkup(keyboard)

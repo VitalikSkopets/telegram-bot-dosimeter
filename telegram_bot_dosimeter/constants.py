@@ -364,6 +364,7 @@ Gomel_region = Region(
 class Command(str, Enum):
     START = "start"
     HELP = "help"
+    ADMIN = "admin"
     TOTAL_COUNT_USERS = "get_count_users"
 
 
@@ -378,11 +379,13 @@ class Button(str, Enum):
     GRODNO = Grodno_region.name
     MINSK = Minsk_region.name
     MOGILEV = Mogilev_region.name
+    TOTAL_COUNT_USERS = "Get total count users"
 
 
 class Action(str, Enum):
     START = "Start command"
     HELP = "Help command"
+    ADMIN = "Admin command"
     GET_COUNT = "Get total count users command"
     GREETING = "Greeting message"
     MESSAGE = "Unknown message"
@@ -408,4 +411,5 @@ class Description(str, Enum):
     """
     START = "Launch this bot / Запустить этого бота"
     HELP = "Useful information about this bot / Полезная информация об этом боте"
+    ADMIN = "List of admin commands (limited access)"
     TOTAL_COUNT_USERS = "Get total number of users (limited access)"
