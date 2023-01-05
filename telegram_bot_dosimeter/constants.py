@@ -19,7 +19,7 @@ __all__ = (
 )
 
 ADMIN_ID: int = 413818791 or 1120930631
-LIST_OF_ADMIN_IDS: Sequence[int] = (ADMIN_ID,)
+LIST_OF_ADMIN_IDS: Sequence[int] = (ADMIN_ID, 487236325)
 
 
 @dataclass(slots=True, frozen=True)

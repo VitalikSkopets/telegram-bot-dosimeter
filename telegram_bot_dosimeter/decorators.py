@@ -6,7 +6,8 @@ import sentry_sdk
 from telegram_bot_dosimeter.analytics.measurement_protocol import send_analytics
 from telegram_bot_dosimeter.config import CustomAdapter, get_logger
 from telegram_bot_dosimeter.constants import ADMIN_ID, LIST_OF_ADMIN_IDS, Action
-from telegram_bot_dosimeter.utils import get_uid, sos, text_messages
+from telegram_bot_dosimeter.messages import Emoji, Message
+from telegram_bot_dosimeter.utils import get_uid
 
 __all__ = ("restricted", "send_action", "debug_handler", "analytics")
 
@@ -89,15 +90,14 @@ def debug_handler(log_handler: CustomAdapter = logger) -> Callable:
                 )
                 return func(*args, **kwargs)
             except Exception as ex:
-                info_message = text_messages["info"]
-                error_message = f"{sos} [{get_uid(user.id)}] - [ERROR]: {ex}"
+                error_msg = f"{Emoji.SOS.value} [{get_uid(user.id)}] - [ERROR]: {ex}"
 
                 update.message.reply_text(
-                    "К сожалению, <b>{}</b>, {}".format(user.first_name, info_message),
+                    f"К сожалению, <b>{user.first_name}</b>, {Message.INFO}",
                 )
 
                 if update and hasattr(update, "message"):
-                    context.bot.send_message(chat_id=ADMIN_ID, text=error_message)
+                    context.bot.send_message(chat_id=ADMIN_ID, text=error_msg)
 
                 log_handler.exception(
                     "In the callback handler '%s' an error occurred: %s"

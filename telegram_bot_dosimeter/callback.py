@@ -18,9 +18,9 @@ from telegram_bot_dosimeter.constants import (
 )
 from telegram_bot_dosimeter.decorators import debug_handler, send_action
 from telegram_bot_dosimeter.geolocation import get_nearest_point_location
+from telegram_bot_dosimeter.messages import Message
 from telegram_bot_dosimeter.storage.mongodb import MongoDataBase
 from telegram_bot_dosimeter.utils import (
-    arrow,
     get_avg_radiation_level,
     get_info_about_radiation_monitoring,
     get_info_about_region,
@@ -29,7 +29,6 @@ from telegram_bot_dosimeter.utils import (
     get_user_message,
     greeting,
     main_keyboard,
-    text_messages,
 )
 
 __all__ = ("Callback",)
@@ -53,10 +52,11 @@ class Callback:
     def start_callback(self, update: Update, context: CallbackContext) -> None:
         """Start command handler method."""
         user = update.effective_user
-        msg = text_messages["start"]
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text="Рад нашему знакомству, <b>{}</b>!{}".format(user.first_name, msg),
+            text="Рад нашему знакомству, <b>{}</b>!{}".format(
+                user.first_name, Message.START
+            ),
             reply_markup=main_keyboard(),
         )
         self.repo.add_start(user)
@@ -74,7 +74,7 @@ class Callback:
         user = update.effective_user
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text=text_messages["help"],
+            text=Message.HELP,
             reply_markup=main_keyboard(),
         )
         self.repo.add_help(user)
@@ -121,7 +121,7 @@ class Callback:
         """Handler method for an incoming text message from the user."""
         user = update.effective_user
         message = update.message.text
-        greet_msg = text_messages["greet"]
+        greet_msg = Message.GREET
         if message and message.lower() in greeting:
             context.bot.send_message(
                 chat_id=update.effective_message.chat_id,
@@ -138,7 +138,7 @@ class Callback:
         else:
             context.bot.send_message(
                 chat_id=update.effective_message.chat_id,
-                text=text_messages["unknown"],
+                text=Message.UNKNOWN,
             )
             send_analytics(
                 user_id=user.id,
@@ -158,11 +158,7 @@ class Callback:
         mean = get_avg_radiation_level()
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text="Сегодня <i>{}</i> {}\n\nПо стране <i>среднее</i> значение "
-            "уровня МД гамма-излучения в сети пунктов радиационного мониторинга "
-            "Министерства природных ресурсов и охраны окружающей среды Беларусь "
-            "по состоянию на сегодняшний день составляет <b>{:.2f}</b> "
-            "мкЗв/ч.".format(config.TODAY, response, mean),
+            text=Message.RADIATION.format(config.TODAY, response, mean),
         )
         self.repo.add_radiation_monitoring(user)
         send_analytics(
@@ -181,7 +177,7 @@ class Callback:
         user = update.effective_user
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text="Выбери интересующий регион {}".format(arrow),
+            text=Message.REGION,
             reply_markup=ReplyKeyboardMarkup(
                 [
                     [Button.BREST],
@@ -234,7 +230,7 @@ class Callback:
         user = update.effective_user
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text=text_messages["desc"].format(user.first_name),
+            text=f"<b>{user.first_name}</b>, чтобы узнать {Message.DESCRIPTION}",
             reply_markup=main_keyboard(),
         )
         send_analytics(
@@ -260,7 +256,7 @@ class Callback:
             if nearest_point_name == point:
                 context.bot.send_message(
                     chat_id=update.effective_message.chat_id,
-                    text=text_messages["location"].format(
+                    text=Message.LOCATION.format(
                         distance,
                         nearest_point_name,
                         point,
