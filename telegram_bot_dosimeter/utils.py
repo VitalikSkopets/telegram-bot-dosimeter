@@ -30,11 +30,6 @@ logger = get_logger(__name__)
 
 urllib3.disable_warnings()
 
-commands = {
-    "start": "Start using this bot",
-    "help": "Useful information about this bot",
-}
-
 radio: Final = emojize(":radioactive_sign:", use_aliases=True)
 robot: Final = emojize(":robot_face:", use_aliases=True)
 sos: Final = emojize(":SOS_button:", use_aliases=True)
@@ -80,8 +75,6 @@ text_messages: dict[str, str] = {
     "location": "<i>{}</i> до ближайшего пункта наблюдения <b>{}</b>.\n\nВ пункте "
     "наблюдения <b>{}</b> по состоянию на <i>{}</i> уровень эквивалентной "
     "дозы радиации составляет <b>{}</b> мкЗв/ч.",
-    "button1": "Отправить мою геопозицию",
-    "button2": "Радиационный мониторинг",
     "info": "в настоящее время актуальная информация о состоянии радиационной "
     "обстановки недоступна. Попробуй спросить {} в другой раз и обязательно "
     "получишь ответ!".format(robot),

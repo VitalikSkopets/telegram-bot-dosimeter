@@ -394,3 +394,15 @@ class Action(str, Enum):
     MINSK = "Minsk region"
     MOGILEV = "Mogilev region"
     MAIN_MENU = "Main menu"
+
+
+class Description(str, Enum):
+    BOT = """
+    Этот бот может информировать пользователя по состоянию на текущую дату о
+    радиационной обстановке в Беларуси и об уровне мощности эквивалентной дозы
+    гамма-излучения, зафиксированного в сети радиационного мониторинга Министерства
+    природных ресурсов и охраны окружающей среды Беларуси Источник: ©rad.org.by
+    Разработано: ©itrexgroup.com
+    """
+    START = "Start using this bot"
+    HELP = "Useful information about this bot"

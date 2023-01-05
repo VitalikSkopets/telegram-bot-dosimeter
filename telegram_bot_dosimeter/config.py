@@ -207,11 +207,3 @@ class CustomAdapter(logging.LoggerAdapter):
 # Sentry SDK
 SENTRY_SDK: str = os.getenv("SENTRY_SDK", "")
 sentry_sdk.init(dsn=SENTRY_SDK, traces_sample_rate=1.0)
-
-DESCRIPTION: str = """
-    Этот бот может информировать пользователя по состоянию на текущую дату о
-    радиационной обстановке в Беларуси и об уровне мощности эквивалентной дозы
-    гамма-излучения, зафиксированного в сети радиационного мониторинга Министерства
-    природных ресурсов и охраны окружающей среды Беларуси Источник: ©rad.org.by
-    Разработано: ©itrexgroup.com
-    """
