@@ -2,11 +2,10 @@ import requests
 import urllib3
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
-from telegram import KeyboardButton, ReplyKeyboardMarkup
 
 from telegram_bot_dosimeter import config
 from telegram_bot_dosimeter.config import get_logger
-from telegram_bot_dosimeter.constants import LIST_OF_ADMIN_IDS, Button, MonitoringPoint
+from telegram_bot_dosimeter.constants import LIST_OF_ADMIN_IDS, MonitoringPoint
 from telegram_bot_dosimeter.messages import Message
 
 __all__ = (
@@ -16,7 +15,6 @@ __all__ = (
     "get_info_about_radiation_monitoring",
     "greeting",
     "get_user_message",
-    "main_keyboard",
     "get_info_about_region",
     "get_uid",
 )
@@ -176,21 +174,6 @@ def get_user_message(table: list[str], values: list[float]) -> str:
     line2 = Message.AVG
     part_3 = line2.format(sum(values) / len(values))
     return part_1 + part_2 + part_3
-
-
-def main_keyboard() -> ReplyKeyboardMarkup:
-    """
-    The function returns the menu buttons to the user instead of the standard keyboard
-    """
-    location_keyboard = KeyboardButton(Button.SEND_LOCATION, request_location=True)
-    return ReplyKeyboardMarkup(
-        [
-            [Button.MONITORING],
-            [Button.POINTS],
-            [location_keyboard],
-        ],
-        resize_keyboard=True,
-    )
 
 
 def get_uid(uid: str | int | None = None) -> str | int | None:

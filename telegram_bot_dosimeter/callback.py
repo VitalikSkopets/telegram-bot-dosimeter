@@ -1,5 +1,5 @@
 # type: ignore
-from telegram import ChatAction, ReplyKeyboardMarkup, Update
+from telegram import ChatAction, Update
 from telegram.ext import CallbackContext
 
 from telegram_bot_dosimeter import config
@@ -18,6 +18,7 @@ from telegram_bot_dosimeter.constants import (
 )
 from telegram_bot_dosimeter.decorators import debug_handler, restricted, send_action
 from telegram_bot_dosimeter.geolocation import get_nearest_point_location
+from telegram_bot_dosimeter.keyboards import main_keyboard, points_keyboard
 from telegram_bot_dosimeter.messages import Message
 from telegram_bot_dosimeter.storage.mongodb import MongoDataBase
 from telegram_bot_dosimeter.utils import (
@@ -28,7 +29,6 @@ from telegram_bot_dosimeter.utils import (
     get_uid,
     get_user_message,
     greeting,
-    main_keyboard,
 )
 
 __all__ = ("Callback",)
@@ -178,18 +178,7 @@ class Callback:
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
             text=Message.REGION,
-            reply_markup=ReplyKeyboardMarkup(
-                [
-                    [Button.BREST],
-                    [Button.VITEBSK],
-                    [Button.GOMEL],
-                    [Button.GRODNO],
-                    [Button.MINSK],
-                    [Button.MOGILEV],
-                    [Button.MAIN_MENU],
-                ],
-                resize_keyboard=True,
-            ),
+            reply_markup=points_keyboard(),
         )
         self.repo.add_monitoring_points(user)
         send_analytics(
