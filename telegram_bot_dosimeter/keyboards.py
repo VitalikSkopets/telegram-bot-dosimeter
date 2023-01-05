@@ -12,12 +12,12 @@ def main_keyboard() -> ReplyKeyboardMarkup:
     """
     The function returns the menu buttons to the user instead of the standard keyboard
     """
-    location_keyboard = KeyboardButton(Button.SEND_LOCATION, request_location=True)
+    location_button = KeyboardButton(Button.SEND_LOCATION, request_location=True)
     return ReplyKeyboardMarkup(
         [
             [Button.MONITORING],
             [Button.POINTS],
-            [location_keyboard],
+            [location_button],
         ],
         resize_keyboard=True,
     )
