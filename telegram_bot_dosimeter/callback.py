@@ -6,10 +6,15 @@ from telegram_bot_dosimeter import config
 from telegram_bot_dosimeter.analytics.measurement_protocol import send_analytics
 from telegram_bot_dosimeter.config import CustomAdapter, get_logger
 from telegram_bot_dosimeter.constants import (
+    BREST,
+    GOMEL,
+    GRODNO,
+    MINSK,
+    MOGILEV,
+    TOTAL_COUNT_USERS,
+    VITEBSK,
     Action,
     Brest_region,
-    Button,
-    Command,
     Gomel_region,
     Grodno_region,
     Minsk_region,
@@ -95,27 +100,27 @@ class Callback:
     def message_callback(self, update: Update, context: CallbackContext) -> None:
         """Handler method for an incoming text messages from the user."""
         match update.message.text:
-            case Button.BREST:
+            case BREST.name:
                 return self.points_callback(
                     update, context, Brest_region.monitoring_points, Action.BREST
                 )
-            case Button.VITEBSK:
+            case VITEBSK.name:
                 return self.points_callback(
                     update, context, Vitebsk_region.monitoring_points, Action.VITEBSK
                 )
-            case Button.GOMEL:
+            case GOMEL.name:
                 return self.points_callback(
                     update, context, Gomel_region.monitoring_points, Action.GOMEL
                 )
-            case Button.GRODNO:
+            case GRODNO.name:
                 return self.points_callback(
                     update, context, Grodno_region.monitoring_points, Action.GRODNO
                 )
-            case Button.MINSK:
+            case MINSK.name:
                 return self.points_callback(
                     update, context, Minsk_region.monitoring_points, Action.MINSK
                 )
-            case Button.MOGILEV:
+            case MOGILEV.name:
                 return self.points_callback(
                     update, context, Mogilev_region.monitoring_points, Action.MOGILEV
                 )
@@ -302,5 +307,5 @@ class Callback:
         """Inline keyboard buttons handler"""
         query = update.callback_query
         match query.data:
-            case Command.TOTAL_COUNT_USERS:
+            case TOTAL_COUNT_USERS.callback_data:
                 return self.get_count_users_callback(update, context)

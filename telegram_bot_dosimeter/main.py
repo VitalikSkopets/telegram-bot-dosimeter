@@ -21,7 +21,7 @@ from telegram_bot_dosimeter.config import (
     WEBHOOK_MODE,
     get_logger,
 )
-from telegram_bot_dosimeter.constants import Button, Command
+from telegram_bot_dosimeter.constants import MAIN_MENU, MONITORING, POINTS, Command
 
 logger = get_logger(__name__)
 
@@ -74,21 +74,21 @@ def main() -> None:
 
     # Radiation monitoring command handler
     radiation_monitoring_handler = MessageHandler(
-        Filters.regex(f"^({Button.MONITORING})$"),
+        Filters.regex(f"^({MONITORING.name})$"),
         handler.radiation_monitoring_callback,  # type: ignore
     )
     dispatcher.add_handler(radiation_monitoring_handler)
 
     # Monitoring points command handler
     monitoring_points_handler = MessageHandler(
-        Filters.regex(f"^({Button.POINTS})$"),
+        Filters.regex(f"^({POINTS.name})$"),
         handler.monitoring_points_callback,  # type: ignore
     )
     dispatcher.add_handler(monitoring_points_handler)
 
     # Main menu command handler
     main_menu_handler = MessageHandler(
-        Filters.regex(f"^({Button.MAIN_MENU})$"),
+        Filters.regex(f"^({MAIN_MENU.name})$"),
         handler.main_menu_callback,  # type: ignore
     )
     dispatcher.add_handler(main_menu_handler)

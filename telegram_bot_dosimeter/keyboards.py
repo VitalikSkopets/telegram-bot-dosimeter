@@ -5,7 +5,19 @@ from telegram import (
     ReplyKeyboardMarkup,
 )
 
-from telegram_bot_dosimeter.constants import Button, Command
+from telegram_bot_dosimeter.constants import (
+    BREST,
+    GOMEL,
+    GRODNO,
+    MAIN_MENU,
+    MINSK,
+    MOGILEV,
+    MONITORING,
+    POINTS,
+    SEND_LOCATION,
+    TOTAL_COUNT_USERS,
+    VITEBSK,
+)
 
 __all__ = (
     "main_keyboard",
@@ -18,11 +30,11 @@ def main_keyboard() -> ReplyKeyboardMarkup:
     """
     The function returns the menu buttons to the user instead of the standard keyboard
     """
-    location_button = KeyboardButton(Button.SEND_LOCATION, request_location=True)
+    location_button = KeyboardButton(SEND_LOCATION.name, request_location=True)
     return ReplyKeyboardMarkup(
         [
-            [Button.MONITORING],
-            [Button.POINTS],
+            [MONITORING.name],
+            [POINTS.name],
             [location_button],
         ],
         resize_keyboard=True,
@@ -35,13 +47,13 @@ def points_keyboard() -> ReplyKeyboardMarkup:
     """
     return ReplyKeyboardMarkup(
         [
-            [Button.BREST],
-            [Button.VITEBSK],
-            [Button.GOMEL],
-            [Button.GRODNO],
-            [Button.MINSK],
-            [Button.MOGILEV],
-            [Button.MAIN_MENU],
+            [BREST.name],
+            [VITEBSK.name],
+            [GOMEL.name],
+            [GRODNO.name],
+            [MINSK.name],
+            [MOGILEV.name],
+            [MAIN_MENU.name],
         ],
         resize_keyboard=True,
     )
@@ -54,7 +66,7 @@ def admin_keyboard() -> InlineKeyboardMarkup:
     keyboard = [
         [
             InlineKeyboardButton(
-                Button.TOTAL_COUNT_USERS, callback_data=Command.TOTAL_COUNT_USERS
+                TOTAL_COUNT_USERS.name, callback_data=TOTAL_COUNT_USERS.callback_data
             )
         ],
     ]

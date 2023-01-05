@@ -1,3 +1,4 @@
+import uuid
 from dataclasses import dataclass
 from enum import Enum
 from typing import Sequence
@@ -15,6 +16,17 @@ __all__ = (
     "Gomel_region",
     "Command",
     "Button",
+    "MAIN_MENU",
+    "MONITORING",
+    "SEND_LOCATION",
+    "POINTS",
+    "BREST",
+    "VITEBSK",
+    "GOMEL",
+    "GRODNO",
+    "MINSK",
+    "MOGILEV",
+    "TOTAL_COUNT_USERS",
     "Action",
 )
 
@@ -361,25 +373,37 @@ Gomel_region = Region(
 )
 
 
+@dataclass(slots=True, frozen=True)
+class Button:
+    name: str
+    callback_data: str
+
+
+BUTTONS: tuple[Button, ...] = (
+    MAIN_MENU := Button(name="Главное меню", callback_data=str(uuid.uuid4())),
+    MONITORING := Button(
+        name="Радиационный мониторинг", callback_data=str(uuid.uuid4())
+    ),
+    SEND_LOCATION := Button(
+        name="Отправить мою геопозицию", callback_data=str(uuid.uuid4())
+    ),
+    POINTS := Button(name="Пункты наблюдения", callback_data=str(uuid.uuid4())),
+    BREST := Button(name=Brest_region.name, callback_data=str(uuid.uuid4())),
+    VITEBSK := Button(name=Vitebsk_region.name, callback_data=str(uuid.uuid4())),
+    GOMEL := Button(name=Gomel_region.name, callback_data=str(uuid.uuid4())),
+    GRODNO := Button(name=Grodno_region.name, callback_data=str(uuid.uuid4())),
+    MINSK := Button(name=Minsk_region.name, callback_data=str(uuid.uuid4())),
+    MOGILEV := Button(name=Mogilev_region.name, callback_data=str(uuid.uuid4())),
+    TOTAL_COUNT_USERS := Button(
+        name="Get total count users", callback_data=str(uuid.uuid4())
+    ),
+)
+
+
 class Command(str, Enum):
     START = "start"
     HELP = "help"
     ADMIN = "admin"
-    TOTAL_COUNT_USERS = "get_count_users"
-
-
-class Button(str, Enum):
-    MAIN_MENU = "Главное меню"
-    MONITORING = "Радиационный мониторинг"
-    SEND_LOCATION = "Отправить мою геопозицию"
-    POINTS = "Пункты наблюдения"
-    BREST = Brest_region.name
-    VITEBSK = Vitebsk_region.name
-    GOMEL = Gomel_region.name
-    GRODNO = Grodno_region.name
-    MINSK = Minsk_region.name
-    MOGILEV = Mogilev_region.name
-    TOTAL_COUNT_USERS = "Get total count users"
 
 
 class Action(str, Enum):
