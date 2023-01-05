@@ -176,7 +176,7 @@ class MongoDataBase(DocumentRepository):
                 },
             },
         )
-        logger.info(self.LOG_MSG % region, user_id=get_uid(user.id))
+        logger.info(self.LOG_MSG % region.value, user_id=get_uid(user.id))
 
     def add_location(self, user: User) -> None:
         """

@@ -13,6 +13,7 @@ from telegram_bot_dosimeter.constants import (
     Grodno_region,
     Minsk_region,
     Mogilev_region,
+    MonitoringPoint,
     Vitebsk_region,
 )
 from telegram_bot_dosimeter.decorators import debug_handler, send_action
@@ -89,23 +90,33 @@ class Callback:
     def message_callback(self, update: Update, context: CallbackContext) -> None:
         """Handler method for an incoming text messages from the user."""
         match update.message.text:
-            case Brest_region.name:
-                return self.brest_callback(update, context)
-            case Vitebsk_region.name:
-                return self.vitebsk_callback(update, context)
-            case Gomel_region.name:
-                return self.gomel_callback(update, context)
-            case Grodno_region.name:
-                return self.grodno_callback(update, context)
-            case Minsk_region.name:
-                return self.minsk_callback(update, context)
-            case Mogilev_region.name:
-                return self.mogilev_callback(update, context)
+            case Button.BREST:
+                return self.points_callback(
+                    update, context, Brest_region.monitoring_points, Action.BREST
+                )
+            case Button.VITEBSK:
+                return self.points_callback(
+                    update, context, Vitebsk_region.monitoring_points, Action.VITEBSK
+                )
+            case Button.GOMEL:
+                return self.points_callback(
+                    update, context, Gomel_region.monitoring_points, Action.GOMEL
+                )
+            case Button.GRODNO:
+                return self.points_callback(
+                    update, context, Grodno_region.monitoring_points, Action.GRODNO
+                )
+            case Button.MINSK:
+                return self.points_callback(
+                    update, context, Minsk_region.monitoring_points, Action.MINSK
+                )
+            case Button.MOGILEV:
+                return self.points_callback(
+                    update, context, Mogilev_region.monitoring_points, Action.MOGILEV
+                )
             case _:
                 return self.greeting_callback(update, context)
 
-    @debug_handler(log_handler=logger)
-    @send_action(ChatAction.TYPING)
     def greeting_callback(self, update: Update, context: CallbackContext) -> None:
         """Handler method for an incoming text message from the user."""
         user = update.effective_user
@@ -192,137 +203,29 @@ class Callback:
         )
         logger.info(self.LOG_MSG % Action.POINTS.value, user_id=get_uid(user.id))
 
-    @debug_handler(log_handler=logger)
-    @send_action(ChatAction.TYPING)
-    def brest_callback(self, update: Update, context: CallbackContext) -> None:
-        """Handler method for pressing the "Brest region" button by the user."""
+    def points_callback(
+        self,
+        update: Update,
+        context: CallbackContext,
+        points: tuple[MonitoringPoint, ...],
+        action: Action,
+    ) -> None:
+        """Handler method for pressing the "* region" button by the user."""
         user = update.effective_user
-        table, values_by_region = get_info_about_region(
-            region=Brest_region.monitoring_points
-        )
+        table, values_by_region = get_info_about_region(region=points)
 
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
             text=get_user_message(table, values_by_region),
         )
 
-        self.repo.add_region(user, Action.BREST)
+        self.repo.add_region(user, action)
         send_analytics(
             user_id=user.id,
             user_lang_code=user.language_code,
-            action_name=Action.BREST,
+            action_name=action,
         )
-        logger.info(self.LOG_MSG % Action.BREST.value, user_id=get_uid(user.id))
-
-    @debug_handler(log_handler=logger)
-    @send_action(ChatAction.TYPING)
-    def vitebsk_callback(self, update: Update, context: CallbackContext) -> None:
-        """Handler method for pressing the "Vitebsk region" button by the user."""
-        user = update.effective_user
-        table, values_by_region = get_info_about_region(
-            region=Vitebsk_region.monitoring_points
-        )
-
-        context.bot.send_message(
-            chat_id=update.effective_message.chat_id,
-            text=get_user_message(table, values_by_region),
-        )
-
-        self.repo.add_region(user, Action.VITEBSK)
-        send_analytics(
-            user_id=user.id,
-            user_lang_code=user.language_code,
-            action_name=Action.VITEBSK,
-        )
-        logger.info(self.LOG_MSG % Action.VITEBSK.value, user_id=get_uid(user.id))
-
-    @debug_handler(log_handler=logger)
-    @send_action(ChatAction.TYPING)
-    def gomel_callback(self, update: Update, context: CallbackContext) -> None:
-        """Handler method for pressing the "Gomel region" button by the user."""
-        user = update.effective_user
-        table, values_by_region = get_info_about_region(
-            region=Gomel_region.monitoring_points
-        )
-
-        context.bot.send_message(
-            chat_id=update.effective_message.chat_id,
-            text=get_user_message(table, values_by_region),
-        )
-
-        self.repo.add_region(user, Action.GOMEL)
-        send_analytics(
-            user_id=user.id,
-            user_lang_code=user.language_code,
-            action_name=Action.GOMEL,
-        )
-        logger.info(self.LOG_MSG % Action.GOMEL.value, user_id=get_uid(user.id))
-
-    @debug_handler(log_handler=logger)
-    @send_action(ChatAction.TYPING)
-    def grodno_callback(self, update: Update, context: CallbackContext) -> None:
-        """Handler method for pressing the "Grodno region" button by the user."""
-        user = update.effective_user
-        table, values_by_region = get_info_about_region(
-            region=Grodno_region.monitoring_points
-        )
-
-        context.bot.send_message(
-            chat_id=update.effective_message.chat_id,
-            text=get_user_message(table, values_by_region),
-        )
-
-        self.repo.add_region(user, Action.GRODNO)
-        send_analytics(
-            user_id=user.id,
-            user_lang_code=user.language_code,
-            action_name=Action.GRODNO,
-        )
-        logger.info(self.LOG_MSG % Action.GRODNO.value, user_id=get_uid(user.id))
-
-    @debug_handler(log_handler=logger)
-    @send_action(ChatAction.TYPING)
-    def minsk_callback(self, update: Update, context: CallbackContext) -> None:
-        """Handler method for pressing the "Minsk region" button by the user."""
-        user = update.effective_user
-        table, values_by_region = get_info_about_region(
-            region=Minsk_region.monitoring_points
-        )
-
-        context.bot.send_message(
-            chat_id=update.effective_message.chat_id,
-            text=get_user_message(table, values_by_region),
-        )
-
-        self.repo.add_region(user, Action.MINSK)
-        send_analytics(
-            user_id=user.id,
-            user_lang_code=user.language_code,
-            action_name=Action.MINSK,
-        )
-        logger.info(self.LOG_MSG % Action.MINSK.value, user_id=get_uid(user.id))
-
-    @debug_handler(log_handler=logger)
-    @send_action(ChatAction.TYPING)
-    def mogilev_callback(self, update: Update, context: CallbackContext) -> None:
-        """Handler method for pressing the "Mogilev region" button by the user."""
-        user = update.effective_user
-        table, values_by_region = get_info_about_region(
-            region=Mogilev_region.monitoring_points
-        )
-
-        context.bot.send_message(
-            chat_id=update.effective_message.chat_id,
-            text=get_user_message(table, values_by_region),
-        )
-
-        self.repo.add_region(user, Action.MOGILEV)
-        send_analytics(
-            user_id=user.id,
-            user_lang_code=user.language_code,
-            action_name=Action.MOGILEV,
-        )
-        logger.info(self.LOG_MSG % Action.MOGILEV.value, user_id=get_uid(user.id))
+        logger.info(self.LOG_MSG % action.value, user_id=get_uid(user.id))
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
