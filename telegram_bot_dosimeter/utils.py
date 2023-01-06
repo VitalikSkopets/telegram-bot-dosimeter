@@ -21,6 +21,7 @@ __all__ = (
     "get_user_message",
     "get_info_about_region",
     "get_uid",
+    "get_admin_ids",
 )
 
 logger = get_logger(__name__)
@@ -189,6 +190,8 @@ def get_uid(uid: str | int | None = None) -> str | int | None:
 
 
 def get_admin_ids() -> str:  # type: ignore
+    if not LIST_OF_ADMIN_IDS:
+        return "Admins not assigned"
     for num, admin_id in enumerate(LIST_OF_ADMIN_IDS, 1):
         return (
             f"{num}: {admin_id} - Main admin"

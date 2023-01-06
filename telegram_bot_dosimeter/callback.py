@@ -9,6 +9,7 @@ from telegram_bot_dosimeter.constants import (
     BREST,
     GOMEL,
     GRODNO,
+    LIST_ADMIN_IDS,
     MINSK,
     MOGILEV,
     TOTAL_COUNT_USERS,
@@ -32,6 +33,7 @@ from telegram_bot_dosimeter.keyboards import (
 from telegram_bot_dosimeter.messages import Message
 from telegram_bot_dosimeter.storage.mongodb import MongoDataBase
 from telegram_bot_dosimeter.utils import (
+    get_admin_ids,
     get_avg_radiation_level,
     get_info_about_radiation_monitoring,
     get_info_about_region,
@@ -303,9 +305,11 @@ class Callback:
         logger.debug(self.LOG_MSG % Action.GET_COUNT.value, user_id=get_uid(user.id))
 
     @debug_handler(log_handler=logger)
-    def keyboard_callback(self, update: Update, context: CallbackContext) -> None:
+    def keyboard_callback(self, update: Update, context: CallbackContext) -> str | None:
         """Inline keyboard buttons handler"""
         query = update.callback_query
         match query.data:
             case TOTAL_COUNT_USERS.callback_data:
                 return self.get_count_users_callback(update, context)
+            case LIST_ADMIN_IDS.callback_data:
+                return get_admin_ids()

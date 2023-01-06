@@ -27,6 +27,7 @@ __all__ = (
     "MINSK",
     "MOGILEV",
     "TOTAL_COUNT_USERS",
+    "LIST_ADMIN_IDS",
     "Action",
 )
 
@@ -397,6 +398,9 @@ BUTTONS: tuple[Button, ...] = (
     TOTAL_COUNT_USERS := Button(
         name="Get total count users", callback_data=str(uuid.uuid4())
     ),
+    LIST_ADMIN_IDS := Button(
+        name="Get list admin IDs", callback_data=str(uuid.uuid4())
+    ),
 )
 
 
@@ -437,3 +441,4 @@ class Description(str, Enum):
     HELP = "Useful information about this bot / Полезная информация об этом боте"
     ADMIN = "List of admin commands (limited access)"
     TOTAL_COUNT_USERS = "Get total number of users (limited access)"
+    LIST_ADMIN_IDS = "Get a list of admin IDs (limited access)"
