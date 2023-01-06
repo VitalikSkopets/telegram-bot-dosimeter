@@ -189,12 +189,11 @@ def get_uid(uid: str | int | None = None) -> str | int | None:
     return None
 
 
-def get_admin_ids() -> str:  # type: ignore
+def get_admin_ids() -> str:
     if not LIST_OF_ADMIN_IDS:
         return "Admins not assigned"
+    output = []
     for num, admin_id in enumerate(LIST_OF_ADMIN_IDS, 1):
-        return (
-            f"{num}: {admin_id} - Main admin"
-            if admin_id == ADMIN_ID
-            else f"{num}: {admin_id}"
-        )
+        message = "{}: {} - Main admin" if admin_id == ADMIN_ID else "{}: {}"
+        output.append(message.format(num, admin_id))
+    return "\n".join(output)

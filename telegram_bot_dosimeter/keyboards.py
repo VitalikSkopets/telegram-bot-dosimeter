@@ -9,6 +9,7 @@ from telegram_bot_dosimeter.constants import (
     BREST,
     GOMEL,
     GRODNO,
+    LIST_ADMIN_IDS,
     MAIN_MENU,
     MINSK,
     MOGILEV,
@@ -62,6 +63,11 @@ def admin_keyboard() -> InlineKeyboardMarkup:
         [
             InlineKeyboardButton(
                 TOTAL_COUNT_USERS.name, callback_data=TOTAL_COUNT_USERS.callback_data
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                LIST_ADMIN_IDS.name, callback_data=LIST_ADMIN_IDS.callback_data
             )
         ],
     ]

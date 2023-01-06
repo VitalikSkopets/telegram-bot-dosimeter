@@ -291,11 +291,10 @@ class Callback:
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
-    @restricted
     def get_count_users_callback(
         self, update: Update, context: CallbackContext
     ) -> None:
-        """Get total count users command handler method."""
+        """Get total count users admin command handler method."""
         user = update.effective_user
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
@@ -305,6 +304,20 @@ class Callback:
         logger.debug(self.LOG_MSG % Action.GET_COUNT.value, user_id=get_uid(user.id))
 
     @debug_handler(log_handler=logger)
+    @send_action(ChatAction.TYPING)
+    def get_list_admin_ids_callback(
+        self, update: Update, context: CallbackContext
+    ) -> None:
+        """Get a list of admin IDs admin command handler method."""
+        user = update.effective_user
+        context.bot.send_message(
+            chat_id=update.effective_message.chat_id,
+            text=get_admin_ids(),
+            reply_markup=main_keyboard(),
+        )
+        logger.debug(self.LOG_MSG % Action.GET_LIST.value, user_id=get_uid(user.id))
+
+    @debug_handler(log_handler=logger)
     def keyboard_callback(self, update: Update, context: CallbackContext) -> str | None:
         """Inline keyboard buttons handler"""
         query = update.callback_query
@@ -312,4 +325,4 @@ class Callback:
             case TOTAL_COUNT_USERS.callback_data:
                 return self.get_count_users_callback(update, context)
             case LIST_ADMIN_IDS.callback_data:
-                return get_admin_ids()
+                return self.get_list_admin_ids_callback(update, context)
