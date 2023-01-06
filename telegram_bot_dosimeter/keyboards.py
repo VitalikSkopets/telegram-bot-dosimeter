@@ -30,33 +30,28 @@ def main_keyboard() -> ReplyKeyboardMarkup:
     """
     The function returns the menu buttons to the user instead of the standard keyboard
     """
-    location_button = KeyboardButton(SEND_LOCATION.name, request_location=True)
-    return ReplyKeyboardMarkup(
-        [
-            [MONITORING.name],
-            [POINTS.name],
-            [location_button],
-        ],
-        resize_keyboard=True,
-    )
+    keyboard = [
+        [KeyboardButton(MONITORING.name)],
+        [KeyboardButton(POINTS.name)],
+        [KeyboardButton(SEND_LOCATION.name, request_location=True)],
+    ]
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 
 def points_keyboard() -> ReplyKeyboardMarkup:
     """
     The menu monitoring points buttons to the user instead of the standard keyboard
     """
-    return ReplyKeyboardMarkup(
-        [
-            [BREST.name],
-            [VITEBSK.name],
-            [GOMEL.name],
-            [GRODNO.name],
-            [MINSK.name],
-            [MOGILEV.name],
-            [MAIN_MENU.name],
-        ],
-        resize_keyboard=True,
-    )
+    keyboard = [
+        [KeyboardButton(BREST.name)],
+        [KeyboardButton(VITEBSK.name)],
+        [KeyboardButton(GOMEL.name)],
+        [KeyboardButton(GRODNO.name)],
+        [KeyboardButton(MINSK.name)],
+        [KeyboardButton(MOGILEV.name)],
+        [KeyboardButton(MAIN_MENU.name)],
+    ]
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 
 def admin_keyboard() -> InlineKeyboardMarkup:
