@@ -5,7 +5,11 @@ from fake_useragent import UserAgent
 
 from telegram_bot_dosimeter import config
 from telegram_bot_dosimeter.config import get_logger
-from telegram_bot_dosimeter.constants import LIST_OF_ADMIN_IDS, MonitoringPoint
+from telegram_bot_dosimeter.constants import (
+    ADMIN_ID,
+    LIST_OF_ADMIN_IDS,
+    MonitoringPoint,
+)
 from telegram_bot_dosimeter.messages import Message
 
 __all__ = (
@@ -182,3 +186,12 @@ def get_uid(uid: str | int | None = None) -> str | int | None:
     if uid and int(uid) in LIST_OF_ADMIN_IDS:
         return "ADMIN"
     return None
+
+
+def get_admin_ids() -> str:  # type: ignore
+    for num, admin_id in enumerate(LIST_OF_ADMIN_IDS, 1):
+        return (
+            f"{num}: {admin_id} - Main admin"
+            if admin_id == ADMIN_ID
+            else f"{num}: {admin_id}"
+        )
