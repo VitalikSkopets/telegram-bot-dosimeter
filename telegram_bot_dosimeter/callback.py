@@ -318,7 +318,7 @@ class Callback:
         logger.debug(self.LOG_MSG % Action.GET_LIST.value, user_id=get_uid(user.id))
 
     @debug_handler(log_handler=logger)
-    def keyboard_callback(self, update: Update, context: CallbackContext) -> str | None:
+    def keyboard_callback(self, update: Update, context: CallbackContext) -> None:
         """Inline keyboard buttons handler"""
         query = update.callback_query
         match query.data:
