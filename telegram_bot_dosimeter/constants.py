@@ -415,7 +415,7 @@ class Action(str, Enum):
     HELP = "Help command"
     ADMIN = "Admin command"
     GET_COUNT = "Get total count users"
-    GET_LIST = "Get a list of admin IDs"
+    GET_LIST = "Get list of admin IDs"
     GREETING = "Greeting message"
     MESSAGE = "Unknown message"
     MONITORING = "Radiation monitoring"
