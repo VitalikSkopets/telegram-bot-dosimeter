@@ -103,31 +103,27 @@ class Callback:
         """Handler method for an incoming text messages from the user."""
         match update.message.text:
             case BREST.name:
-                return self.points_callback(
-                    update, context, Brest_region.monitoring_points, Action.BREST
-                )
+                points = Brest_region.monitoring_points
+                action = Action.BREST
             case VITEBSK.name:
-                return self.points_callback(
-                    update, context, Vitebsk_region.monitoring_points, Action.VITEBSK
-                )
+                points = Vitebsk_region.monitoring_points
+                action = Action.VITEBSK
             case GOMEL.name:
-                return self.points_callback(
-                    update, context, Gomel_region.monitoring_points, Action.GOMEL
-                )
+                points = Gomel_region.monitoring_points
+                action = Action.GOMEL
             case GRODNO.name:
-                return self.points_callback(
-                    update, context, Grodno_region.monitoring_points, Action.GRODNO
-                )
+                points = Grodno_region.monitoring_points
+                action = Action.GRODNO
             case MINSK.name:
-                return self.points_callback(
-                    update, context, Minsk_region.monitoring_points, Action.MINSK
-                )
+                points = Minsk_region.monitoring_points
+                action = Action.MINSK
             case MOGILEV.name:
-                return self.points_callback(
-                    update, context, Mogilev_region.monitoring_points, Action.MOGILEV
-                )
+                points = Mogilev_region.monitoring_points
+                action = Action.MOGILEV
             case _:
                 return self.greeting_callback(update, context)
+
+        return self.points_callback(update, context, points, action)
 
     def greeting_callback(self, update: Update, context: CallbackContext) -> None:
         """Handler method for an incoming text message from the user."""
