@@ -60,16 +60,9 @@ def admin_keyboard() -> InlineKeyboardMarkup:
     """
     The admin inline menu buttons
     """
+    inline_button_list = (TOTAL_COUNT_USERS, LIST_ADMIN_IDS)
     keyboard = [
-        [
-            InlineKeyboardButton(
-                TOTAL_COUNT_USERS.name, callback_data=TOTAL_COUNT_USERS.callback_data
-            )
-        ],
-        [
-            InlineKeyboardButton(
-                LIST_ADMIN_IDS.name, callback_data=LIST_ADMIN_IDS.callback_data
-            )
-        ],
+        [InlineKeyboardButton(button.name, callback_data=button.callback_data)]
+        for button in inline_button_list
     ]
     return InlineKeyboardMarkup(keyboard)
