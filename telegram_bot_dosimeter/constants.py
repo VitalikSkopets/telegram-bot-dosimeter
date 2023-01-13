@@ -29,6 +29,7 @@ __all__ = (
     "Brest_region",
     "Button",
     "Command",
+    "Emoji",
     "Gomel_region",
     "Grodno_region",
     "MonitoringPoint",
