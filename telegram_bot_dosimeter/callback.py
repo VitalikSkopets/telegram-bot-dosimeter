@@ -1,5 +1,5 @@
 # type: ignore
-from telegram import ChatAction, Update
+from telegram import ChatAction, ReplyKeyboardMarkup, Update
 from telegram.ext import CallbackContext
 
 from telegram_bot_dosimeter import config
@@ -10,8 +10,15 @@ from telegram_bot_dosimeter.constants import (
     GOMEL,
     GRODNO,
     LIST_ADMIN_IDS,
+    MAIN_MENU,
     MINSK,
     MOGILEV,
+    MONITORING,
+    NEXT,
+    NEXT_ARROW,
+    POINTS,
+    PREV,
+    PREV_ARROW,
     TOTAL_COUNT_USERS,
     VITEBSK,
     Action,
@@ -27,8 +34,10 @@ from telegram_bot_dosimeter.decorators import debug_handler, restricted, send_ac
 from telegram_bot_dosimeter.geolocation import get_nearest_point_location
 from telegram_bot_dosimeter.keyboards import (
     admin_keyboard,
+    first_points_keyboard,
     main_keyboard,
-    points_keyboard,
+    second_points_keyboard,
+    third_points_keyboard,
 )
 from telegram_bot_dosimeter.messages import Message
 from telegram_bot_dosimeter.storage.mongodb import MongoDataBase
@@ -102,6 +111,28 @@ class Callback:
     def message_callback(self, update: Update, context: CallbackContext) -> None:
         """Handler method for an incoming text messages from the user."""
         match update.message.text:
+            case MONITORING.name:
+                return self.radiation_monitoring_callback(update, context)
+            case POINTS.name:
+                return self.monitoring_points_callback(update, context)
+            case NEXT.name:
+                keyboard = second_points_keyboard()
+                action = Action.NEXT
+                return self.pagination_callback(update, context, keyboard, action)
+            case NEXT_ARROW.name:
+                keyboard = third_points_keyboard()
+                action = Action.NEXT
+                return self.pagination_callback(update, context, keyboard, action)
+            case PREV.name:
+                keyboard = second_points_keyboard()
+                action = Action.PREV
+                return self.pagination_callback(update, context, keyboard, action)
+            case PREV_ARROW.name:
+                keyboard = first_points_keyboard()
+                action = Action.PREV
+                return self.pagination_callback(update, context, keyboard, action)
+            case MAIN_MENU.name:
+                return self.main_menu_callback(update, context)
             case BREST.name:
                 points = Brest_region.monitoring_points
                 action = Action.BREST
@@ -124,6 +155,24 @@ class Callback:
                 return self.greeting_callback(update, context)
 
         return self.points_callback(update, context, points, action)
+
+    def pagination_callback(
+        self,
+        update: Update,
+        context: CallbackContext,
+        keyboard: ReplyKeyboardMarkup,
+        action: Action,
+    ) -> None:
+        """
+        Handler method for pressing the "Next" or "Prev" keyboard button by the user.
+        """
+        user = update.effective_user
+        context.bot.send_message(
+            chat_id=update.effective_message.chat_id,
+            text=Message.REGION,
+            reply_markup=keyboard,
+        )
+        logger.info(self.LOG_MSG % action.value, user_id=get_uid(user.id))
 
     def greeting_callback(self, update: Update, context: CallbackContext) -> None:
         """Handler method for an incoming text message from the user."""
@@ -155,8 +204,6 @@ class Callback:
             )
             logger.info("User sent unknown text message", user_id=get_uid(user.id))
 
-    @debug_handler(log_handler=logger)
-    @send_action(ChatAction.TYPING)
     def radiation_monitoring_callback(
         self, update: Update, context: CallbackContext
     ) -> None:
@@ -176,8 +223,6 @@ class Callback:
         )
         logger.info(self.LOG_MSG % Action.MONITORING.value, user_id=get_uid(user.id))
 
-    @debug_handler(log_handler=logger)
-    @send_action(ChatAction.TYPING)
     def monitoring_points_callback(
         self, update: Update, context: CallbackContext
     ) -> None:
@@ -186,7 +231,7 @@ class Callback:
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
             text=Message.REGION,
-            reply_markup=points_keyboard(),
+            reply_markup=first_points_keyboard(),
         )
         self.repo.add_monitoring_points(user)
         send_analytics(
@@ -220,8 +265,6 @@ class Callback:
         )
         logger.info(self.LOG_MSG % action.value, user_id=get_uid(user.id))
 
-    @debug_handler(log_handler=logger)
-    @send_action(ChatAction.TYPING)
     def main_menu_callback(self, update: Update, context: CallbackContext) -> None:
         """Handler method for pressing the "Main menu" button by the user."""
         user = update.effective_user

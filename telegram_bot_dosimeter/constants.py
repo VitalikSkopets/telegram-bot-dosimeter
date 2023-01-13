@@ -3,32 +3,38 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Sequence
 
+from emoji.core import emojize
+
 __all__ = (
     "ADMIN_ID",
-    "LIST_OF_ADMIN_IDS",
-    "MonitoringPoint",
-    "MONITORING_POINTS",
-    "Brest_region",
-    "Vitebsk_region",
-    "Grodno_region",
-    "Mogilev_region",
-    "Minsk_region",
-    "Gomel_region",
-    "Command",
-    "Button",
-    "MAIN_MENU",
-    "MONITORING",
-    "SEND_LOCATION",
-    "POINTS",
     "BREST",
-    "VITEBSK",
     "GOMEL",
     "GRODNO",
-    "MINSK",
-    "MOGILEV",
-    "TOTAL_COUNT_USERS",
     "LIST_ADMIN_IDS",
+    "LIST_OF_ADMIN_IDS",
+    "MAIN_MENU",
+    "MOGILEV",
+    "MONITORING",
+    "MONITORING_POINTS",
+    "MINSK",
+    "NEXT",
+    "NEXT_ARROW",
+    "SEND_LOCATION",
+    "TOTAL_COUNT_USERS",
+    "POINTS",
+    "PREV",
+    "PREV_ARROW",
+    "VITEBSK",
     "Action",
+    "Brest_region",
+    "Button",
+    "Command",
+    "Gomel_region",
+    "Grodno_region",
+    "MonitoringPoint",
+    "Mogilev_region",
+    "Minsk_region",
+    "Vitebsk_region",
 )
 
 ADMIN_ID: int = 413818791 or 1120930631
@@ -374,6 +380,15 @@ Gomel_region = Region(
 )
 
 
+class Emoji(Enum):
+    RADIO = emojize(":radioactive_sign:", use_aliases=True)
+    ROBOT = emojize(":robot_face:", use_aliases=True)
+    SOS = emojize(":SOS_button:", use_aliases=True)
+    ARROW = emojize(":right_arrow_curving_down:", use_aliases=True)
+    RIGHT_ARROW = emojize(":right_arrow:", use_aliases=True)
+    LEFT_ARROW = emojize(":left_arrow:", use_aliases=True)
+
+
 @dataclass(slots=True, frozen=True)
 class Button:
     name: str
@@ -382,6 +397,14 @@ class Button:
 
 BUTTONS: tuple[Button, ...] = (
     MAIN_MENU := Button(name="Главное меню", callback_data=str(uuid.uuid4())),
+    NEXT := Button(name="Далее", callback_data=str(uuid.uuid4())),
+    NEXT_ARROW := Button(
+        name=f"Далее {Emoji.RIGHT_ARROW.value}", callback_data=str(uuid.uuid4())
+    ),
+    PREV := Button(name="Назад", callback_data=str(uuid.uuid4())),
+    PREV_ARROW := Button(
+        name=f"{Emoji.LEFT_ARROW.value} Назад", callback_data=str(uuid.uuid4())
+    ),
     MONITORING := Button(
         name="Радиационный мониторинг", callback_data=str(uuid.uuid4())
     ),
@@ -428,6 +451,8 @@ class Action(str, Enum):
     MINSK = "Minsk region"
     MOGILEV = "Mogilev region"
     MAIN_MENU = "Main menu"
+    NEXT = "Next"
+    PREV = "Previosly"
 
 
 class Description(str, Enum):

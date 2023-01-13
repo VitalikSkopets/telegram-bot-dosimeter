@@ -1,20 +1,8 @@
 from enum import Enum
 
-from emoji.core import emojize
+from telegram_bot_dosimeter.constants import MONITORING, POINTS, SEND_LOCATION, Emoji
 
-from telegram_bot_dosimeter.constants import MONITORING, POINTS, SEND_LOCATION
-
-__all__ = (
-    "Emoji",
-    "Message",
-)
-
-
-class Emoji(Enum):
-    RADIO = emojize(":radioactive_sign:", use_aliases=True)
-    ROBOT = emojize(":robot_face:", use_aliases=True)
-    SOS = emojize(":SOS_button:", use_aliases=True)
-    ARROW = emojize(":right_arrow_curving_down:", use_aliases=True)
+__all__ = ("Message",)
 
 
 class Message(str, Enum):
