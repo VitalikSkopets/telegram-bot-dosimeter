@@ -23,6 +23,7 @@ from telegram_bot_dosimeter.constants import (
     VITEBSK,
     Action,
     Brest_region,
+    Button,
     Gomel_region,
     Grodno_region,
     Minsk_region,
@@ -34,10 +35,8 @@ from telegram_bot_dosimeter.decorators import debug_handler, restricted, send_ac
 from telegram_bot_dosimeter.geolocation import get_nearest_point_location
 from telegram_bot_dosimeter.keyboards import (
     admin_keyboard,
-    first_points_keyboard,
     main_keyboard,
-    second_points_keyboard,
-    third_points_keyboard,
+    points_keyboard,
 )
 from telegram_bot_dosimeter.messages import Message
 from telegram_bot_dosimeter.storage.mongodb import MongoDataBase
@@ -114,21 +113,51 @@ class Callback:
             case MONITORING.name:
                 return self.radiation_monitoring_callback(update, context)
             case POINTS.name:
-                return self.monitoring_points_callback(update, context)
+                button_list = (
+                    BREST,
+                    VITEBSK,
+                    NEXT,
+                    MAIN_MENU,
+                )
+                return self.monitoring_points_callback(update, context, button_list)
             case NEXT.name:
-                keyboard = second_points_keyboard()
+                button_list = (
+                    GOMEL,
+                    GRODNO,
+                    PREV_ARROW,
+                    NEXT_ARROW,
+                )
+                keyboard = points_keyboard(button_list)
                 action = Action.NEXT
                 return self.pagination_callback(update, context, keyboard, action)
             case NEXT_ARROW.name:
-                keyboard = third_points_keyboard()
+                button_list = (
+                    MINSK,
+                    MOGILEV,
+                    PREV,
+                    MAIN_MENU,
+                )
+                keyboard = points_keyboard(button_list)
                 action = Action.NEXT
                 return self.pagination_callback(update, context, keyboard, action)
             case PREV.name:
-                keyboard = second_points_keyboard()
+                button_list = (
+                    GOMEL,
+                    GRODNO,
+                    PREV_ARROW,
+                    NEXT_ARROW,
+                )
+                keyboard = points_keyboard(button_list)
                 action = Action.PREV
                 return self.pagination_callback(update, context, keyboard, action)
             case PREV_ARROW.name:
-                keyboard = first_points_keyboard()
+                button_list = (
+                    BREST,
+                    VITEBSK,
+                    NEXT,
+                    MAIN_MENU,
+                )
+                keyboard = points_keyboard(button_list)
                 action = Action.PREV
                 return self.pagination_callback(update, context, keyboard, action)
             case MAIN_MENU.name:
@@ -224,14 +253,14 @@ class Callback:
         logger.info(self.LOG_MSG % Action.MONITORING.value, user_id=get_uid(user.id))
 
     def monitoring_points_callback(
-        self, update: Update, context: CallbackContext
+        self, update: Update, context: CallbackContext, button_list: tuple[Button, ...]
     ) -> None:
         """Handler method for pressing the "Monitoring points" button by the user."""
         user = update.effective_user
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
             text=Message.REGION,
-            reply_markup=first_points_keyboard(),
+            reply_markup=points_keyboard(button_list),
         )
         self.repo.add_monitoring_points(user)
         send_analytics(

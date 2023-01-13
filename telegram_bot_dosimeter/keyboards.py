@@ -6,30 +6,18 @@ from telegram import (
 )
 
 from telegram_bot_dosimeter.constants import (
-    BREST,
-    GOMEL,
-    GRODNO,
     LIST_ADMIN_IDS,
-    MAIN_MENU,
-    MINSK,
-    MOGILEV,
     MONITORING,
-    NEXT,
-    NEXT_ARROW,
     POINTS,
-    PREV,
-    PREV_ARROW,
     SEND_LOCATION,
     TOTAL_COUNT_USERS,
-    VITEBSK,
+    Button,
 )
 
 __all__ = (
-    "main_keyboard",
-    "first_points_keyboard",
-    "second_points_keyboard",
-    "third_points_keyboard",
     "admin_keyboard",
+    "main_keyboard",
+    "points_keyboard",
 )
 
 
@@ -45,44 +33,10 @@ def main_keyboard() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 
-def first_points_keyboard() -> ReplyKeyboardMarkup:
+def points_keyboard(button_list: tuple[Button, ...]) -> ReplyKeyboardMarkup:
     """
     The menu monitoring points buttons to the user instead of the standard keyboard
     """
-    button_list = (
-        BREST,
-        VITEBSK,
-        NEXT,
-        MAIN_MENU,
-    )
-    keyboard = [[KeyboardButton(button.name)] for button in button_list]
-    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
-
-
-def second_points_keyboard() -> ReplyKeyboardMarkup:
-    """
-    The menu monitoring points buttons to the user instead of the standard keyboard
-    """
-    button_list = (
-        GOMEL,
-        GRODNO,
-        PREV_ARROW,
-        NEXT_ARROW,
-    )
-    keyboard = [[KeyboardButton(button.name)] for button in button_list]
-    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
-
-
-def third_points_keyboard() -> ReplyKeyboardMarkup:
-    """
-    The menu monitoring points buttons to the user instead of the standard keyboard
-    """
-    button_list = (
-        MINSK,
-        MOGILEV,
-        PREV,
-        MAIN_MENU,
-    )
     keyboard = [[KeyboardButton(button.name)] for button in button_list]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
