@@ -43,15 +43,16 @@ def points_keyboard() -> ReplyKeyboardMarkup:
     """
     The menu monitoring points buttons to the user instead of the standard keyboard
     """
-    keyboard = [
-        [KeyboardButton(BREST.name)],
-        [KeyboardButton(VITEBSK.name)],
-        [KeyboardButton(GOMEL.name)],
-        [KeyboardButton(GRODNO.name)],
-        [KeyboardButton(MINSK.name)],
-        [KeyboardButton(MOGILEV.name)],
-        [KeyboardButton(MAIN_MENU.name)],
-    ]
+    button_list = (
+        BREST.name,
+        VITEBSK.name,
+        GOMEL.name,
+        GRODNO.name,
+        MINSK.name,
+        MOGILEV.name,
+        MAIN_MENU.name,
+    )
+    keyboard = [[KeyboardButton(button)] for button in button_list]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 
