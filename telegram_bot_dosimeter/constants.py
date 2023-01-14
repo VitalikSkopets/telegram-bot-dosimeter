@@ -1,7 +1,6 @@
 import enum
 import uuid
 from dataclasses import dataclass
-from typing import Sequence
 
 from emoji.core import emojize
 
@@ -9,6 +8,7 @@ __all__ = (
     "ADMIN_ID",
     "LIST_OF_ADMIN_IDS",
     "MONITORING_POINTS",
+    "TEMP_LIST_OF_ADMIN_IDS",
     "Action",
     "Brest_region",
     "Buttons",
@@ -23,7 +23,8 @@ __all__ = (
 )
 
 ADMIN_ID: int = 413818791 or 1120930631
-LIST_OF_ADMIN_IDS: Sequence[int] = (ADMIN_ID, 487236325)
+LIST_OF_ADMIN_IDS: list[int] = [ADMIN_ID, 487236325]
+TEMP_LIST_OF_ADMIN_IDS: list[int] = []
 
 
 @dataclass(slots=True, frozen=True)
@@ -446,6 +447,10 @@ class Buttons(enum.Enum):
         "label": "Get list admin IDs",
         "callback_data": str(uuid.uuid4()),
     }
+    ADD_ADMIN_ID = {
+        "label": "Add new admin by user ID",
+        "callback_data": str(uuid.uuid4()),
+    }
 
     def __init__(self, vals: dict) -> None:
         self.label = vals["label"]
@@ -464,6 +469,7 @@ class Action(str, enum.Enum):
     ADMIN = "Admin command"
     GET_COUNT = "Get total count users"
     GET_LIST = "Get list of admin IDs"
+    ADD_ADMIN = "Add admin by user ID"
     GREETING = "Greeting message"
     MESSAGE = "Unknown message"
     MONITORING = "Radiation monitoring"
@@ -486,7 +492,7 @@ class Description(str, enum.Enum):
     Этот бот может информировать пользователя по состоянию на текущую дату о
     радиационной обстановке в Беларуси и об уровне мощности эквивалентной дозы
     гамма-излучения, зафиксированного в сети радиационного мониторинга Министерства
-    природных ресурсов и охраны окружающей среды Беларуси Источник: ©rad.org.by
+    природных ресурсов и охраны окружающей среды Беларуси. Источник: ©rad.org.by
     Разработано: ©itrexgroup.com
     """
     START = "Launch this bot / Запустить этого бота"

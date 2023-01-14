@@ -8,11 +8,13 @@ from telegram_bot_dosimeter.config import get_logger
 from telegram_bot_dosimeter.constants import (
     ADMIN_ID,
     LIST_OF_ADMIN_IDS,
+    TEMP_LIST_OF_ADMIN_IDS,
     MonitoringPoint,
 )
 from telegram_bot_dosimeter.messages import Message
 
 __all__ = (
+    "add_admin_id",
     "get_html",
     "get_points_with_radiation_level",
     "get_avg_radiation_level",
@@ -190,10 +192,20 @@ def get_uid(uid: str | int | None = None) -> str | int | None:
 
 
 def get_admin_ids() -> str:
-    if not LIST_OF_ADMIN_IDS:
+    total_list_of_admin_ids: list[int] = LIST_OF_ADMIN_IDS + TEMP_LIST_OF_ADMIN_IDS
+    if not total_list_of_admin_ids:
         return "Admins not assigned"
     output = []
-    for num, admin_id in enumerate(LIST_OF_ADMIN_IDS, 1):
+    for num, admin_id in enumerate(total_list_of_admin_ids, 1):
         message = "{}: {} - Main admin" if admin_id == ADMIN_ID else "{}: {}"
         output.append(message.format(num, admin_id))
     return "\n".join(output)
+
+
+def add_admin_id(uid: str) -> str:
+    if uid.strip().isdigit() and int(uid) not in TEMP_LIST_OF_ADMIN_IDS:
+        TEMP_LIST_OF_ADMIN_IDS.append(int(uid))
+        return f"User ID <u>{uid}</u> added to the list of admins."
+    if uid.strip().isdigit() and int(uid) in TEMP_LIST_OF_ADMIN_IDS:
+        return "The user ID has already been added to the temporary admin list."
+    return "The user ID is incorrect.\nThe ID value must contain only numbers."

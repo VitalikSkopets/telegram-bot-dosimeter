@@ -21,3 +21,4 @@ class Message(str, Enum):
     REGION = f"Выбери интересующий регион {Emoji.ARROW}"
     SHOW_KEYBOARD = f"Нажми /start, чтобы сново отобразить {Emoji.KEYBOARD}"
     ADMIN = f"Выбери команду {Emoji.ARROW}"
+    ADD_USER_ID = f"Please, write user ID {Emoji.ARROW}"

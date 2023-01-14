@@ -26,6 +26,7 @@ from telegram_bot_dosimeter.keyboards import (
 from telegram_bot_dosimeter.messages import Message
 from telegram_bot_dosimeter.storage.mongodb import MongoDataBase
 from telegram_bot_dosimeter.utils import (
+    add_admin_id,
     get_admin_ids,
     get_avg_radiation_level,
     get_info_about_radiation_monitoring,
@@ -113,6 +114,8 @@ class Callback:
                 return self._get_count_users_callback(update, context)
             case Buttons.LIST_ADMIN_IDS.callback_data:
                 return self._get_list_admin_ids_callback(update, context)
+            case Buttons.ADD_ADMIN_ID.callback_data:
+                return self._add_admin_by_user_id_callback(update, context)
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -158,6 +161,8 @@ class Callback:
             case Buttons.MOGILEV.label:
                 points = Mogilev_region.monitoring_points
                 action = Action.MOGILEV
+            case str() as user_id if user_id.isdigit():
+                return self._add_admin_by_user_id_callback(update, context)
             case _:
                 return self._greeting_callback(update, context)
 
@@ -237,6 +242,7 @@ class Callback:
                 action = Action.PREV
             case _:
                 return self._main_menu_callback(update, context)
+
         keyboard = points_keyboard(button_list)
         return self._pagination_callback(update, context, keyboard, action)
 
@@ -378,13 +384,39 @@ class Callback:
     def _get_list_admin_ids_callback(
         self, update: Update, context: CallbackContext
     ) -> None:
-        """Get a list of admin IDs admin command handler method."""
+        """An admin command handler method to get a list of admin IDs."""
         user = update.effective_user
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
             text=get_admin_ids(),
         )
         logger.debug(self.LOG_MSG % Action.GET_LIST.value, user_id=get_uid(user.id))
+
+    @restricted
+    def _add_admin_by_user_id_callback(
+        self, update: Update, context: CallbackContext
+    ) -> None:
+        """
+        An admin command handler method for adding a new admin
+        to the temporary list of admin IDs.
+        """
+        user = update.effective_user
+        match update.effective_message.text:
+            case str() as message if message.isdigit():
+                forward_text = add_admin_id(message)
+                log_msg = f"Added new admin - '{message}' to the temp list of admins"
+                keyboard = main_keyboard()
+            case _:
+                forward_text = Message.ADD_USER_ID
+                log_msg = self.LOG_MSG % Action.ADD_ADMIN.value
+                keyboard = ReplyKeyboardRemove()
+
+        context.bot.send_message(
+            chat_id=update.effective_message.chat_id,
+            text=forward_text,
+            reply_markup=keyboard,
+        )
+        logger.debug(log_msg, user_id=get_uid(user.id))
 
     def _hide_keyboard_callback(self, update: Update, context: CallbackContext) -> None:
         """Hide main keyboard handler method."""

@@ -40,10 +40,12 @@ def points_keyboard(button_list: tuple[Buttons, ...]) -> ReplyKeyboardMarkup:
 
 
 def admin_keyboard() -> InlineKeyboardMarkup:
-    """
-    The admin inline menu buttons
-    """
-    inline_button_list = (Buttons.TOTAL_COUNT_USERS, Buttons.LIST_ADMIN_IDS)
+    """The admin inline menu buttons"""
+    inline_button_list = (
+        Buttons.TOTAL_COUNT_USERS,
+        Buttons.LIST_ADMIN_IDS,
+        Buttons.ADD_ADMIN_ID,
+    )
     keyboard = [
         [InlineKeyboardButton(button.label, callback_data=button.callback_data)]
         for button in inline_button_list
