@@ -1,5 +1,5 @@
 # type: ignore
-from telegram import ChatAction, ReplyKeyboardMarkup, Update
+from telegram import ChatAction, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import CallbackContext
 
 from telegram_bot_dosimeter import config
@@ -9,6 +9,7 @@ from telegram_bot_dosimeter.constants import (
     BREST,
     GOMEL,
     GRODNO,
+    HIDE_KEYBOARD,
     LIST_ADMIN_IDS,
     MAIN_MENU,
     MINSK,
@@ -162,6 +163,8 @@ class Callback:
                 return self.pagination_callback(update, context, keyboard, action)
             case MAIN_MENU.name:
                 return self.main_menu_callback(update, context)
+            case HIDE_KEYBOARD.name:
+                return self.hide_keyboard_callback(update, context)
             case BREST.name:
                 points = Brest_region.monitoring_points
                 action = Action.BREST
@@ -394,3 +397,15 @@ class Callback:
                 return self.get_count_users_callback(update, context)
             case LIST_ADMIN_IDS.callback_data:
                 return self.get_list_admin_ids_callback(update, context)
+
+    def hide_keyboard_callback(self, update: Update, context: CallbackContext) -> None:
+        """Hide main keyboard handler method."""
+        user = update.effective_user
+        context.bot.send_message(
+            chat_id=update.effective_message.chat_id,
+            text=Message.SHOW_KEYBOARD,
+            reply_markup=ReplyKeyboardRemove(),
+        )
+        logger.debug(
+            self.LOG_MSG % Action.HIDE_KEYBOARD.value, user_id=get_uid(user.id)
+        )

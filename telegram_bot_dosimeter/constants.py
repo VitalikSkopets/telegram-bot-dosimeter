@@ -10,6 +10,7 @@ __all__ = (
     "BREST",
     "GOMEL",
     "GRODNO",
+    "HIDE_KEYBOARD",
     "LIST_ADMIN_IDS",
     "LIST_OF_ADMIN_IDS",
     "MAIN_MENU",
@@ -381,13 +382,14 @@ Gomel_region = Region(
 )
 
 
-class Emoji(Enum):
+class Emoji(str, Enum):
     RADIO = emojize("☢️")
     ROBOT = emojize("🤖")
     SOS = emojize("🆘")
     ARROW = emojize("⤵")
     RIGHT_ARROW = emojize("▶")
     LEFT_ARROW = emojize("◀")
+    KEYBOARD = emojize("⌨️")
 
 
 @dataclass(slots=True, frozen=True)
@@ -398,18 +400,10 @@ class Button:
 
 BUTTONS: tuple[Button, ...] = (
     MAIN_MENU := Button(name="Главное меню", callback_data=str(uuid.uuid4())),
-    NEXT := Button(
-        name=f"{Emoji.RIGHT_ARROW.value * 2}", callback_data=str(uuid.uuid4())
-    ),
-    NEXT_ARROW := Button(
-        name=f"{Emoji.RIGHT_ARROW.value}", callback_data=str(uuid.uuid4())
-    ),
-    PREV := Button(
-        name=f"{Emoji.LEFT_ARROW.value * 2}", callback_data=str(uuid.uuid4())
-    ),
-    PREV_ARROW := Button(
-        name=f"{Emoji.LEFT_ARROW.value}", callback_data=str(uuid.uuid4())
-    ),
+    NEXT := Button(name=f"{Emoji.RIGHT_ARROW * 2}", callback_data=str(uuid.uuid4())),
+    NEXT_ARROW := Button(name=f"{Emoji.RIGHT_ARROW}", callback_data=str(uuid.uuid4())),
+    PREV := Button(name=f"{Emoji.LEFT_ARROW * 2}", callback_data=str(uuid.uuid4())),
+    PREV_ARROW := Button(name=f"{Emoji.LEFT_ARROW}", callback_data=str(uuid.uuid4())),
     MONITORING := Button(
         name="Радиационный мониторинг", callback_data=str(uuid.uuid4())
     ),
@@ -423,6 +417,7 @@ BUTTONS: tuple[Button, ...] = (
     GRODNO := Button(name=Grodno_region.name, callback_data=str(uuid.uuid4())),
     MINSK := Button(name=Minsk_region.name, callback_data=str(uuid.uuid4())),
     MOGILEV := Button(name=Mogilev_region.name, callback_data=str(uuid.uuid4())),
+    HIDE_KEYBOARD := Button(name="Скрыть клавиатуру", callback_data=str(uuid.uuid4())),
     TOTAL_COUNT_USERS := Button(
         name="Get total count users", callback_data=str(uuid.uuid4())
     ),
@@ -458,6 +453,7 @@ class Action(str, Enum):
     MAIN_MENU = "Main menu"
     NEXT = "Next"
     PREV = "Previosly"
+    HIDE_KEYBOARD = "Hide keyboard"
 
 
 class Description(str, Enum):

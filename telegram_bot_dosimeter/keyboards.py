@@ -6,6 +6,7 @@ from telegram import (
 )
 
 from telegram_bot_dosimeter.constants import (
+    HIDE_KEYBOARD,
     LIST_ADMIN_IDS,
     MONITORING,
     POINTS,
@@ -29,6 +30,7 @@ def main_keyboard() -> ReplyKeyboardMarkup:
         [KeyboardButton(MONITORING.name)],
         [KeyboardButton(POINTS.name)],
         [KeyboardButton(SEND_LOCATION.name, request_location=True)],
+        [KeyboardButton(HIDE_KEYBOARD.name)],
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 

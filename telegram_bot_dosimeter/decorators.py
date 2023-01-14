@@ -90,7 +90,7 @@ def debug_handler(log_handler: CustomAdapter = logger) -> Callable:
                 )
                 return func(*args, **kwargs)
             except Exception as ex:
-                error_msg = f"{Emoji.SOS.value} [{get_uid(user.id)}] - [ERROR]: {ex}"
+                error_msg = f"{Emoji.SOS} [{get_uid(user.id)}] - [ERROR]: {ex}"
 
                 update.message.reply_text(
                     f"К сожалению, <b>{user.first_name}</b>, {Message.INFO}",
