@@ -122,53 +122,20 @@ class Callback:
             case Buttons.MONITORING.label:
                 return self._radiation_monitoring_callback(update, context)
             case Buttons.POINTS.label:
-                button_list = (
+                button_list = [
                     Buttons.BREST,
                     Buttons.VITEBSK,
                     Buttons.MAIN_MENU,
                     Buttons.NEXT,
-                )
+                ]
                 return self._monitoring_points_callback(update, context, button_list)
-            case Buttons.NEXT.label:
-                button_list = (
-                    Buttons.GOMEL,
-                    Buttons.GRODNO,
-                    Buttons.PREV_ARROW,
-                    Buttons.NEXT_ARROW,
-                )
-                keyboard = points_keyboard(button_list)
-                action = Action.NEXT
-                return self._pagination_callback(update, context, keyboard, action)
-            case Buttons.NEXT_ARROW.label:
-                button_list = (
-                    Buttons.MINSK,
-                    Buttons.MOGILEV,
-                    Buttons.PREV,
-                    Buttons.MAIN_MENU,
-                )
-                keyboard = points_keyboard(button_list)
-                action = Action.NEXT
-                return self._pagination_callback(update, context, keyboard, action)
-            case Buttons.PREV.label:
-                button_list = (
-                    Buttons.GOMEL,
-                    Buttons.GRODNO,
-                    Buttons.PREV_ARROW,
-                    Buttons.NEXT_ARROW,
-                )
-                keyboard = points_keyboard(button_list)
-                action = Action.PREV
-                return self._pagination_callback(update, context, keyboard, action)
-            case Buttons.PREV_ARROW.label:
-                button_list = (
-                    Buttons.BREST,
-                    Buttons.VITEBSK,
-                    Buttons.MAIN_MENU,
-                    Buttons.NEXT,
-                )
-                keyboard = points_keyboard(button_list)
-                action = Action.PREV
-                return self._pagination_callback(update, context, keyboard, action)
+            case str() as command if command in (
+                Buttons.NEXT.label,
+                Buttons.NEXT_ARROW.label,
+                Buttons.PREV.label,
+                Buttons.PREV_ARROW.label,
+            ):
+                return self._manage_menu_callback(update, context, command)
             case Buttons.MAIN_MENU.label:
                 return self._main_menu_callback(update, context)
             case Buttons.HIDE_KEYBOARD.label:
@@ -230,6 +197,61 @@ class Callback:
                     self.LOG_MSG % Action.LOCATION.value, user_id=get_uid(user.id)
                 )
                 break
+
+    def _manage_menu_callback(
+        self, update: Update, context: CallbackContext, command: str
+    ) -> None:
+        """Handler method for pressing the "Main menu" button by the user."""
+        button_list = []
+        action = None
+
+        def _add_to_button_list(selection: tuple[Buttons, ...] = tuple()) -> None:
+            for button in selection:
+                button_list.append(button)
+
+        match command:
+            case Buttons.NEXT.label:
+                _add_to_button_list(
+                    selection=(
+                        Buttons.GOMEL,
+                        Buttons.GRODNO,
+                        Buttons.PREV_ARROW,
+                        Buttons.NEXT_ARROW,
+                    )
+                )
+                action = Action.NEXT
+            case Buttons.NEXT_ARROW.label:
+                _add_to_button_list(
+                    selection=(
+                        Buttons.MINSK,
+                        Buttons.MOGILEV,
+                        Buttons.PREV,
+                        Buttons.MAIN_MENU,
+                    )
+                )
+                action = Action.NEXT
+            case Buttons.PREV.label:
+                _add_to_button_list(
+                    selection=(
+                        Buttons.GOMEL,
+                        Buttons.GRODNO,
+                        Buttons.PREV_ARROW,
+                        Buttons.NEXT_ARROW,
+                    )
+                )
+                action = Action.PREV
+            case Buttons.PREV_ARROW.label:
+                _add_to_button_list(
+                    selection=(
+                        Buttons.BREST,
+                        Buttons.VITEBSK,
+                        Buttons.MAIN_MENU,
+                        Buttons.NEXT,
+                    )
+                )
+                action = Action.PREV
+        keyboard = points_keyboard(button_list)
+        return self._pagination_callback(update, context, keyboard, action)
 
     def _pagination_callback(
         self,
@@ -299,7 +321,7 @@ class Callback:
         logger.info(self.LOG_MSG % Action.MONITORING.value, user_id=get_uid(user.id))
 
     def _monitoring_points_callback(
-        self, update: Update, context: CallbackContext, button_list: tuple[Buttons, ...]
+        self, update: Update, context: CallbackContext, button_list: list[Buttons, ...]
     ) -> None:
         """Handler method for pressing the "Monitoring points" button by the user."""
         user = update.effective_user

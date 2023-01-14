@@ -27,7 +27,7 @@ def main_keyboard() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 
-def points_keyboard(button_list: tuple[Buttons, ...]) -> ReplyKeyboardMarkup:
+def points_keyboard(button_list: list[Buttons]) -> ReplyKeyboardMarkup:
     """
     The menu monitoring points buttons to the user instead of the standard keyboard
     """
