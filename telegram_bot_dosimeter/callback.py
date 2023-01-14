@@ -6,25 +6,9 @@ from telegram_bot_dosimeter import config
 from telegram_bot_dosimeter.analytics.measurement_protocol import send_analytics
 from telegram_bot_dosimeter.config import CustomAdapter, get_logger
 from telegram_bot_dosimeter.constants import (
-    BREST,
-    GOMEL,
-    GRODNO,
-    HIDE_KEYBOARD,
-    LIST_ADMIN_IDS,
-    MAIN_MENU,
-    MINSK,
-    MOGILEV,
-    MONITORING,
-    NEXT,
-    NEXT_ARROW,
-    POINTS,
-    PREV,
-    PREV_ARROW,
-    TOTAL_COUNT_USERS,
-    VITEBSK,
     Action,
     Brest_region,
-    Button,
+    Buttons,
     Gomel_region,
     Grodno_region,
     Minsk_region,
@@ -111,76 +95,76 @@ class Callback:
     def message_callback(self, update: Update, context: CallbackContext) -> None:
         """Handler method for an incoming text messages from the user."""
         match update.message.text:
-            case MONITORING.name:
+            case Buttons.MONITORING.label:
                 return self.radiation_monitoring_callback(update, context)
-            case POINTS.name:
+            case Buttons.POINTS.label:
                 button_list = (
-                    BREST,
-                    VITEBSK,
-                    MAIN_MENU,
-                    NEXT,
+                    Buttons.BREST,
+                    Buttons.VITEBSK,
+                    Buttons.MAIN_MENU,
+                    Buttons.NEXT,
                 )
                 return self.monitoring_points_callback(update, context, button_list)
-            case NEXT.name:
+            case Buttons.NEXT.label:
                 button_list = (
-                    GOMEL,
-                    GRODNO,
-                    PREV_ARROW,
-                    NEXT_ARROW,
+                    Buttons.GOMEL,
+                    Buttons.GRODNO,
+                    Buttons.PREV_ARROW,
+                    Buttons.NEXT_ARROW,
                 )
                 keyboard = points_keyboard(button_list)
                 action = Action.NEXT
                 return self.pagination_callback(update, context, keyboard, action)
-            case NEXT_ARROW.name:
+            case Buttons.NEXT_ARROW.label:
                 button_list = (
-                    MINSK,
-                    MOGILEV,
-                    PREV,
-                    MAIN_MENU,
+                    Buttons.MINSK,
+                    Buttons.MOGILEV,
+                    Buttons.PREV,
+                    Buttons.MAIN_MENU,
                 )
                 keyboard = points_keyboard(button_list)
                 action = Action.NEXT
                 return self.pagination_callback(update, context, keyboard, action)
-            case PREV.name:
+            case Buttons.PREV.label:
                 button_list = (
-                    GOMEL,
-                    GRODNO,
-                    PREV_ARROW,
-                    NEXT_ARROW,
+                    Buttons.GOMEL,
+                    Buttons.GRODNO,
+                    Buttons.PREV_ARROW,
+                    Buttons.NEXT_ARROW,
                 )
                 keyboard = points_keyboard(button_list)
                 action = Action.PREV
                 return self.pagination_callback(update, context, keyboard, action)
-            case PREV_ARROW.name:
+            case Buttons.PREV_ARROW.label:
                 button_list = (
-                    BREST,
-                    VITEBSK,
-                    MAIN_MENU,
-                    NEXT,
+                    Buttons.BREST,
+                    Buttons.VITEBSK,
+                    Buttons.MAIN_MENU,
+                    Buttons.NEXT,
                 )
                 keyboard = points_keyboard(button_list)
                 action = Action.PREV
                 return self.pagination_callback(update, context, keyboard, action)
-            case MAIN_MENU.name:
+            case Buttons.MAIN_MENU.label:
                 return self.main_menu_callback(update, context)
-            case HIDE_KEYBOARD.name:
+            case Buttons.HIDE_KEYBOARD.label:
                 return self.hide_keyboard_callback(update, context)
-            case BREST.name:
+            case Buttons.BREST.label:
                 points = Brest_region.monitoring_points
                 action = Action.BREST
-            case VITEBSK.name:
+            case Buttons.VITEBSK.label:
                 points = Vitebsk_region.monitoring_points
                 action = Action.VITEBSK
-            case GOMEL.name:
+            case Buttons.GOMEL.label:
                 points = Gomel_region.monitoring_points
                 action = Action.GOMEL
-            case GRODNO.name:
+            case Buttons.GRODNO.label:
                 points = Grodno_region.monitoring_points
                 action = Action.GRODNO
-            case MINSK.name:
+            case Buttons.MINSK.label:
                 points = Minsk_region.monitoring_points
                 action = Action.MINSK
-            case MOGILEV.name:
+            case Buttons.MOGILEV.label:
                 points = Mogilev_region.monitoring_points
                 action = Action.MOGILEV
             case _:
@@ -256,7 +240,7 @@ class Callback:
         logger.info(self.LOG_MSG % Action.MONITORING.value, user_id=get_uid(user.id))
 
     def monitoring_points_callback(
-        self, update: Update, context: CallbackContext, button_list: tuple[Button, ...]
+        self, update: Update, context: CallbackContext, button_list: tuple[Buttons, ...]
     ) -> None:
         """Handler method for pressing the "Monitoring points" button by the user."""
         user = update.effective_user
@@ -370,7 +354,6 @@ class Callback:
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
             text=self.repo.get_users_count(user),
-            reply_markup=main_keyboard(),
         )
         logger.debug(self.LOG_MSG % Action.GET_COUNT.value, user_id=get_uid(user.id))
 
@@ -384,7 +367,6 @@ class Callback:
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
             text=get_admin_ids(),
-            reply_markup=main_keyboard(),
         )
         logger.debug(self.LOG_MSG % Action.GET_LIST.value, user_id=get_uid(user.id))
 
@@ -393,9 +375,9 @@ class Callback:
         """Inline keyboard buttons handler"""
         query = update.callback_query
         match query.data:
-            case TOTAL_COUNT_USERS.callback_data:
+            case Buttons.TOTAL_COUNT_USERS.callback_data:
                 return self.get_count_users_callback(update, context)
-            case LIST_ADMIN_IDS.callback_data:
+            case Buttons.LIST_ADMIN_IDS.callback_data:
                 return self.get_list_admin_ids_callback(update, context)
 
     def hide_keyboard_callback(self, update: Update, context: CallbackContext) -> None:

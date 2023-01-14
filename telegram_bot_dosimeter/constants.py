@@ -1,34 +1,17 @@
+import enum
 import uuid
 from dataclasses import dataclass
-from enum import Enum
 from typing import Sequence
 
 from emoji.core import emojize
 
 __all__ = (
     "ADMIN_ID",
-    "BREST",
-    "GOMEL",
-    "GRODNO",
-    "HIDE_KEYBOARD",
-    "LIST_ADMIN_IDS",
     "LIST_OF_ADMIN_IDS",
-    "MAIN_MENU",
-    "MOGILEV",
-    "MONITORING",
     "MONITORING_POINTS",
-    "MINSK",
-    "NEXT",
-    "NEXT_ARROW",
-    "SEND_LOCATION",
-    "TOTAL_COUNT_USERS",
-    "POINTS",
-    "PREV",
-    "PREV_ARROW",
-    "VITEBSK",
     "Action",
     "Brest_region",
-    "Button",
+    "Buttons",
     "Command",
     "Emoji",
     "Gomel_region",
@@ -382,7 +365,7 @@ Gomel_region = Region(
 )
 
 
-class Emoji(str, Enum):
+class Emoji(str, enum.Enum):
     RADIO = emojize("☢️")
     ROBOT = emojize("🤖")
     SOS = emojize("🆘")
@@ -392,48 +375,89 @@ class Emoji(str, Enum):
     KEYBOARD = emojize("⌨️")
 
 
-@dataclass(slots=True, frozen=True)
-class Button:
-    name: str
-    callback_data: str
+class Buttons(enum.Enum):
+
+    MAIN_MENU = {
+        "label": "Главное меню",
+        "callback_data": str(uuid.uuid4()),
+    }
+    NEXT = {
+        "label": f"{Emoji.RIGHT_ARROW * 2}",
+        "callback_data": str(uuid.uuid4()),
+    }
+    NEXT_ARROW = {
+        "label": f"{Emoji.RIGHT_ARROW}",
+        "callback_data": str(uuid.uuid4()),
+    }
+    PREV = {
+        "label": f"{Emoji.LEFT_ARROW * 2}",
+        "callback_data": str(uuid.uuid4()),
+    }
+    PREV_ARROW = {
+        "label": f"{Emoji.LEFT_ARROW}",
+        "callback_data": str(uuid.uuid4()),
+    }
+    MONITORING = {
+        "label": "Радиационный мониторинг",
+        "callback_data": str(uuid.uuid4()),
+    }
+    SEND_LOCATION = {
+        "label": "Отправить мою геопозицию",
+        "callback_data": str(uuid.uuid4()),
+    }
+    POINTS = {
+        "label": "Пункты наблюдения",
+        "callback_data": str(uuid.uuid4()),
+    }
+    BREST = {
+        "label": Brest_region.name,
+        "callback_data": str(uuid.uuid4()),
+    }
+    VITEBSK = {
+        "label": Vitebsk_region.name,
+        "callback_data": str(uuid.uuid4()),
+    }
+    GOMEL = {
+        "label": Gomel_region.name,
+        "callback_data": str(uuid.uuid4()),
+    }
+    GRODNO = {
+        "label": Grodno_region.name,
+        "callback_data": str(uuid.uuid4()),
+    }
+    MINSK = {
+        "label": Minsk_region.name,
+        "callback_data": str(uuid.uuid4()),
+    }
+    MOGILEV = {
+        "label": Mogilev_region.name,
+        "callback_data": str(uuid.uuid4()),
+    }
+    HIDE_KEYBOARD = {
+        "label": "Скрыть клавиатуру",
+        "callback_data": str(uuid.uuid4()),
+    }
+    TOTAL_COUNT_USERS = {
+        "label": "Get total count users",
+        "callback_data": str(uuid.uuid4()),
+    }
+    LIST_ADMIN_IDS = {
+        "label": "Get list admin IDs",
+        "callback_data": str(uuid.uuid4()),
+    }
+
+    def __init__(self, vals: dict) -> None:
+        self.label = vals["label"]
+        self.callback_data = vals["callback_data"]
 
 
-BUTTONS: tuple[Button, ...] = (
-    MAIN_MENU := Button(name="Главное меню", callback_data=str(uuid.uuid4())),
-    NEXT := Button(name=f"{Emoji.RIGHT_ARROW * 2}", callback_data=str(uuid.uuid4())),
-    NEXT_ARROW := Button(name=f"{Emoji.RIGHT_ARROW}", callback_data=str(uuid.uuid4())),
-    PREV := Button(name=f"{Emoji.LEFT_ARROW * 2}", callback_data=str(uuid.uuid4())),
-    PREV_ARROW := Button(name=f"{Emoji.LEFT_ARROW}", callback_data=str(uuid.uuid4())),
-    MONITORING := Button(
-        name="Радиационный мониторинг", callback_data=str(uuid.uuid4())
-    ),
-    SEND_LOCATION := Button(
-        name="Отправить мою геопозицию", callback_data=str(uuid.uuid4())
-    ),
-    POINTS := Button(name="Пункты наблюдения", callback_data=str(uuid.uuid4())),
-    BREST := Button(name=Brest_region.name, callback_data=str(uuid.uuid4())),
-    VITEBSK := Button(name=Vitebsk_region.name, callback_data=str(uuid.uuid4())),
-    GOMEL := Button(name=Gomel_region.name, callback_data=str(uuid.uuid4())),
-    GRODNO := Button(name=Grodno_region.name, callback_data=str(uuid.uuid4())),
-    MINSK := Button(name=Minsk_region.name, callback_data=str(uuid.uuid4())),
-    MOGILEV := Button(name=Mogilev_region.name, callback_data=str(uuid.uuid4())),
-    HIDE_KEYBOARD := Button(name="Скрыть клавиатуру", callback_data=str(uuid.uuid4())),
-    TOTAL_COUNT_USERS := Button(
-        name="Get total count users", callback_data=str(uuid.uuid4())
-    ),
-    LIST_ADMIN_IDS := Button(
-        name="Get list admin IDs", callback_data=str(uuid.uuid4())
-    ),
-)
-
-
-class Command(str, Enum):
+class Command(str, enum.Enum):
     START = "start"
     HELP = "help"
     ADMIN = "admin"
 
 
-class Action(str, Enum):
+class Action(str, enum.Enum):
     START = "Start command"
     HELP = "Help command"
     ADMIN = "Admin command"
@@ -456,7 +480,7 @@ class Action(str, Enum):
     HIDE_KEYBOARD = "Hide keyboard"
 
 
-class Description(str, Enum):
+class Description(str, enum.Enum):
     BOT = """
     Этот бот может информировать пользователя по состоянию на текущую дату о
     радиационной обстановке в Беларуси и об уровне мощности эквивалентной дозы

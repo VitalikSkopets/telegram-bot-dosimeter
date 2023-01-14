@@ -5,15 +5,7 @@ from telegram import (
     ReplyKeyboardMarkup,
 )
 
-from telegram_bot_dosimeter.constants import (
-    HIDE_KEYBOARD,
-    LIST_ADMIN_IDS,
-    MONITORING,
-    POINTS,
-    SEND_LOCATION,
-    TOTAL_COUNT_USERS,
-    Button,
-)
+from telegram_bot_dosimeter.constants import Buttons
 
 __all__ = (
     "admin_keyboard",
@@ -27,22 +19,22 @@ def main_keyboard() -> ReplyKeyboardMarkup:
     The function returns the menu buttons to the user instead of the standard keyboard
     """
     keyboard = [
-        [KeyboardButton(MONITORING.name)],
-        [KeyboardButton(POINTS.name)],
-        [KeyboardButton(SEND_LOCATION.name, request_location=True)],
-        [KeyboardButton(HIDE_KEYBOARD.name)],
+        [KeyboardButton(Buttons.MONITORING.label)],
+        [KeyboardButton(Buttons.POINTS.label)],
+        [KeyboardButton(Buttons.SEND_LOCATION.label, request_location=True)],
+        [KeyboardButton(Buttons.HIDE_KEYBOARD.label)],
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 
-def points_keyboard(button_list: tuple[Button, ...]) -> ReplyKeyboardMarkup:
+def points_keyboard(button_list: tuple[Buttons, ...]) -> ReplyKeyboardMarkup:
     """
     The menu monitoring points buttons to the user instead of the standard keyboard
     """
     keyboard = [
-        [KeyboardButton(button_list[0].name)],
-        [KeyboardButton(button_list[1].name)],
-        [KeyboardButton(button.name) for button in button_list[2:4]],
+        [KeyboardButton(button_list[0].label)],
+        [KeyboardButton(button_list[1].label)],
+        [KeyboardButton(button.label) for button in button_list[2:4]],
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
@@ -51,9 +43,9 @@ def admin_keyboard() -> InlineKeyboardMarkup:
     """
     The admin inline menu buttons
     """
-    inline_button_list = (TOTAL_COUNT_USERS, LIST_ADMIN_IDS)
+    inline_button_list = (Buttons.TOTAL_COUNT_USERS, Buttons.LIST_ADMIN_IDS)
     keyboard = [
-        [InlineKeyboardButton(button.name, callback_data=button.callback_data)]
+        [InlineKeyboardButton(button.label, callback_data=button.callback_data)]
         for button in inline_button_list
     ]
     return InlineKeyboardMarkup(keyboard)
