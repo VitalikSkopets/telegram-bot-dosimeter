@@ -382,12 +382,12 @@ Gomel_region = Region(
 
 
 class Emoji(Enum):
-    RADIO = emojize(":radioactive_sign:", use_aliases=True)
-    ROBOT = emojize(":robot_face:", use_aliases=True)
-    SOS = emojize(":SOS_button:", use_aliases=True)
-    ARROW = emojize(":right_arrow_curving_down:", use_aliases=True)
-    RIGHT_ARROW = emojize(":right_arrow:", use_aliases=True)
-    LEFT_ARROW = emojize(":left_arrow:", use_aliases=True)
+    RADIO = emojize("☢️")
+    ROBOT = emojize("🤖")
+    SOS = emojize("🆘")
+    ARROW = emojize("⤵")
+    RIGHT_ARROW = emojize("▶")
+    LEFT_ARROW = emojize("◀")
 
 
 @dataclass(slots=True, frozen=True)
@@ -398,13 +398,17 @@ class Button:
 
 BUTTONS: tuple[Button, ...] = (
     MAIN_MENU := Button(name="Главное меню", callback_data=str(uuid.uuid4())),
-    NEXT := Button(name="Далее", callback_data=str(uuid.uuid4())),
-    NEXT_ARROW := Button(
-        name=f"Далее {Emoji.RIGHT_ARROW.value}", callback_data=str(uuid.uuid4())
+    NEXT := Button(
+        name=f"{Emoji.RIGHT_ARROW.value * 2}", callback_data=str(uuid.uuid4())
     ),
-    PREV := Button(name="Назад", callback_data=str(uuid.uuid4())),
+    NEXT_ARROW := Button(
+        name=f"{Emoji.RIGHT_ARROW.value}", callback_data=str(uuid.uuid4())
+    ),
+    PREV := Button(
+        name=f"{Emoji.LEFT_ARROW.value * 2}", callback_data=str(uuid.uuid4())
+    ),
     PREV_ARROW := Button(
-        name=f"{Emoji.LEFT_ARROW.value} Назад", callback_data=str(uuid.uuid4())
+        name=f"{Emoji.LEFT_ARROW.value}", callback_data=str(uuid.uuid4())
     ),
     MONITORING := Button(
         name="Радиационный мониторинг", callback_data=str(uuid.uuid4())

@@ -116,8 +116,8 @@ class Callback:
                 button_list = (
                     BREST,
                     VITEBSK,
-                    NEXT,
                     MAIN_MENU,
+                    NEXT,
                 )
                 return self.monitoring_points_callback(update, context, button_list)
             case NEXT.name:
@@ -154,8 +154,8 @@ class Callback:
                 button_list = (
                     BREST,
                     VITEBSK,
-                    NEXT,
                     MAIN_MENU,
+                    NEXT,
                 )
                 keyboard = points_keyboard(button_list)
                 action = Action.PREV
