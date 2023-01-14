@@ -368,6 +368,7 @@ Gomel_region = Region(
 class Emoji(str, enum.Enum):
     RADIO = emojize("☢️")
     ROBOT = emojize("🤖")
+    HOUSE = emojize("🏡")
     SOS = emojize("🆘")
     ARROW = emojize("⤵")
     RIGHT_ARROW = emojize("▶")
@@ -410,27 +411,27 @@ class Buttons(enum.Enum):
         "callback_data": str(uuid.uuid4()),
     }
     BREST = {
-        "label": Brest_region.name,
+        "label": f"{Brest_region.name} {Emoji.HOUSE}",
         "callback_data": str(uuid.uuid4()),
     }
     VITEBSK = {
-        "label": Vitebsk_region.name,
+        "label": f"{Vitebsk_region.name} {Emoji.HOUSE}",
         "callback_data": str(uuid.uuid4()),
     }
     GOMEL = {
-        "label": Gomel_region.name,
+        "label": f"{Gomel_region.name} {Emoji.HOUSE}",
         "callback_data": str(uuid.uuid4()),
     }
     GRODNO = {
-        "label": Grodno_region.name,
+        "label": f"{Grodno_region.name} {Emoji.HOUSE}",
         "callback_data": str(uuid.uuid4()),
     }
     MINSK = {
-        "label": Minsk_region.name,
+        "label": f"{Minsk_region.name} {Emoji.HOUSE}",
         "callback_data": str(uuid.uuid4()),
     }
     MOGILEV = {
-        "label": Mogilev_region.name,
+        "label": f"{Mogilev_region.name} {Emoji.HOUSE}",
         "callback_data": str(uuid.uuid4()),
     }
     HIDE_KEYBOARD = {
