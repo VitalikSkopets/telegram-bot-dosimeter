@@ -1,3 +1,5 @@
+import re
+
 import requests
 import urllib3
 from bs4 import BeautifulSoup
@@ -24,6 +26,7 @@ __all__ = (
     "get_info_about_region",
     "get_uid",
     "get_admin_ids",
+    "is_digit_and_alpha",
 )
 
 logger = get_logger(__name__)
@@ -202,10 +205,16 @@ def get_admin_ids() -> str:
     return "\n".join(output)
 
 
-def add_admin_id(uid: str) -> str:
+def add_admin_id(uid: str) -> tuple[str, bool]:
     if uid.strip().isdigit() and int(uid) not in TEMP_LIST_OF_ADMIN_IDS:
         TEMP_LIST_OF_ADMIN_IDS.append(int(uid))
-        return f"User ID <u>{uid}</u> added to the list of admins."
+        return f"User ID <u>{uid}</u> added to the list of admins.", True
     if uid.strip().isdigit() and int(uid) in TEMP_LIST_OF_ADMIN_IDS:
-        return "The user ID has already been added to the temporary admin list."
-    return "The user ID is incorrect.\nThe ID value must contain only numbers."
+        return "The user ID has already been added to the temporary admin list.", False
+    return "The user ID is incorrect.\nThe ID value must contain only numbers.", False
+
+
+def is_digit_and_alpha(text: str) -> bool:
+    regex = "^[0-9a-zA-Zа-яА-ЯёЁ]+$"
+    pattern = re.compile(regex)
+    return pattern.search(text) is not None

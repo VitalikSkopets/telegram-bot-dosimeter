@@ -35,6 +35,7 @@ from telegram_bot_dosimeter.utils import (
     get_uid,
     get_user_message,
     greeting,
+    is_digit_and_alpha,
 )
 
 __all__ = ("Callback",)
@@ -161,7 +162,9 @@ class Callback:
             case Buttons.MOGILEV.label:
                 points = Mogilev_region.monitoring_points
                 action = Action.MOGILEV
-            case str() as user_id if user_id.isdigit():
+            case str() as user_id if not user_id.isalpha() & (
+                user_id.isdigit() | is_digit_and_alpha(user_id)
+            ):
                 return self._add_admin_by_user_id_callback(update, context)
             case _:
                 return self._greeting_callback(update, context)
@@ -402,9 +405,13 @@ class Callback:
         """
         user = update.effective_user
         match update.effective_message.text:
-            case str() as message if message.isdigit():
-                forward_text = add_admin_id(message)
-                log_msg = f"Added new admin - '{message}' to the temp list of admins"
+            case str() as message if message.isdigit() | is_digit_and_alpha(message):
+                forward_text, success = add_admin_id(message)
+                log_msg = (
+                    f"Added new admin - '{message}' to the temp list of admins"
+                    if success
+                    else "The User ID value was not added to the list of admins"
+                )
                 keyboard = main_keyboard()
             case _:
                 forward_text = Message.ADD_USER_ID
