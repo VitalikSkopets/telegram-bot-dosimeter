@@ -92,11 +92,35 @@ class Callback:
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
+    @restricted
+    def admin_callback(self, update: Update, context: CallbackContext) -> None:
+        """Admin command handler method."""
+        user = update.effective_user
+        context.bot.send_message(
+            chat_id=update.effective_message.chat_id,
+            text=Message.ADMIN,
+            reply_markup=admin_keyboard(),
+        )
+        logger.debug(self.LOG_MSG % Action.ADMIN.value, user_id=get_uid(user.id))
+
+    @debug_handler(log_handler=logger)
+    @send_action(ChatAction.TYPING)
+    def keyboard_callback(self, update: Update, context: CallbackContext) -> None:
+        """Inline keyboard buttons handler"""
+        query = update.callback_query
+        match query.data:
+            case Buttons.TOTAL_COUNT_USERS.callback_data:
+                return self._get_count_users_callback(update, context)
+            case Buttons.LIST_ADMIN_IDS.callback_data:
+                return self._get_list_admin_ids_callback(update, context)
+
+    @debug_handler(log_handler=logger)
+    @send_action(ChatAction.TYPING)
     def message_callback(self, update: Update, context: CallbackContext) -> None:
         """Handler method for an incoming text messages from the user."""
         match update.message.text:
             case Buttons.MONITORING.label:
-                return self.radiation_monitoring_callback(update, context)
+                return self._radiation_monitoring_callback(update, context)
             case Buttons.POINTS.label:
                 button_list = (
                     Buttons.BREST,
@@ -104,7 +128,7 @@ class Callback:
                     Buttons.MAIN_MENU,
                     Buttons.NEXT,
                 )
-                return self.monitoring_points_callback(update, context, button_list)
+                return self._monitoring_points_callback(update, context, button_list)
             case Buttons.NEXT.label:
                 button_list = (
                     Buttons.GOMEL,
@@ -114,7 +138,7 @@ class Callback:
                 )
                 keyboard = points_keyboard(button_list)
                 action = Action.NEXT
-                return self.pagination_callback(update, context, keyboard, action)
+                return self._pagination_callback(update, context, keyboard, action)
             case Buttons.NEXT_ARROW.label:
                 button_list = (
                     Buttons.MINSK,
@@ -124,7 +148,7 @@ class Callback:
                 )
                 keyboard = points_keyboard(button_list)
                 action = Action.NEXT
-                return self.pagination_callback(update, context, keyboard, action)
+                return self._pagination_callback(update, context, keyboard, action)
             case Buttons.PREV.label:
                 button_list = (
                     Buttons.GOMEL,
@@ -134,7 +158,7 @@ class Callback:
                 )
                 keyboard = points_keyboard(button_list)
                 action = Action.PREV
-                return self.pagination_callback(update, context, keyboard, action)
+                return self._pagination_callback(update, context, keyboard, action)
             case Buttons.PREV_ARROW.label:
                 button_list = (
                     Buttons.BREST,
@@ -144,11 +168,11 @@ class Callback:
                 )
                 keyboard = points_keyboard(button_list)
                 action = Action.PREV
-                return self.pagination_callback(update, context, keyboard, action)
+                return self._pagination_callback(update, context, keyboard, action)
             case Buttons.MAIN_MENU.label:
-                return self.main_menu_callback(update, context)
+                return self._main_menu_callback(update, context)
             case Buttons.HIDE_KEYBOARD.label:
-                return self.hide_keyboard_callback(update, context)
+                return self._hide_keyboard_callback(update, context)
             case Buttons.BREST.label:
                 points = Brest_region.monitoring_points
                 action = Action.BREST
@@ -168,133 +192,9 @@ class Callback:
                 points = Mogilev_region.monitoring_points
                 action = Action.MOGILEV
             case _:
-                return self.greeting_callback(update, context)
+                return self._greeting_callback(update, context)
 
-        return self.points_callback(update, context, points, action)
-
-    def pagination_callback(
-        self,
-        update: Update,
-        context: CallbackContext,
-        keyboard: ReplyKeyboardMarkup,
-        action: Action,
-    ) -> None:
-        """
-        Handler method for pressing the "Next" or "Prev" keyboard button by the user.
-        """
-        user = update.effective_user
-        context.bot.send_message(
-            chat_id=update.effective_message.chat_id,
-            text=Message.REGION,
-            reply_markup=keyboard,
-        )
-        logger.info(self.LOG_MSG % action.value, user_id=get_uid(user.id))
-
-    def greeting_callback(self, update: Update, context: CallbackContext) -> None:
-        """Handler method for an incoming text message from the user."""
-        user = update.effective_user
-        message = update.message.text
-        greet_msg = Message.GREET
-        if message and message.lower() in greeting:
-            context.bot.send_message(
-                chat_id=update.effective_message.chat_id,
-                text="Привет, <b>{}</b>!{}".format(user.first_name, greet_msg),
-                reply_markup=main_keyboard(),
-            )
-            self.repo.add_messages(user)
-            send_analytics(
-                user_id=user.id,
-                user_lang_code=user.language_code,
-                action_name=Action.GREETING,
-            )
-            logger.info("User sent a welcome text message", user_id=get_uid(user.id))
-        else:
-            context.bot.send_message(
-                chat_id=update.effective_message.chat_id,
-                text=Message.UNKNOWN,
-            )
-            send_analytics(
-                user_id=user.id,
-                user_lang_code=user.language_code,
-                action_name=Action.MESSAGE,
-            )
-            logger.info("User sent unknown text message", user_id=get_uid(user.id))
-
-    def radiation_monitoring_callback(
-        self, update: Update, context: CallbackContext
-    ) -> None:
-        """Handler method for pressing the "Radiation monitoring" button by the user."""
-        user = update.effective_user
-        response = get_info_about_radiation_monitoring()
-        mean = get_avg_radiation_level()
-        context.bot.send_message(
-            chat_id=update.effective_message.chat_id,
-            text=Message.RADIATION.format(config.TODAY, response, mean),
-        )
-        self.repo.add_radiation_monitoring(user)
-        send_analytics(
-            user_id=user.id,
-            user_lang_code=user.language_code,
-            action_name=Action.MONITORING,
-        )
-        logger.info(self.LOG_MSG % Action.MONITORING.value, user_id=get_uid(user.id))
-
-    def monitoring_points_callback(
-        self, update: Update, context: CallbackContext, button_list: tuple[Buttons, ...]
-    ) -> None:
-        """Handler method for pressing the "Monitoring points" button by the user."""
-        user = update.effective_user
-        context.bot.send_message(
-            chat_id=update.effective_message.chat_id,
-            text=Message.REGION,
-            reply_markup=points_keyboard(button_list),
-        )
-        self.repo.add_monitoring_points(user)
-        send_analytics(
-            user_id=user.id,
-            user_lang_code=user.language_code,
-            action_name=Action.POINTS,
-        )
-        logger.info(self.LOG_MSG % Action.POINTS.value, user_id=get_uid(user.id))
-
-    def points_callback(
-        self,
-        update: Update,
-        context: CallbackContext,
-        points: tuple[MonitoringPoint, ...],
-        action: Action,
-    ) -> None:
-        """Handler method for pressing the "* region" button by the user."""
-        user = update.effective_user
-        table, values_by_region = get_info_about_region(region=points)
-
-        context.bot.send_message(
-            chat_id=update.effective_message.chat_id,
-            text=get_user_message(table, values_by_region),
-        )
-
-        self.repo.add_region(user, action)
-        send_analytics(
-            user_id=user.id,
-            user_lang_code=user.language_code,
-            action_name=action,
-        )
-        logger.info(self.LOG_MSG % action.value, user_id=get_uid(user.id))
-
-    def main_menu_callback(self, update: Update, context: CallbackContext) -> None:
-        """Handler method for pressing the "Main menu" button by the user."""
-        user = update.effective_user
-        context.bot.send_message(
-            chat_id=update.effective_message.chat_id,
-            text=f"<b>{user.first_name}</b>, чтобы узнать {Message.DESCRIPTION}",
-            reply_markup=main_keyboard(),
-        )
-        send_analytics(
-            user_id=user.id,
-            user_lang_code=user.language_code,
-            action_name=Action.MAIN_MENU,
-        )
-        logger.info(self.LOG_MSG % Action.MAIN_MENU.value, user_id=get_uid(user.id))
+        return self._points_callback(update, context, points, action)
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.FIND_LOCATION)
@@ -331,22 +231,131 @@ class Callback:
                 )
                 break
 
-    @debug_handler(log_handler=logger)
-    @send_action(ChatAction.TYPING)
-    @restricted
-    def admin_callback(self, update: Update, context: CallbackContext) -> None:
-        """Admin command handler method."""
+    def _pagination_callback(
+        self,
+        update: Update,
+        context: CallbackContext,
+        keyboard: ReplyKeyboardMarkup,
+        action: Action,
+    ) -> None:
+        """
+        Handler method for pressing the "Next" or "Prev" keyboard button by the user.
+        """
         user = update.effective_user
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text=Message.ADMIN,
-            reply_markup=admin_keyboard(),
+            text=Message.REGION,
+            reply_markup=keyboard,
         )
-        logger.debug(self.LOG_MSG % Action.ADMIN.value, user_id=get_uid(user.id))
+        logger.info(self.LOG_MSG % action.value, user_id=get_uid(user.id))
 
-    @debug_handler(log_handler=logger)
-    @send_action(ChatAction.TYPING)
-    def get_count_users_callback(
+    def _greeting_callback(self, update: Update, context: CallbackContext) -> None:
+        """Handler method for an incoming text message from the user."""
+        user = update.effective_user
+        message = update.message.text
+        greet_msg = Message.GREET
+        if message and message.lower() in greeting:
+            context.bot.send_message(
+                chat_id=update.effective_message.chat_id,
+                text="Привет, <b>{}</b>!{}".format(user.first_name, greet_msg),
+                reply_markup=main_keyboard(),
+            )
+            self.repo.add_messages(user)
+            send_analytics(
+                user_id=user.id,
+                user_lang_code=user.language_code,
+                action_name=Action.GREETING,
+            )
+            logger.info("User sent a welcome text message", user_id=get_uid(user.id))
+        else:
+            context.bot.send_message(
+                chat_id=update.effective_message.chat_id,
+                text=Message.UNKNOWN,
+            )
+            send_analytics(
+                user_id=user.id,
+                user_lang_code=user.language_code,
+                action_name=Action.MESSAGE,
+            )
+            logger.info("User sent unknown text message", user_id=get_uid(user.id))
+
+    def _radiation_monitoring_callback(
+        self, update: Update, context: CallbackContext
+    ) -> None:
+        """Handler method for pressing the "Radiation monitoring" button by the user."""
+        user = update.effective_user
+        response = get_info_about_radiation_monitoring()
+        mean = get_avg_radiation_level()
+        context.bot.send_message(
+            chat_id=update.effective_message.chat_id,
+            text=Message.RADIATION.format(config.TODAY, response, mean),
+        )
+        self.repo.add_radiation_monitoring(user)
+        send_analytics(
+            user_id=user.id,
+            user_lang_code=user.language_code,
+            action_name=Action.MONITORING,
+        )
+        logger.info(self.LOG_MSG % Action.MONITORING.value, user_id=get_uid(user.id))
+
+    def _monitoring_points_callback(
+        self, update: Update, context: CallbackContext, button_list: tuple[Buttons, ...]
+    ) -> None:
+        """Handler method for pressing the "Monitoring points" button by the user."""
+        user = update.effective_user
+        context.bot.send_message(
+            chat_id=update.effective_message.chat_id,
+            text=Message.REGION,
+            reply_markup=points_keyboard(button_list),
+        )
+        self.repo.add_monitoring_points(user)
+        send_analytics(
+            user_id=user.id,
+            user_lang_code=user.language_code,
+            action_name=Action.POINTS,
+        )
+        logger.info(self.LOG_MSG % Action.POINTS.value, user_id=get_uid(user.id))
+
+    def _points_callback(
+        self,
+        update: Update,
+        context: CallbackContext,
+        points: tuple[MonitoringPoint, ...],
+        action: Action,
+    ) -> None:
+        """Handler method for pressing the "* region" button by the user."""
+        user = update.effective_user
+        table, values_by_region = get_info_about_region(region=points)
+
+        context.bot.send_message(
+            chat_id=update.effective_message.chat_id,
+            text=get_user_message(table, values_by_region),
+        )
+
+        self.repo.add_region(user, action)
+        send_analytics(
+            user_id=user.id,
+            user_lang_code=user.language_code,
+            action_name=action,
+        )
+        logger.info(self.LOG_MSG % action.value, user_id=get_uid(user.id))
+
+    def _main_menu_callback(self, update: Update, context: CallbackContext) -> None:
+        """Handler method for pressing the "Main menu" button by the user."""
+        user = update.effective_user
+        context.bot.send_message(
+            chat_id=update.effective_message.chat_id,
+            text=f"<b>{user.first_name}</b>, чтобы узнать {Message.DESCRIPTION}",
+            reply_markup=main_keyboard(),
+        )
+        send_analytics(
+            user_id=user.id,
+            user_lang_code=user.language_code,
+            action_name=Action.MAIN_MENU,
+        )
+        logger.info(self.LOG_MSG % Action.MAIN_MENU.value, user_id=get_uid(user.id))
+
+    def _get_count_users_callback(
         self, update: Update, context: CallbackContext
     ) -> None:
         """Get total count users admin command handler method."""
@@ -357,9 +366,7 @@ class Callback:
         )
         logger.debug(self.LOG_MSG % Action.GET_COUNT.value, user_id=get_uid(user.id))
 
-    @debug_handler(log_handler=logger)
-    @send_action(ChatAction.TYPING)
-    def get_list_admin_ids_callback(
+    def _get_list_admin_ids_callback(
         self, update: Update, context: CallbackContext
     ) -> None:
         """Get a list of admin IDs admin command handler method."""
@@ -370,17 +377,7 @@ class Callback:
         )
         logger.debug(self.LOG_MSG % Action.GET_LIST.value, user_id=get_uid(user.id))
 
-    @debug_handler(log_handler=logger)
-    def keyboard_callback(self, update: Update, context: CallbackContext) -> None:
-        """Inline keyboard buttons handler"""
-        query = update.callback_query
-        match query.data:
-            case Buttons.TOTAL_COUNT_USERS.callback_data:
-                return self.get_count_users_callback(update, context)
-            case Buttons.LIST_ADMIN_IDS.callback_data:
-                return self.get_list_admin_ids_callback(update, context)
-
-    def hide_keyboard_callback(self, update: Update, context: CallbackContext) -> None:
+    def _hide_keyboard_callback(self, update: Update, context: CallbackContext) -> None:
         """Hide main keyboard handler method."""
         user = update.effective_user
         context.bot.send_message(
