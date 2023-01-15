@@ -443,12 +443,16 @@ class Buttons(enum.Enum):
         "label": "Get total count users",
         "callback_data": str(uuid.uuid4()),
     }
-    LIST_ADMIN_IDS = {
+    LIST_ADMIN = {
         "label": "Get list admin IDs",
         "callback_data": str(uuid.uuid4()),
     }
-    ADD_ADMIN_ID = {
+    ADD_ADMIN = {
         "label": "Add new admin by user ID",
+        "callback_data": str(uuid.uuid4()),
+    }
+    DEL_ADMIN = {
+        "label": "Delete admin by user ID",
         "callback_data": str(uuid.uuid4()),
     }
 
@@ -498,5 +502,3 @@ class Description(str, enum.Enum):
     START = "Launch this bot / Запустить этого бота"
     HELP = "Useful information about this bot / Полезная информация об этом боте"
     ADMIN = "List of admin commands (limited access)"
-    TOTAL_COUNT_USERS = "Get total number of users (limited access)"
-    LIST_ADMIN_IDS = "Get a list of admin IDs (limited access)"

@@ -43,8 +43,9 @@ def admin_keyboard() -> InlineKeyboardMarkup:
     """The admin inline menu buttons"""
     inline_button_list = (
         Buttons.TOTAL_COUNT_USERS,
-        Buttons.LIST_ADMIN_IDS,
-        Buttons.ADD_ADMIN_ID,
+        Buttons.LIST_ADMIN,
+        Buttons.ADD_ADMIN,
+        Buttons.DEL_ADMIN,
     )
     keyboard = [
         [InlineKeyboardButton(button.label, callback_data=button.callback_data)]

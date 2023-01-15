@@ -15,6 +15,7 @@ from telegram_bot_dosimeter.messages import Message
 
 __all__ = (
     "add_admin_id",
+    "delete_admin_id",
     "get_html",
     "get_points_with_radiation_level",
     "get_avg_radiation_level",
@@ -213,6 +214,13 @@ def get_id_from_text(text: str) -> int | str:  # type: ignore[return]
 
 def add_admin_id(uid: int) -> tuple[str, bool]:
     if uid in TEMP_LIST_OF_ADMIN_IDS:
-        return "The user ID has already been added to the temporary admin list.", False
+        return "The user ID has already been added to the list of admins.", False
     TEMP_LIST_OF_ADMIN_IDS.append(uid)
     return f"User ID <u>{uid}</u> added to the list of admins.", True
+
+
+def delete_admin_id(uid: int) -> tuple[str, bool]:
+    if uid not in TEMP_LIST_OF_ADMIN_IDS:
+        return "This user ID is not in the list of administrators.", False
+    TEMP_LIST_OF_ADMIN_IDS.remove(uid)
+    return f"User ID <u>{uid}</u> deleted to the list of admins.", True

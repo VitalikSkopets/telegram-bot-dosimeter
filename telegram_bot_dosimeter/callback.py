@@ -27,6 +27,7 @@ from telegram_bot_dosimeter.messages import Message
 from telegram_bot_dosimeter.storage.mongodb import MongoDataBase
 from telegram_bot_dosimeter.utils import (
     add_admin_id,
+    delete_admin_id,
     get_admin_ids,
     get_avg_radiation_level,
     get_id_from_text,
@@ -113,9 +114,9 @@ class Callback:
         match query.data:
             case Buttons.TOTAL_COUNT_USERS.callback_data:
                 return self._get_count_users_callback(update, context)
-            case Buttons.LIST_ADMIN_IDS.callback_data:
+            case Buttons.LIST_ADMIN.callback_data:
                 return self._get_list_admin_ids_callback(update, context)
-            case Buttons.ADD_ADMIN_ID.callback_data:
+            case Buttons.ADD_ADMIN.callback_data | Buttons.DEL_ADMIN.callback_data:
                 return self._enter_admin_by_user_id_callback(update, context)
 
     @debug_handler(log_handler=logger)
@@ -164,6 +165,8 @@ class Callback:
                 action = Action.MOGILEV
             case str() as user_id if user_id.startswith("add "):
                 return self._add_admin_by_user_id_callback(update, context)
+            case str() as user_id if user_id.startswith("del "):
+                return self._delete_admin_by_user_id_callback(update, context)
             case _:
                 return self._greeting_callback(update, context)
 
@@ -401,9 +404,16 @@ class Callback:
         The method of processing the administrator
         command for entering administrator IDs.
         """
+        message = None
+        query = update.callback_query
+        match query.data:
+            case Buttons.ADD_ADMIN.callback_data:
+                message = Message.ADD_USER_ID
+            case Buttons.DEL_ADMIN.callback_data:
+                message = Message.DEL_USER_ID
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text=Message.ADD_USER_ID,
+            text=message,
             reply_markup=ReplyKeyboardRemove(),
         )
 
@@ -422,6 +432,36 @@ class Callback:
                 forward_text, success = add_admin_id(uid)
                 log_msg = (
                     f"Added new user with ID - '{uid}' to the temp list of admins"
+                    if success
+                    else forward_text
+                )
+                keyboard = main_keyboard()
+            case str() as message if isinstance(msg := get_id_from_text(message), str):
+                forward_text, log_msg = (msg,) * 2
+                keyboard = main_keyboard()
+
+        context.bot.send_message(
+            chat_id=update.effective_message.chat_id,
+            text=forward_text,
+            reply_markup=keyboard,
+        )
+        logger.debug(log_msg, user_id=get_uid(user.id))
+
+    @restricted
+    def _delete_admin_by_user_id_callback(
+        self, update: Update, context: CallbackContext
+    ) -> None:
+        """
+        An admin command handler method for deleting the admin
+        to the temporary list of admin IDs.
+        """
+        user = update.effective_user
+        forward_text, keyboard, log_msg = (None,) * 3
+        match update.message.text:
+            case str() as message if isinstance(uid := get_id_from_text(message), int):
+                forward_text, success = delete_admin_id(uid)
+                log_msg = (
+                    f"Deleted user with ID - '{uid}' to the temp list of admins"
                     if success
                     else forward_text
                 )
