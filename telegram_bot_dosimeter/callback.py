@@ -29,13 +29,13 @@ from telegram_bot_dosimeter.utils import (
     add_admin_id,
     get_admin_ids,
     get_avg_radiation_level,
+    get_id_from_text,
     get_info_about_radiation_monitoring,
     get_info_about_region,
     get_points_with_radiation_level,
     get_uid,
     get_user_message,
     greeting,
-    is_digit_and_alpha,
 )
 
 __all__ = ("Callback",)
@@ -116,7 +116,7 @@ class Callback:
             case Buttons.LIST_ADMIN_IDS.callback_data:
                 return self._get_list_admin_ids_callback(update, context)
             case Buttons.ADD_ADMIN_ID.callback_data:
-                return self._add_admin_by_user_id_callback(update, context)
+                return self._enter_admin_by_user_id_callback(update, context)
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -162,9 +162,7 @@ class Callback:
             case Buttons.MOGILEV.label:
                 points = Mogilev_region.monitoring_points
                 action = Action.MOGILEV
-            case str() as user_id if not user_id.isalpha() & (
-                user_id.isdigit() | is_digit_and_alpha(user_id)
-            ):
+            case str() as user_id if user_id.startswith("add "):
                 return self._add_admin_by_user_id_callback(update, context)
             case _:
                 return self._greeting_callback(update, context)
@@ -395,6 +393,20 @@ class Callback:
         )
         logger.debug(self.LOG_MSG % Action.GET_LIST.value, user_id=get_uid(user.id))
 
+    @staticmethod
+    def _enter_admin_by_user_id_callback(
+        update: Update, context: CallbackContext
+    ) -> None:
+        """
+        The method of processing the administrator
+        command for entering administrator IDs.
+        """
+        context.bot.send_message(
+            chat_id=update.effective_message.chat_id,
+            text=Message.ADD_USER_ID,
+            reply_markup=ReplyKeyboardRemove(),
+        )
+
     @restricted
     def _add_admin_by_user_id_callback(
         self, update: Update, context: CallbackContext
@@ -404,19 +416,19 @@ class Callback:
         to the temporary list of admin IDs.
         """
         user = update.effective_user
-        match update.effective_message.text:
-            case str() as message if message.isdigit() | is_digit_and_alpha(message):
-                forward_text, success = add_admin_id(message)
+        forward_text, keyboard, log_msg = (None,) * 3
+        match update.message.text:
+            case str() as message if isinstance(uid := get_id_from_text(message), int):
+                forward_text, success = add_admin_id(uid)
                 log_msg = (
-                    f"Added new admin - '{message}' to the temp list of admins"
+                    f"Added new user with ID - '{uid}' to the temp list of admins"
                     if success
-                    else "The User ID value was not added to the list of admins"
+                    else forward_text
                 )
                 keyboard = main_keyboard()
-            case _:
-                forward_text = Message.ADD_USER_ID
-                log_msg = self.LOG_MSG % Action.ADD_ADMIN.value
-                keyboard = ReplyKeyboardRemove()
+            case str() as message if isinstance(msg := get_id_from_text(message), str):
+                forward_text, log_msg = (msg,) * 2
+                keyboard = main_keyboard()
 
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
