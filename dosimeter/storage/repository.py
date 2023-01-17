@@ -4,7 +4,7 @@ from telegram import User
 
 from dosimeter.constants import Action
 
-__all__ = ("DocumentRepository",)
+__all__ = ("AdminManager", "DocumentRepository")
 
 
 class DocumentRepository(abc.ABC):
@@ -61,5 +61,35 @@ class DocumentRepository(abc.ABC):
         """
         Method that adds to the repository information about the user's use of the
         Send location command.
+        """
+        pass
+
+
+class AdminManager(abc.ABC):
+    @abc.abstractmethod
+    def get_one(self, uid: str | int | None = None) -> str | int | None:
+        """
+        The method returns a digital ID or the string "ADMIN" from the admins repo.
+        """
+        pass
+
+    @abc.abstractmethod
+    def get_all(self) -> str:
+        """
+        The method returns a numbered list of admin IDs from the admin repository.
+        """
+        pass
+
+    @abc.abstractmethod
+    def add(self, uid: int) -> tuple[str, bool]:
+        """
+        A method for adding a digital ID to the list of admin IDs in the admins repo.
+        """
+        pass
+
+    @abc.abstractmethod
+    def delete(self, uid: int) -> tuple[str, bool]:
+        """
+        A method for deleting a digital ID in the list of admin IDs in the admins repo.
         """
         pass
