@@ -2,10 +2,10 @@
 from telegram import ChatAction, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import CallbackContext
 
-from telegram_bot_dosimeter import config
-from telegram_bot_dosimeter.analytics.measurement_protocol import send_analytics
-from telegram_bot_dosimeter.config import CustomAdapter, get_logger
-from telegram_bot_dosimeter.constants import (
+from dosimeter import config
+from dosimeter.analytics.measurement_protocol import send_analytics
+from dosimeter.config import CustomAdapter, get_logger
+from dosimeter.constants import (
     Action,
     Brest_region,
     Buttons,
@@ -16,16 +16,12 @@ from telegram_bot_dosimeter.constants import (
     MonitoringPoint,
     Vitebsk_region,
 )
-from telegram_bot_dosimeter.decorators import debug_handler, restricted, send_action
-from telegram_bot_dosimeter.geolocation import get_nearest_point_location
-from telegram_bot_dosimeter.keyboards import (
-    admin_keyboard,
-    main_keyboard,
-    points_keyboard,
-)
-from telegram_bot_dosimeter.messages import Message
-from telegram_bot_dosimeter.storage.mongodb import MongoDataBase, mongo_atlas__repo
-from telegram_bot_dosimeter.utils import (
+from dosimeter.decorators import debug_handler, restricted, send_action
+from dosimeter.geolocation import get_nearest_point_location
+from dosimeter.keyboards import admin_keyboard, main_keyboard, points_keyboard
+from dosimeter.messages import Message
+from dosimeter.storage.mongodb import MongoDataBase, mongo_atlas__repo
+from dosimeter.utils import (
     add_admin_id,
     delete_admin_id,
     get_admin_ids,

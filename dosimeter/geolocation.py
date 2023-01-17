@@ -1,6 +1,6 @@
 from geopy import distance
 
-from telegram_bot_dosimeter.constants import MONITORING_POINTS
+from dosimeter.constants import MONITORING_POINTS
 
 __all__ = ("get_nearest_point_location",)
 

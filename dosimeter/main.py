@@ -13,15 +13,9 @@ from telegram.ext import (
 )
 from telegram.utils.request import Request
 
-from telegram_bot_dosimeter.callback import handler  # type: ignore[attr-defined]
-from telegram_bot_dosimeter.config import (
-    HEROKU_APP_NAME,
-    PORT,
-    TOKEN,
-    WEBHOOK_MODE,
-    get_logger,
-)
-from telegram_bot_dosimeter.constants import Command
+from dosimeter.callback import handler  # type: ignore[attr-defined]
+from dosimeter.config import HEROKU_APP_NAME, PORT, TOKEN, WEBHOOK_MODE, get_logger
+from dosimeter.constants import Command
 
 logger = get_logger(__name__)
 

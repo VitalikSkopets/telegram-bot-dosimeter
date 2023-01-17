@@ -3,12 +3,12 @@ from typing import Any
 from pymongo import MongoClient
 from telegram import User
 
-from telegram_bot_dosimeter import config
-from telegram_bot_dosimeter.config import CustomAdapter, get_logger
-from telegram_bot_dosimeter.constants import Action
-from telegram_bot_dosimeter.crypto import DataEncrypt
-from telegram_bot_dosimeter.storage.repository import DocumentRepository
-from telegram_bot_dosimeter.utils import get_uid
+from dosimeter import config
+from dosimeter.config import CustomAdapter, get_logger
+from dosimeter.constants import Action
+from dosimeter.crypto import DataEncrypt
+from dosimeter.storage.repository import DocumentRepository
+from dosimeter.utils import get_uid
 
 __all__ = ("MongoDataBase", "mongo_atlas__repo")
 

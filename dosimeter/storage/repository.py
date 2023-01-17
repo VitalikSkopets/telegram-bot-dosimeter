@@ -2,7 +2,7 @@ import abc
 
 from telegram import User
 
-from telegram_bot_dosimeter.constants import Action
+from dosimeter.constants import Action
 
 __all__ = ("DocumentRepository",)
 

@@ -3,11 +3,11 @@ from typing import Any, Callable, Optional
 
 import sentry_sdk
 
-from telegram_bot_dosimeter.analytics.measurement_protocol import send_analytics
-from telegram_bot_dosimeter.config import CustomAdapter, get_logger
-from telegram_bot_dosimeter.constants import ADMIN_ID, LIST_OF_ADMIN_IDS, Action, Emoji
-from telegram_bot_dosimeter.messages import Message
-from telegram_bot_dosimeter.utils import get_uid
+from dosimeter.analytics.measurement_protocol import send_analytics
+from dosimeter.config import CustomAdapter, get_logger
+from dosimeter.constants import ADMIN_ID, LIST_OF_ADMIN_IDS, Action, Emoji
+from dosimeter.messages import Message
+from dosimeter.utils import get_uid
 
 __all__ = (
     "analytics",

@@ -2,7 +2,7 @@ default:
   image: python:3.10
 
 variables:
-  APP: "telegram_bot_dosimeter"
+  APP: "dosimeter"
 
 before_script:
   - pip install --upgrade pip

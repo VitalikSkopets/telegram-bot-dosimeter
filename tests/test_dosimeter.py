@@ -1,4 +1,4 @@
-from telegram_bot_dosimeter import __version__
+from dosimeter import __version__
 
 
 def test_version():

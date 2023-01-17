@@ -1,8 +1,8 @@
 import requests
 
-from telegram_bot_dosimeter import config
-from telegram_bot_dosimeter.config import get_logger
-from telegram_bot_dosimeter.constants import Action
+from dosimeter import config
+from dosimeter.config import get_logger
+from dosimeter.constants import Action
 
 __all__ = ("send_analytics",)
 

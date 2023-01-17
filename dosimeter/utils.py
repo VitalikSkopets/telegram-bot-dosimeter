@@ -3,16 +3,16 @@ import urllib3
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 
-from telegram_bot_dosimeter import config
-from telegram_bot_dosimeter.cache import timed_lru_cache
-from telegram_bot_dosimeter.config import get_logger
-from telegram_bot_dosimeter.constants import (
+from dosimeter import config
+from dosimeter.cache import timed_lru_cache
+from dosimeter.config import get_logger
+from dosimeter.constants import (
     ADMIN_ID,
     LIST_OF_ADMIN_IDS,
     TEMP_LIST_OF_ADMIN_IDS,
     MonitoringPoint,
 )
-from telegram_bot_dosimeter.messages import Message
+from dosimeter.messages import Message
 
 __all__ = (
     "add_admin_id",

@@ -1,6 +1,6 @@
 from enum import Enum
 
-from telegram_bot_dosimeter.constants import Buttons, Emoji
+from dosimeter.constants import Buttons, Emoji
 
 __all__ = ("Message",)
 

@@ -5,7 +5,7 @@ from telegram import (
     ReplyKeyboardMarkup,
 )
 
-from telegram_bot_dosimeter.constants import Buttons
+from dosimeter.constants import Buttons
 
 __all__ = (
     "admin_keyboard",

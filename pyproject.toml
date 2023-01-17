@@ -45,7 +45,7 @@ pytest-xdist = "^2.5.0"
 
 [tool.poetry.scripts]
 poetry = 'poetry.console:run'
-main-run = 'telegram_bot_dosimeter.main:main'
+main-run = 'dosimeter.main:main'
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

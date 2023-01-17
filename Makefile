@@ -2,7 +2,7 @@
 
 POETRY ?= $(HOME)/.local/bin/poetry
 DOTENV_BASE_FILE ?= .env
-APP = telegram_bot_dosimeter
+APP = dosimeter
 
 -include $(DOTENV_BASE_FILE)
 
