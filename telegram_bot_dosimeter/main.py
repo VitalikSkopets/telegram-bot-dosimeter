@@ -13,7 +13,7 @@ from telegram.ext import (
 )
 from telegram.utils.request import Request
 
-from telegram_bot_dosimeter.callback import Callback  # type: ignore
+from telegram_bot_dosimeter.callback import handler  # type: ignore[attr-defined]
 from telegram_bot_dosimeter.config import (
     HEROKU_APP_NAME,
     PORT,
@@ -41,41 +41,38 @@ def main() -> None:
     """Get the dispatcher to register handlers"""
     dispatcher: Final = updater.dispatcher
 
-    """Callback class instance"""
-    handler = Callback()
-
     # Start command handler
     start_handler = CommandHandler(
         Command.START,
-        handler.start_callback,  # type: ignore
+        handler.start_callback,
     )
     dispatcher.add_handler(start_handler)
 
     # Help command handler
     help_handler = CommandHandler(
         Command.HELP,
-        handler.help_callback,  # type: ignore
+        handler.help_callback,
     )
     dispatcher.add_handler(help_handler)
 
     # Admin command handler
     admin_handler = CommandHandler(
         Command.ADMIN,
-        handler.admin_callback,  # type: ignore
+        handler.admin_callback,
     )
     dispatcher.add_handler(admin_handler)
 
     # Send my location command handler
     send_geolocation_handler = MessageHandler(
         Filters.location,
-        handler.send_location_callback,  # type: ignore
+        handler.send_location_callback,
     )
     dispatcher.add_handler(send_geolocation_handler)
 
     # Messages command handler
     message_handler = MessageHandler(
         Filters.text & (~Filters.command),
-        handler.message_callback,  # type: ignore
+        handler.message_callback,
     )
     dispatcher.add_handler(message_handler)
 

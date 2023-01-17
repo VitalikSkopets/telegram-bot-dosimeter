@@ -10,7 +10,7 @@ from telegram_bot_dosimeter.crypto import DataEncrypt
 from telegram_bot_dosimeter.storage.repository import DocumentRepository
 from telegram_bot_dosimeter.utils import get_uid
 
-__all__ = ("MongoDataBase",)
+__all__ = ("MongoDataBase", "mongo_atlas__repo")
 
 logger = CustomAdapter(get_logger(__name__), {"user_id": get_uid()})
 
@@ -235,6 +235,10 @@ class MongoDataBase(DocumentRepository):
             for num, user_data in enumerate(self.mdb.users.find(), 1)
         ]
         return "\n\n".join(response)
+
+
+"""MongoDataBase class instance"""
+mongo_atlas__repo = MongoDataBase()
 
 
 if __name__ == "__main__":

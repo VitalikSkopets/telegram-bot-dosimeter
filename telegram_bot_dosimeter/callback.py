@@ -24,7 +24,7 @@ from telegram_bot_dosimeter.keyboards import (
     points_keyboard,
 )
 from telegram_bot_dosimeter.messages import Message
-from telegram_bot_dosimeter.storage.mongodb import MongoDataBase
+from telegram_bot_dosimeter.storage.mongodb import MongoDataBase, mongo_atlas__repo
 from telegram_bot_dosimeter.utils import (
     add_admin_id,
     delete_admin_id,
@@ -39,11 +39,9 @@ from telegram_bot_dosimeter.utils import (
     greeting,
 )
 
-__all__ = ("Callback",)
+__all__ = ("handler",)
 
 logger = CustomAdapter(get_logger(__name__), {"user_id": get_uid()})
-
-mongo_atlas__repo = MongoDataBase()
 
 
 class Callback:
@@ -488,3 +486,7 @@ class Callback:
         logger.debug(
             self.LOG_MSG % Action.HIDE_KEYBOARD.value, user_id=get_uid(user.id)
         )
+
+
+"""Callback class instance"""
+handler = Callback()
