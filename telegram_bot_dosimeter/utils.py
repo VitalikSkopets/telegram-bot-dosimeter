@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 
 from telegram_bot_dosimeter import config
+from telegram_bot_dosimeter.cache import timed_lru_cache
 from telegram_bot_dosimeter.config import get_logger
 from telegram_bot_dosimeter.constants import (
     ADMIN_ID,
@@ -78,6 +79,7 @@ greeting: tuple[str, ...] = (
 )
 
 
+@timed_lru_cache(3600)
 def get_html(url: str = config.URL_RADIATION) -> BeautifulSoup | None:
     """Function for scribing HTML markup of the web resource."""
     ua = UserAgent(

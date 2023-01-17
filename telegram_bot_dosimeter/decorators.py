@@ -9,7 +9,12 @@ from telegram_bot_dosimeter.constants import ADMIN_ID, LIST_OF_ADMIN_IDS, Action
 from telegram_bot_dosimeter.messages import Message
 from telegram_bot_dosimeter.utils import get_uid
 
-__all__ = ("restricted", "send_action", "debug_handler", "analytics")
+__all__ = (
+    "analytics",
+    "debug_handler",
+    "restricted",
+    "send_action",
+)
 
 logger = CustomAdapter(get_logger(__name__), {"user_id": get_uid()})
 
@@ -42,7 +47,7 @@ def send_action(action: Any) -> Callable:
             update = args[1]
             context = args[2]
             context.bot.send_chat_action(
-                chat_id=update.effective_message.chat_id,  # type: ignore
+                chat_id=update.effective_message.chat_id,
                 action=action,
             )
             return func(*args, **kwargs)
