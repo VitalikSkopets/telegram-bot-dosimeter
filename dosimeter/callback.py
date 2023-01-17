@@ -20,24 +20,22 @@ from dosimeter.decorators import debug_handler, restricted, send_action
 from dosimeter.geolocation import get_nearest_point_location
 from dosimeter.keyboards import admin_keyboard, main_keyboard, points_keyboard
 from dosimeter.messages import Message
+from dosimeter.storage.memory import InternalAdminManager
+from dosimeter.storage.memory import manager_admins as manager
 from dosimeter.storage.mongodb import MongoDataBase, mongo_atlas__repo
 from dosimeter.utils import (
-    add_admin_id,
-    delete_admin_id,
-    get_admin_ids,
     get_avg_radiation_level,
     get_id_from_text,
     get_info_about_radiation_monitoring,
     get_info_about_region,
     get_points_with_radiation_level,
-    get_uid,
     get_user_message,
     greeting,
 )
 
 __all__ = ("handler",)
 
-logger = CustomAdapter(get_logger(__name__), {"user_id": get_uid()})
+logger = CustomAdapter(get_logger(__name__), {"user_id": manager.get_one()})
 
 
 class Callback:
@@ -45,9 +43,14 @@ class Callback:
 
     LOG_MSG = "User selected '%s'"
 
-    def __init__(self, repo: MongoDataBase = mongo_atlas__repo) -> None:
+    def __init__(
+        self,
+        repo: MongoDataBase = mongo_atlas__repo,
+        control: InternalAdminManager = manager,
+    ) -> None:
         """Constructor method for initializing objects of class Handlers."""
         self.repo = repo
+        self.manager = control
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -67,7 +70,9 @@ class Callback:
             user_lang_code=user.language_code,
             action_name=Action.START,
         )
-        logger.info(self.LOG_MSG % Action.START.value, user_id=get_uid(user.id))
+        logger.info(
+            self.LOG_MSG % Action.START.value, user_id=self.manager.get_one(user.id)
+        )
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -85,7 +90,9 @@ class Callback:
             user_lang_code=user.language_code,
             action_name=Action.HELP,
         )
-        logger.info(self.LOG_MSG % Action.HELP.value, user_id=get_uid(user.id))
+        logger.info(
+            self.LOG_MSG % Action.HELP.value, user_id=self.manager.get_one(user.id)
+        )
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -98,7 +105,9 @@ class Callback:
             text=Message.ADMIN,
             reply_markup=admin_keyboard(),
         )
-        logger.debug(self.LOG_MSG % Action.ADMIN.value, user_id=get_uid(user.id))
+        logger.debug(
+            self.LOG_MSG % Action.ADMIN.value, user_id=self.manager.get_one(user.id)
+        )
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -197,7 +206,8 @@ class Callback:
                     action_name=Action.LOCATION,
                 )
                 logger.info(
-                    self.LOG_MSG % Action.LOCATION.value, user_id=get_uid(user.id)
+                    self.LOG_MSG % Action.LOCATION.value,
+                    user_id=self.manager.get_one(user.id),
                 )
                 break
 
@@ -260,7 +270,7 @@ class Callback:
             text=Message.REGION,
             reply_markup=keyboard,
         )
-        logger.info(self.LOG_MSG % action.value, user_id=get_uid(user.id))
+        logger.info(self.LOG_MSG % action.value, user_id=self.manager.get_one(user.id))
 
     def _greeting_callback(self, update: Update, context: CallbackContext) -> None:
         """Handler method for an incoming text message from the user."""
@@ -279,7 +289,10 @@ class Callback:
                 user_lang_code=user.language_code,
                 action_name=Action.GREETING,
             )
-            logger.info("User sent a welcome text message", user_id=get_uid(user.id))
+            logger.info(
+                "User sent a welcome text message",
+                user_id=self.manager.get_one(user.id),
+            )
         else:
             context.bot.send_message(
                 chat_id=update.effective_message.chat_id,
@@ -290,7 +303,9 @@ class Callback:
                 user_lang_code=user.language_code,
                 action_name=Action.MESSAGE,
             )
-            logger.info("User sent unknown text message", user_id=get_uid(user.id))
+            logger.info(
+                "User sent unknown text message", user_id=self.manager.get_one(user.id)
+            )
 
     def _radiation_monitoring_callback(
         self, update: Update, context: CallbackContext
@@ -309,7 +324,10 @@ class Callback:
             user_lang_code=user.language_code,
             action_name=Action.MONITORING,
         )
-        logger.info(self.LOG_MSG % Action.MONITORING.value, user_id=get_uid(user.id))
+        logger.info(
+            self.LOG_MSG % Action.MONITORING.value,
+            user_id=self.manager.get_one(user.id),
+        )
 
     def _monitoring_points_callback(
         self, update: Update, context: CallbackContext, button_list: tuple[Buttons, ...]
@@ -327,7 +345,9 @@ class Callback:
             user_lang_code=user.language_code,
             action_name=Action.POINTS,
         )
-        logger.info(self.LOG_MSG % Action.POINTS.value, user_id=get_uid(user.id))
+        logger.info(
+            self.LOG_MSG % Action.POINTS.value, user_id=self.manager.get_one(user.id)
+        )
 
     def _points_callback(
         self,
@@ -351,7 +371,7 @@ class Callback:
             user_lang_code=user.language_code,
             action_name=action,
         )
-        logger.info(self.LOG_MSG % action.value, user_id=get_uid(user.id))
+        logger.info(self.LOG_MSG % action.value, user_id=self.manager.get_one(user.id))
 
     def _main_menu_callback(self, update: Update, context: CallbackContext) -> None:
         """Handler method for pressing the "Main menu" button by the user."""
@@ -366,7 +386,9 @@ class Callback:
             user_lang_code=user.language_code,
             action_name=Action.MAIN_MENU,
         )
-        logger.info(self.LOG_MSG % Action.MAIN_MENU.value, user_id=get_uid(user.id))
+        logger.info(
+            self.LOG_MSG % Action.MAIN_MENU.value, user_id=self.manager.get_one(user.id)
+        )
 
     def _get_count_users_callback(
         self, update: Update, context: CallbackContext
@@ -377,7 +399,9 @@ class Callback:
             chat_id=update.effective_message.chat_id,
             text=self.repo.get_users_count(user),
         )
-        logger.debug(self.LOG_MSG % Action.GET_COUNT.value, user_id=get_uid(user.id))
+        logger.debug(
+            self.LOG_MSG % Action.GET_COUNT.value, user_id=self.manager.get_one(user.id)
+        )
 
     def _get_list_admin_ids_callback(
         self, update: Update, context: CallbackContext
@@ -386,9 +410,11 @@ class Callback:
         user = update.effective_user
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text=get_admin_ids(),
+            text=self.manager.get_all(),
         )
-        logger.debug(self.LOG_MSG % Action.GET_LIST.value, user_id=get_uid(user.id))
+        logger.debug(
+            self.LOG_MSG % Action.GET_LIST.value, user_id=self.manager.get_one(user.id)
+        )
 
     @staticmethod
     def _enter_admin_by_user_id_callback(
@@ -423,7 +449,7 @@ class Callback:
         forward_text, keyboard, log_msg = (None,) * 3
         match update.message.text:
             case str() as message if isinstance(uid := get_id_from_text(message), int):
-                forward_text, success = add_admin_id(uid)
+                forward_text, success = self.manager.add(uid)
                 log_msg = (
                     f"Added new user with ID - '{uid}' to the temp list of admins"
                     if success
@@ -439,7 +465,7 @@ class Callback:
             text=forward_text,
             reply_markup=keyboard,
         )
-        logger.debug(log_msg, user_id=get_uid(user.id))
+        logger.debug(log_msg, user_id=self.manager.get_one(user.id))
 
     @restricted
     def _delete_admin_by_user_id_callback(
@@ -453,7 +479,7 @@ class Callback:
         forward_text, keyboard, log_msg = (None,) * 3
         match update.message.text:
             case str() as message if isinstance(uid := get_id_from_text(message), int):
-                forward_text, success = delete_admin_id(uid)
+                forward_text, success = self.manager.delete(uid)
                 log_msg = (
                     f"Deleted user with ID - '{uid}' to the temp list of admins"
                     if success
@@ -469,7 +495,7 @@ class Callback:
             text=forward_text,
             reply_markup=keyboard,
         )
-        logger.debug(log_msg, user_id=get_uid(user.id))
+        logger.debug(log_msg, user_id=self.manager.get_one(user.id))
 
     def _hide_keyboard_callback(self, update: Update, context: CallbackContext) -> None:
         """Hide main keyboard handler method."""
@@ -480,7 +506,8 @@ class Callback:
             reply_markup=ReplyKeyboardRemove(),
         )
         logger.debug(
-            self.LOG_MSG % Action.HIDE_KEYBOARD.value, user_id=get_uid(user.id)
+            self.LOG_MSG % Action.HIDE_KEYBOARD.value,
+            user_id=self.manager.get_one(user.id),
         )
 
 

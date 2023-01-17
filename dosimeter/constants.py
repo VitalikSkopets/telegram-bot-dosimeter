@@ -23,7 +23,7 @@ __all__ = (
 )
 
 ADMIN_ID: int = 413818791 or 1120930631
-LIST_OF_ADMIN_IDS: list[int] = [ADMIN_ID, 487236325]
+LIST_OF_ADMIN_IDS: tuple[int, int] = (ADMIN_ID, 487236325)
 TEMP_LIST_OF_ADMIN_IDS: list[int] = []
 
 

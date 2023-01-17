@@ -7,7 +7,7 @@ from dosimeter.analytics.measurement_protocol import send_analytics
 from dosimeter.config import CustomAdapter, get_logger
 from dosimeter.constants import ADMIN_ID, LIST_OF_ADMIN_IDS, Action, Emoji
 from dosimeter.messages import Message
-from dosimeter.utils import get_uid
+from dosimeter.storage.memory import manager_admins as manager
 
 __all__ = (
     "analytics",
@@ -16,7 +16,7 @@ __all__ = (
     "send_action",
 )
 
-logger = CustomAdapter(get_logger(__name__), {"user_id": get_uid()})
+logger = CustomAdapter(get_logger(__name__), {"user_id": manager.get_one()})
 
 
 def restricted(func: Callable) -> Optional[Callable]:
@@ -31,7 +31,9 @@ def restricted(func: Callable) -> Optional[Callable]:
         user = update.effective_user
         if user.id not in LIST_OF_ADMIN_IDS:
             update.effective_message.reply_text("Hey! You are not allowed to use me!")
-            logger.warning("Denied unauthorized access", user_id=get_uid(user.id))
+            logger.warning(
+                "Denied unauthorized access", user_id=manager.get_one(user.id)
+            )
             return None
         return func(*args, **kwargs)
 
@@ -91,11 +93,11 @@ def debug_handler(log_handler: CustomAdapter = logger) -> Callable:
             try:
                 log_handler.debug(
                     "Callback handler '%s' called" % func.__name__,
-                    user_id=get_uid(user.id),
+                    user_id=manager.get_one(user.id),
                 )
                 return func(*args, **kwargs)
             except Exception as ex:
-                error_msg = f"{Emoji.SOS} [{get_uid(user.id)}] - [ERROR]: {ex}"
+                error_msg = f"{Emoji.SOS} [{manager.get_one(user.id)}] - [ERROR]: {ex}"
 
                 update.message.reply_text(
                     f"К сожалению, <b>{user.first_name}</b>, {Message.INFO}",
@@ -107,7 +109,7 @@ def debug_handler(log_handler: CustomAdapter = logger) -> Callable:
                 log_handler.exception(
                     "In the callback handler '%s' an error occurred: %s"
                     % (func.__name__, ex),
-                    user_id=get_uid(user.id),
+                    user_id=manager.get_one(user.id),
                 )
                 sentry_sdk.capture_exception(error=ex)
 
