@@ -6,7 +6,7 @@ from telegram import User
 from dosimeter import config
 from dosimeter.config import CustomAdapter, get_logger
 from dosimeter.constants import Action
-from dosimeter.crypto import DataEncrypt
+from dosimeter.crypto import DataEncrypt, cryptographer
 from dosimeter.storage.repository import DocumentRepository
 from dosimeter.utils import get_uid
 
@@ -24,32 +24,32 @@ client_mdb: MongoClient = MongoClient(MONGO_DB_LINK, serverSelectionTimeoutMS=50
 
 
 class MongoDataBase(DocumentRepository):
-    """MongoDB client."""
+    """Mongo Data Base client."""
 
     LOG_MSG = "Action '%s' added to Mongo DB."
 
-    def __init__(self, client: MongoClient = client_mdb) -> None:
+    def __init__(
+        self,
+        client: MongoClient = client_mdb,
+        cypher: DataEncrypt = cryptographer,
+    ) -> None:
         """Constructor method for initializing objects of the MongoDataBase class."""
         try:
             self.mdb = client.users_db
+            self.cypher = cypher
             logger.info(f"Info about server: {client.server_info()}")
         except Exception as ex:
             logger.exception(
                 "Unable to connect to the server. Raised exception: %s" % ex
             )
 
-    @staticmethod
-    def create_collection(user: User) -> dict[str, Any]:
+    def create_collection(self, user: User) -> dict[str, Any]:
         """Method for creating a document base stored in a data collection."""
-        first_name: DataEncrypt = DataEncrypt(user.first_name)
-        last_name: DataEncrypt = DataEncrypt(user.last_name)
-        user_name: DataEncrypt = DataEncrypt(user.username)
-
         current_user: dict[str, Any] = {
             "user_id": user.id,
-            "first_name": first_name.encrypt(),
-            "last_name": last_name.encrypt(),
-            "user_name": user_name.encrypt(),
+            "first_name": self.cypher.encrypt(user.first_name),
+            "last_name": self.cypher.encrypt(user.last_name),
+            "user_name": self.cypher.encrypt(user.username),
             "start command": [],
             "help command": [],
             "sent greeting message": [],
