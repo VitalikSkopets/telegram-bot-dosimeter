@@ -461,10 +461,11 @@ class Buttons(enum.Enum):
         self.callback_data = vals["callback_data"]
 
 
-class Command(str, enum.Enum):
-    START = "start"
-    HELP = "help"
-    ADMIN = "admin"
+@dataclass(frozen=True)
+class Command:
+    START: str = "start"
+    HELP: str = "help"
+    ADMIN: str = "admin"
 
 
 class Action(str, enum.Enum):
@@ -491,14 +492,15 @@ class Action(str, enum.Enum):
     HIDE_KEYBOARD = "Hide keyboard"
 
 
-class Description(str, enum.Enum):
-    BOT = """
+@dataclass(frozen=True)
+class Description:
+    BOT: str = """
     Этот бот может информировать пользователя по состоянию на текущую дату о
     радиационной обстановке в Беларуси и об уровне мощности эквивалентной дозы
     гамма-излучения, зафиксированного в сети радиационного мониторинга Министерства
     природных ресурсов и охраны окружающей среды Беларуси. Источник: ©rad.org.by
     Разработано: ©itrexgroup.com
     """
-    START = "Launch this bot / Запустить этого бота"
-    HELP = "Useful information about this bot / Полезная информация об этом боте"
-    ADMIN = "List of admin commands (limited access)"
+    START: str = "Launch this bot / Запустить этого бота"
+    HELP: str = "Useful information about this bot / Полезная информация об этом боте"
+    ADMIN: str = "List of admin commands (limited access)"
