@@ -1,14 +1,15 @@
-from typing import Any
+from typing import Any, Union
 
 from pymongo import MongoClient
 from telegram import User
 
 from dosimeter import config
-from dosimeter.config import CustomAdapter, get_logger
+from dosimeter.config import ASYMMETRIC_ENCRYPTION, CustomAdapter, get_logger
 from dosimeter.constants import Action
-from dosimeter.encryption.asymmetric import AsymmetricCryptographer, cryptographer
-
-# from dosimeter.encryption.symmetric import SymmetricCryptographer, cryptographer
+from dosimeter.encryption.asymmetric import AsymmetricCryptographer
+from dosimeter.encryption.asymmetric import cryptographer as asym_cypher
+from dosimeter.encryption.symmetric import SymmetricCryptographer
+from dosimeter.encryption.symmetric import cryptographer as sym_cypher
 from dosimeter.storage.memory import InternalAdminManager
 from dosimeter.storage.memory import manager_admins as manager
 from dosimeter.storage.repository import DocumentRepository
@@ -34,7 +35,9 @@ class MongoDataBase(DocumentRepository):
     def __init__(
         self,
         client: MongoClient = client_mdb,
-        cypher: AsymmetricCryptographer = cryptographer,
+        cypher: Union[SymmetricCryptographer, AsymmetricCryptographer] = (
+            asym_cypher if ASYMMETRIC_ENCRYPTION else sym_cypher
+        ),
         control: InternalAdminManager = manager,
     ) -> None:
         """Constructor method for initializing objects of the MongoDataBase class."""

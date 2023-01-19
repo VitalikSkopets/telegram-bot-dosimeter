@@ -12,6 +12,7 @@ from mtranslate import translate
 
 __all__ = (
     "API_SECRET",
+    "ASYMMETRIC_ENCRYPTION",
     "BASE_DIR",
     "DEBUG",
     "GOOGLE_DOMEN",
@@ -53,6 +54,7 @@ MONGO_DB_HOST: str = os.getenv("MONGO_DB_HOST", "cluster")
 PWD: str = os.getenv(
     "PASS", "N1dzNXJKMWZSWXBWZWpDSVk4NVFZSkR2dHhxWWpnUjg5Rk9HaTVFSDF5Yz0="
 )
+ASYMMETRIC_ENCRYPTION: bool = False
 
 # Heroku
 HEROKU_APP_NAME: str = os.getenv("HEROKU_APP_NAME", "")
