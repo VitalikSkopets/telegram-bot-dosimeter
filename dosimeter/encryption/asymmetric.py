@@ -14,6 +14,9 @@ __all__ = ("AsymmetricCryptographer", "cryptographer")
 
 
 class AsymmetricCryptographer(BaseCryptographer):
+    """A class that encapsulates the logic of encrypting string objects using an
+    asymmetric method."""
+
     PASSWORD: bytes = bytes(PWD, encoding="utf-8")
     PRIV_KEY_PATH: pathlib.Path = Files.SECRET_KEY
     PUB_KEY_PATH: pathlib.Path = Files.PUBLIC_KEY
@@ -21,45 +24,46 @@ class AsymmetricCryptographer(BaseCryptographer):
     def __init__(self) -> None:
         if pathlib.Path(self.PRIV_KEY_PATH and self.PUB_KEY_PATH).exists():
             return
-        # создание закрытого (секретного) ключа
+        # creating a private (secret) key
         private_key: RSAPrivateKey = rsa.generate_private_key(
             public_exponent=65537,
             key_size=2048,
         )
 
-        # создание публичного (открытого) ключа на основе секретного ключа
+        # creating a public key based on a secret key
         public_key: RSAPublicKey = private_key.public_key()
 
-        # сериализация секретного ключа
+        # serialization of the secret key
         priv_pem = private_key.private_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PrivateFormat.PKCS8,
             encryption_algorithm=serialization.BestAvailableEncryption(self.PASSWORD),
         )
 
-        # сериализация открытого ключа
+        # public key serialization
         pub_pem = public_key.public_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PublicFormat.SubjectPublicKeyInfo,
         )
 
-        # запись в файл секретного ключа
+        # writing to the secret key file
         with open(self.PRIV_KEY_PATH, "wb") as key_file:
             key_file.write(priv_pem)
 
-        # запись в файл открытого ключа
+        # writing to a public key file
         with open(self.PUB_KEY_PATH, "wb") as key_file:
             key_file.write(pub_pem)
 
     def encrypt(self, message: str | None = None) -> str | None:
+        """Encryption method for string objects."""
         if not isinstance(message, str):
             return None
-        # загрузка из файла открытого ключа
+        # downloading from a public key file
         with open(self.PUB_KEY_PATH, "rb") as key_file:
             public_key = serialization.load_pem_public_key(
                 key_file.read(),
             )
-        # шифрование
+        # encryption
         ciphertext: Any = public_key.encrypt(  # type: ignore[union-attr]
             bytes(message, encoding="utf-8"),
             padding.OAEP(
@@ -72,16 +76,17 @@ class AsymmetricCryptographer(BaseCryptographer):
         return token.decode(encoding="utf-8")
 
     def decrypt(self, token: str) -> str | None:
+        """Method for decrypting string objects."""
         if not token or not isinstance(token, str):
             return None
-        # загрузка из файла секретного ключа
+        # downloading from a secret key file
         with open(self.PRIV_KEY_PATH, "rb") as key_file:
             private_key = serialization.load_pem_private_key(
                 key_file.read(),
                 password=self.PASSWORD,
             )
         pre_token = base64.b64decode(token)
-        # дешифрование
+        # decryption
         plaintext = private_key.decrypt(  # type: ignore[union-attr]
             pre_token,
             padding.OAEP(

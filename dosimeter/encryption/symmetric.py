@@ -9,6 +9,9 @@ __all__ = ("SymmetricCryptographer", "cryptographer")
 
 
 class SymmetricCryptographer(BaseCryptographer):
+    """A class that encapsulates the logic of encrypting string objects with a
+    symmetric method."""
+
     PASSWORD: bytes = bytes(PWD, encoding="utf-8")
 
     def __init__(self) -> None:
@@ -16,6 +19,7 @@ class SymmetricCryptographer(BaseCryptographer):
         self.cipher = Fernet(key)
 
     def encrypt(self, message: str | None = None) -> str | None:
+        """Encryption method for string objects."""
         if not isinstance(message, str):
             return None
         # encryption
@@ -24,6 +28,7 @@ class SymmetricCryptographer(BaseCryptographer):
         return token.decode(encoding="utf-8")
 
     def decrypt(self, token: str) -> str | None:
+        """Method for decrypting string objects."""
         if not token or not isinstance(token, str):
             return None
         pre_token = base64.b64decode(token)
