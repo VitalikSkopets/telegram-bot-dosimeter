@@ -6,7 +6,9 @@ from telegram import User
 from dosimeter import config
 from dosimeter.config import CustomAdapter, get_logger
 from dosimeter.constants import Action
-from dosimeter.crypto import DataEncrypt, cryptographer
+from dosimeter.encryption.asymmetric import AsymmetricCryptographer, cryptographer
+
+# from dosimeter.encryption.symmetric import SymmetricCryptographer, cryptographer
 from dosimeter.storage.memory import InternalAdminManager
 from dosimeter.storage.memory import manager_admins as manager
 from dosimeter.storage.repository import DocumentRepository
@@ -32,7 +34,7 @@ class MongoDataBase(DocumentRepository):
     def __init__(
         self,
         client: MongoClient = client_mdb,
-        cypher: DataEncrypt = cryptographer,
+        cypher: AsymmetricCryptographer = cryptographer,
         control: InternalAdminManager = manager,
     ) -> None:
         """Constructor method for initializing objects of the MongoDataBase class."""

@@ -100,3 +100,4 @@ sftp-config.json
 .tool-versions
 .DS_Store
 /private.pem
+/secret.pem

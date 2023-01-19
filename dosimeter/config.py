@@ -18,6 +18,7 @@ __all__ = (
     "MONGO_DB_NAME",
     "PORT",
     "HEROKU_APP_NAME",
+    "PWD",
     "WEBHOOK_MODE",
     "PROTOKOL",
     "MEASUREMENT_ID",
@@ -47,6 +48,11 @@ MONGO_DB_NAME: str = os.getenv("MONGO_DB_NAME", "users_db")
 MONGO_DB_LOGIN: str = os.getenv("MONGO_DB_LOGIN", "DosimeterBot")
 MONGO_DB_PASSWORD: str = os.getenv("MONGO_DB_PASSWORD", "dG7ntC7sa1RrDpBp")
 MONGO_DB_HOST: str = os.getenv("MONGO_DB_HOST", "cluster")
+
+# Encryption
+PWD: str = os.getenv(
+    "PASS", "N1dzNXJKMWZSWXBWZWpDSVk4NVFZSkR2dHhxWWpnUjg5Rk9HaTVFSDF5Yz0="
+)
 
 # Heroku
 HEROKU_APP_NAME: str = os.getenv("HEROKU_APP_NAME", "")

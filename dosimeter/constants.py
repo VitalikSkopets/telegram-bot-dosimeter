@@ -1,8 +1,11 @@
 import enum
 import uuid
 from dataclasses import dataclass
+from pathlib import Path
 
 from emoji.core import emojize
+
+from dosimeter.config import BASE_DIR
 
 __all__ = (
     "ADMIN_ID",
@@ -14,6 +17,7 @@ __all__ = (
     "Buttons",
     "Command",
     "Emoji",
+    "Files",
     "Gomel_region",
     "Grodno_region",
     "MonitoringPoint",
@@ -25,6 +29,12 @@ __all__ = (
 ADMIN_ID: int = 413818791 or 1120930631
 LIST_OF_ADMIN_IDS: tuple[int, int] = (ADMIN_ID, 487236325)
 TEMP_LIST_OF_ADMIN_IDS: list[int] = []
+
+
+@dataclass(frozen=True)
+class Files:
+    SECRET_KEY: Path = BASE_DIR / "secret.pem"
+    PUBLIC_KEY: Path = BASE_DIR / "public.pem"
 
 
 @dataclass(slots=True, frozen=True)
