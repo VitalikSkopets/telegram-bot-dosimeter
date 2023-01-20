@@ -29,6 +29,7 @@ TEMP_LIST_OF_ADMIN_IDS: list[int] = []
 class Files:
     SECRET_KEY: Path = BASE_DIR / "secret.pem"
     PUBLIC_KEY: Path = BASE_DIR / "public.pem"
+    ADMINS_FILE_PATH = BASE_DIR / "admins.txt"
 
 
 @dataclass(frozen=True)

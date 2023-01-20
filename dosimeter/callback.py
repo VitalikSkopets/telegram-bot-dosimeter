@@ -1,4 +1,6 @@
 # type: ignore
+from typing import Union
+
 from telegram import ChatAction, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import CallbackContext
 
@@ -10,6 +12,8 @@ from dosimeter.decorators import debug_handler, restricted, send_action
 from dosimeter.geolocation import get_nearest_point_location
 from dosimeter.keyboards import admin_keyboard, main_keyboard, points_keyboard
 from dosimeter.messages import Message
+from dosimeter.storage.file import FileAdminManager
+from dosimeter.storage.file import file_manager_admins as f_manager
 from dosimeter.storage.memory import InternalAdminManager
 from dosimeter.storage.memory import manager_admins as manager
 from dosimeter.storage.mongodb import MongoDataBase, mongo_atlas__repo
@@ -36,7 +40,7 @@ class Callback:
     def __init__(
         self,
         repo: MongoDataBase = mongo_atlas__repo,
-        control: InternalAdminManager = manager,
+        control: Union[InternalAdminManager, FileAdminManager] = manager or f_manager,
     ) -> None:
         """Constructor method for initializing objects of class Handlers."""
         self.repo = repo
