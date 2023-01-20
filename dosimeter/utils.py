@@ -6,7 +6,7 @@ from fake_useragent import UserAgent
 from dosimeter import config
 from dosimeter.cache import timed_lru_cache
 from dosimeter.config import get_logger
-from dosimeter.constants import MonitoringPoint
+from dosimeter.constants import Points
 from dosimeter.messages import Message
 
 __all__ = (
@@ -146,9 +146,7 @@ def format_string(string: str, min_length: int = 20) -> str:
     return string
 
 
-def get_info_about_region(
-    region: tuple[MonitoringPoint, ...],
-) -> tuple[list[str], list[float]]:
+def get_info_about_region(region: tuple[Points, ...]) -> tuple[list[str], list[float]]:
     """
     The function calls the get_html() method, which sends a GET request and scripts
     the HTML markup of the https://rad.org.by/radiation.xml web resource. The results
@@ -163,7 +161,7 @@ def get_info_about_region(
     table: list[str] = []
 
     for point, value in get_points_with_radiation_level():
-        if point in [monitoring_point.name for monitoring_point in region]:
+        if point in [monitoring_point.label for monitoring_point in region]:
             values_by_region.append(float(value))
             table.append(line.format(format_string(point), value + " мкЗв/ч"))
     return table, values_by_region

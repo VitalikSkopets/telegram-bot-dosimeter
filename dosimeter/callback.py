@@ -5,17 +5,7 @@ from telegram.ext import CallbackContext
 from dosimeter import config
 from dosimeter.analytics.measurement_protocol import send_analytics
 from dosimeter.config import CustomAdapter, get_logger
-from dosimeter.constants import (
-    Action,
-    Brest_region,
-    Buttons,
-    Gomel_region,
-    Grodno_region,
-    Minsk_region,
-    Mogilev_region,
-    MonitoringPoint,
-    Vitebsk_region,
-)
+from dosimeter.constants import Action, Buttons, Points, Regions
 from dosimeter.decorators import debug_handler, restricted, send_action
 from dosimeter.geolocation import get_nearest_point_location
 from dosimeter.keyboards import admin_keyboard, main_keyboard, points_keyboard
@@ -149,22 +139,34 @@ class Callback:
             case Buttons.HIDE_KEYBOARD.label:
                 return self._hide_keyboard_callback(update, context)
             case Buttons.BREST.label:
-                points = Brest_region.monitoring_points
+                points = tuple(
+                    point for point in Points if point.region == Regions.BREST
+                )
                 action = Action.BREST
             case Buttons.VITEBSK.label:
-                points = Vitebsk_region.monitoring_points
+                points = tuple(
+                    point for point in Points if point.region == Regions.VITEBSK
+                )
                 action = Action.VITEBSK
             case Buttons.GOMEL.label:
-                points = Gomel_region.monitoring_points
+                points = tuple(
+                    point for point in Points if point.region == Regions.GOMEL
+                )
                 action = Action.GOMEL
             case Buttons.GRODNO.label:
-                points = Grodno_region.monitoring_points
+                points = tuple(
+                    point for point in Points if point.region == Regions.GRODNO
+                )
                 action = Action.GRODNO
             case Buttons.MINSK.label:
-                points = Minsk_region.monitoring_points
+                points = tuple(
+                    point for point in Points if point.region == Regions.MINSK
+                )
                 action = Action.MINSK
             case Buttons.MOGILEV.label:
-                points = Mogilev_region.monitoring_points
+                points = tuple(
+                    point for point in Points if point.region == Regions.MOGILEV
+                )
                 action = Action.MOGILEV
             case str() as user_id if user_id.startswith("add "):
                 return self._add_admin_by_user_id_callback(update, context)
@@ -353,7 +355,7 @@ class Callback:
         self,
         update: Update,
         context: CallbackContext,
-        points: tuple[MonitoringPoint, ...],
+        points: tuple[Points, ...],
         action: Action,
     ) -> None:
         """Handler method for pressing the "* region" button by the user."""

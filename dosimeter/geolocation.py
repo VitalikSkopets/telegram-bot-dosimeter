@@ -1,6 +1,6 @@
 from geopy import distance
 
-from dosimeter.constants import MONITORING_POINTS
+from dosimeter.constants import Points
 
 __all__ = ("get_nearest_point_location",)
 
@@ -16,8 +16,8 @@ def get_nearest_point_location(
     distance_list = [
         (
             round(distance.distance(user_coordinates, point.coordinates).m, 3),
-            point.name,
+            point.label,
         )
-        for point in MONITORING_POINTS
+        for point in Points
     ]
     return min(distance_list)
