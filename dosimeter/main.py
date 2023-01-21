@@ -22,10 +22,10 @@ class DosimeterBot:
     """The wrapper class encapsulates the logic of initializing and launching
     the DosimeterBot object"""
 
-    TOKEN = config.TOKEN
-    WEBHOOK_MODE = config.WEBHOOK_MODE
-    HEROKU_APP = config.HEROKU_APP
-    PORT = config.PORT
+    TOKEN: str = config.TOKEN
+    WEBHOOK_MODE: bool = config.WEBHOOK_MODE
+    HEROKU_APP: str = config.HEROKU_APP
+    PORT: int = config.PORT
 
     def __init__(self, callback: Callback = handler) -> None:
         """Instantiate a DosimeterBot object"""

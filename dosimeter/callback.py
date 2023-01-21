@@ -6,30 +6,24 @@ from telegram.ext import CallbackContext
 
 from dosimeter import config
 from dosimeter.analytics.measurement_protocol import send_analytics
-from dosimeter.config import CustomAdapter, get_logger
 from dosimeter.constants import Action, Buttons, Points, Regions
 from dosimeter.decorators import debug_handler, restricted, send_action
 from dosimeter.geolocation import get_nearest_point_location
 from dosimeter.keyboards import admin_keyboard, main_keyboard, points_keyboard
 from dosimeter.messages import Message
+from dosimeter.parser import Parser, parser
 from dosimeter.storage.file import FileAdminManager
 from dosimeter.storage.file import file_manager_admins as f_manager
 from dosimeter.storage.memory import InternalAdminManager
 from dosimeter.storage.memory import manager_admins as manager
 from dosimeter.storage.mongodb import MongoDataBase, mongo_atlas__repo
-from dosimeter.utils import (
-    get_avg_radiation_level,
-    get_id_from_text,
-    get_info_about_radiation_monitoring,
-    get_info_about_region,
-    get_points_with_radiation_level,
-    get_user_message,
-    greeting,
-)
+from dosimeter.utils import get_id_from_text, greeting
 
 __all__ = ("Callback", "handler")
 
-logger = CustomAdapter(get_logger(__name__), {"user_id": manager.get_one()})
+logger = config.CustomAdapter(
+    config.get_logger(__name__), {"user_id": manager.get_one()}
+)
 
 
 class Callback:
@@ -39,10 +33,12 @@ class Callback:
 
     def __init__(
         self,
+        parse: Parser = parser,
         repo: MongoDataBase = mongo_atlas__repo,
         control: Union[InternalAdminManager, FileAdminManager] = manager or f_manager,
     ) -> None:
         """Constructor method for initializing objects of class Handlers."""
+        self.parser = parse
         self.repo = repo
         self.manager = control
 
@@ -193,7 +189,7 @@ class Callback:
 
         distance = f"{distance_to_nearest_point:,} м".replace(",", " ")
 
-        for point, value in get_points_with_radiation_level():
+        for point, value in self.parser.get_points_with_radiation_level():
             if nearest_point_name == point:
                 context.bot.send_message(
                     chat_id=update.effective_message.chat_id,
@@ -318,8 +314,8 @@ class Callback:
     ) -> None:
         """Handler method for pressing the "Radiation monitoring" button by the user."""
         user = update.effective_user
-        response = get_info_about_radiation_monitoring()
-        mean = get_avg_radiation_level()
+        response = self.parser.get_info_about_radiation_monitoring()
+        mean = self.parser.get_avg_radiation_level()
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
             text=Message.RADIATION.format(config.TODAY, response, mean),
@@ -364,11 +360,11 @@ class Callback:
     ) -> None:
         """Handler method for pressing the "* region" button by the user."""
         user = update.effective_user
-        table, values_by_region = get_info_about_region(region=points)
+        table, values_by_region = self.parser.get_info_about_region(region=points)
 
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text=get_user_message(table, values_by_region),
+            text=self.parser.get_user_message(table, values_by_region),
         )
 
         self.repo.add_region(user, action)
