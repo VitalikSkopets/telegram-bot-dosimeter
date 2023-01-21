@@ -19,18 +19,21 @@ logger = config.get_logger(__name__)
 
 
 class DosimeterBot:
+    """The wrapper class encapsulates the logic of initializing and launching
+    the DosimeterBot object"""
+
     TOKEN = config.TOKEN
     WEBHOOK_MODE = config.WEBHOOK_MODE
     HEROKU_APP = config.HEROKU_APP
     PORT = config.PORT
 
     def __init__(self, callback: Callback = handler) -> None:
-        """Instantiate a Defaults object"""
+        """Instantiate a DosimeterBot object"""
+
+        # Initial and check bot application
         defaults = Defaults(
             parse_mode=ParseMode.HTML, tzinfo=pytz.timezone("Europe/Minsk")
         )
-
-        """Initial and check bot application"""
         request = Request(connect_timeout=0.5, read_timeout=1.0)
         bot = ExtBot(request=request, token=self.TOKEN, defaults=defaults)
         self.updater = Updater(bot=bot, use_context=True)
@@ -80,6 +83,7 @@ class DosimeterBot:
         self.updater.dispatcher.add_handler(button_handler)
 
     def start(self) -> None:
+        """Method for launching the DosimeterBot object"""
         if not self.WEBHOOK_MODE:
             logger.info("Application running in pooling mode...")
             # Start the Bot
