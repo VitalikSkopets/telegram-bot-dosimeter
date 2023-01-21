@@ -42,8 +42,8 @@ cryptographer = SymmetricCryptographer()
 
 if __name__ == "__main__":
 
-    enc_rtext = cryptographer.encrypt("Test string")
-    print(f"Encrypted string: {enc_rtext}")
+    enc_text = cryptographer.encrypt("Test string")
+    print(f"Encrypted string: {enc_text}")
 
     plain_text = cryptographer.decrypt(
         token="Z0FBQUFBQmp5WVFSelUtaWdqRXN5MHdKenlGc1NYQ2RDYUctMTNtWC16UFdVRHhab2NGR2l"

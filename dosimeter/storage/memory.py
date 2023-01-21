@@ -59,4 +59,5 @@ class InternalAdminManager(AdminManager):
         return f"User ID <u>{uid}</u> deleted to the list of admins.", True
 
 
+"""InternalAdminManager class instance"""
 manager_admins = InternalAdminManager()
