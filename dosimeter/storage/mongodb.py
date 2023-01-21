@@ -18,14 +18,6 @@ __all__ = ("MongoDataBase", "mongo_atlas__repo")
 
 logger = CustomAdapter(get_logger(__name__), {"user_id": manager.get_one()})
 
-MONGO_DB_LINK: str = (
-    f"mongodb+srv://{config.MONGO_DB_LOGIN}:{config.MONGO_DB_PASSWORD}@cluster."
-    f"s3cxd.mongodb.net/{config.MONGO_DB_NAME}?retryWrites=true&w=majority"
-)
-logger.debug("Reference to cloud Mongo Atlas Database: '%s'" % MONGO_DB_LINK)
-
-client_mdb: MongoClient = MongoClient(MONGO_DB_LINK, serverSelectionTimeoutMS=5000)
-
 
 class MongoDataBase(DocumentRepository):
     """Mongo Data Base client."""
@@ -34,7 +26,6 @@ class MongoDataBase(DocumentRepository):
 
     def __init__(
         self,
-        client: MongoClient = client_mdb,
         cypher: Union[SymmetricCryptographer, AsymmetricCryptographer] = (
             asym_cypher if ASYMMETRIC_ENCRYPTION else sym_cypher
         ),
@@ -42,6 +33,13 @@ class MongoDataBase(DocumentRepository):
     ) -> None:
         """Constructor method for initializing objects of the MongoDataBase class."""
         try:
+            client: MongoClient = MongoClient(
+                config.MONGO_DB_CONNECTION, serverSelectionTimeoutMS=5000
+            )
+            logger.debug(
+                "Reference to cloud Mongo Atlas Database: '%s'"
+                % config.MONGO_DB_CONNECTION
+            )
             self.mdb = client.users_db
             logger.info(f"Info about server: {client.server_info()}")
         except Exception as ex:
@@ -264,8 +262,8 @@ mongo_atlas__repo = MongoDataBase()
 
 
 if __name__ == "__main__":
-    session = MongoDataBase(client_mdb)
-    # print(session.get_user_by_id(413818791))
-    # print(session.get_all_users_data())
-    # print(session.get_all_users_ids())
-    print(session.get_users_count())
+    mongo_atlas__repo = MongoDataBase()
+    # print(mongo_atlas__repo.get_user_by_id(413818791))
+    # print(mongo_atlas__repo.get_all_users_data())
+    # print(mongo_atlas__repo.get_all_users_ids())
+    print(mongo_atlas__repo.get_users_count())

@@ -45,7 +45,5 @@ test-coverage: ## Run tests with coverage
 	$(POETRY) run pytest --cov=$(APP) --cov-report=html
 
 .PHONY: clean
-clean:  ## Clean up the __pycache__ folder
-	rm -rf __pycache__
-	rm -rf .pytest_cache
-	rm -rf .mypy_cache
+clean:  ## Clean up the cache folders
+	@rm -rf __pycache__ tests/.pytest_cache .mypy_cache

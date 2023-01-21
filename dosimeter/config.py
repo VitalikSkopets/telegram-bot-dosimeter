@@ -16,6 +16,7 @@ __all__ = (
     "BASE_DIR",
     "DEBUG",
     "GOOGLE_DOMEN",
+    "MONGO_DB_CONNECTION",
     "MONGO_DB_NAME",
     "PORT",
     "HEROKU_APP",
@@ -49,6 +50,11 @@ MONGO_DB_NAME: str = os.getenv("MONGO_DB_NAME", "users_db")
 MONGO_DB_LOGIN: str = os.getenv("MONGO_DB_LOGIN", "DosimeterBot")
 MONGO_DB_PASSWORD: str = os.getenv("MONGO_DB_PASSWORD", "dG7ntC7sa1RrDpBp")
 MONGO_DB_HOST: str = os.getenv("MONGO_DB_HOST", "cluster")
+MONGO_DB_CONNECTION: str = os.getenv(
+    "MONGO_DB_CONNECTION",
+    f"mongodb+srv://{MONGO_DB_LOGIN}:{MONGO_DB_PASSWORD}@cluster.s3cxd.mongodb.net/"
+    f"{MONGO_DB_NAME}?retryWrites=true&w=majority",
+)
 
 # Encryption
 PWD: str = os.getenv(
