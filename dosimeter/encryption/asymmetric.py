@@ -106,13 +106,11 @@ if __name__ == "__main__":
     print(f"Encrypted string: {enc_text}")
 
     plain_text = cryptographer.decrypt(
-        token="YX9dd/pNhcOAd8rRyvpdm"
-        "+3t8Rf1GCq0EufwFt7TrBW3Bziv6lFCBz1JWcmbD2UXaei0aCOpqrwn1npj7DIjn"
-        "/wvNINGjPxQTEFFCDenR/io++V0BJlQEG1zm1LiGfqcGFqdmMCIeY8"
-        "/+xAvlwHYEj9XicbhmmbObdlN"
-        "/RbYUVI0UcfCFMaIHAFniOGh3GO2ETg7j7W9TueFlR23DZf4Z+5Byozs"
-        "/egrm3d8wm2grAlrg/LfTd0l6E8IWnAb8t+Nl6p3wh"
-        "/krXoeRxJgmQ4CYsIxnTAj6AK97U3wO51sWrp7hSAIaS58XWXw0ELpzZa/oIsMoIgP"
-        "+hxnp9sNU9H7DA== "
+        token="ApQnpEss/FJNWK7ImDH8vHLVgblCgbAVjBMnkIcDQZGJ4hZkhw6MFEWkATa/bG7"
+        "+T0kGFV5S8+fGukJgZEq15ZnwwOMxt1CPh5y7eV9sTfXPjnRtaoHb9z/El2pdW2"
+        "+Fd5rYwJtNsS7hE5O7uqwxLbE2AlbdfE46WG7Rqz5v94BEi+I7cXzJfnU37ryB2Y"
+        "+zsUijypRVe4CeUgNXXYL9N4+BuKpFmE5MtRpXSgBZtwddGH643Sq+s"
+        "+FfplQN7HJ6JZXoi/p/wWgZXIyfEZxbY+DVkdlFJaTp0nYIKHMNqj+H7emj1dxx4wvzam"
+        "+h4aPzz2iPfWymt66Up0FM6TyPTA== "
     )
     print(f"Decrypted string: {plain_text}")
