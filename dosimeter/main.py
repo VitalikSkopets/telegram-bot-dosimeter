@@ -1,5 +1,3 @@
-from typing import Final
-
 import pytz
 from telegram import ParseMode
 from telegram.ext import (
@@ -13,88 +11,94 @@ from telegram.ext import (
 )
 from telegram.utils.request import Request
 
-from dosimeter.callback import handler  # type: ignore[attr-defined]
-from dosimeter.config import HEROKU_APP_NAME, PORT, TOKEN, WEBHOOK_MODE, get_logger
+from dosimeter import config
+from dosimeter.callback import Callback, handler  # type: ignore[attr-defined]
 from dosimeter.constants import Command
 
-logger = get_logger(__name__)
+logger = config.get_logger(__name__)
 
 
-def main() -> None:
-    """Application entry point. Bot launch function."""
+class DosimeterBot:
+    TOKEN = config.TOKEN
+    WEBHOOK_MODE = config.WEBHOOK_MODE
+    HEROKU_APP = config.HEROKU_APP
+    PORT = config.PORT
 
-    """Instantiate a Defaults object"""
-    defaults = Defaults(parse_mode=ParseMode.HTML, tzinfo=pytz.timezone("Europe/Minsk"))
-
-    """Initial and check bot application"""
-    request = Request(connect_timeout=0.5, read_timeout=1.0)
-    bot = ExtBot(request=request, token=TOKEN, defaults=defaults)
-    updater: Final = Updater(bot=bot, use_context=True)
-    logger.info(f"Checking bot...{updater.bot.get_me()}")
-
-    """Get the dispatcher to register handlers"""
-    dispatcher: Final = updater.dispatcher
-
-    # Start command handler
-    start_handler = CommandHandler(
-        Command.START,
-        handler.start_callback,
-    )
-    dispatcher.add_handler(start_handler)
-
-    # Help command handler
-    help_handler = CommandHandler(
-        Command.HELP,
-        handler.help_callback,
-    )
-    dispatcher.add_handler(help_handler)
-
-    # Admin command handler
-    admin_handler = CommandHandler(
-        Command.ADMIN,
-        handler.admin_callback,
-    )
-    dispatcher.add_handler(admin_handler)
-
-    # Send my location command handler
-    send_geolocation_handler = MessageHandler(
-        Filters.location,
-        handler.send_location_callback,
-    )
-    dispatcher.add_handler(send_geolocation_handler)
-
-    # Messages command handler
-    message_handler = MessageHandler(
-        Filters.text & (~Filters.command),
-        handler.message_callback,
-    )
-    dispatcher.add_handler(message_handler)
-
-    # Inline keyboard button handler
-    button_handler = CallbackQueryHandler(
-        callback=handler.keyboard_callback,
-        pass_chat_data=True,
-    )
-    dispatcher.add_handler(button_handler)
-
-    if not WEBHOOK_MODE:
-        logger.info("Application running in pooling mode...")
-        # Start the Bot
-        updater.start_polling()
-        updater.idle()
-        logger.info("Application finished!")
-    if HEROKU_APP_NAME and WEBHOOK_MODE:
-        logger.info("Application running in webhook mode...")
-        # Start the Bot
-        updater.start_webhook(
-            listen="0.0.0.0",
-            port=PORT,
-            url_path=TOKEN,
-            webhook_url=f"https://{HEROKU_APP_NAME}.herokuapp.com/{TOKEN}",
+    def __init__(self, callback: Callback = handler) -> None:
+        """Instantiate a Defaults object"""
+        defaults = Defaults(
+            parse_mode=ParseMode.HTML, tzinfo=pytz.timezone("Europe/Minsk")
         )
-        updater.idle()
-        logger.info("Application finished!")
+
+        """Initial and check bot application"""
+        request = Request(connect_timeout=0.5, read_timeout=1.0)
+        bot = ExtBot(request=request, token=self.TOKEN, defaults=defaults)
+        self.updater = Updater(bot=bot, use_context=True)
+        logger.info(f"Checking bot...{self.updater.bot.get_me()}")
+        self.handler = callback
+
+        # Start command handler
+        start_handler = CommandHandler(
+            Command.START,
+            self.handler.start_callback,
+        )
+        self.updater.dispatcher.add_handler(start_handler)
+
+        # Help command handler
+        help_handler = CommandHandler(
+            Command.HELP,
+            self.handler.help_callback,
+        )
+        self.updater.dispatcher.add_handler(help_handler)
+
+        # Admin command handler
+        admin_handler = CommandHandler(
+            Command.ADMIN,
+            self.handler.admin_callback,
+        )
+        self.updater.dispatcher.add_handler(admin_handler)
+
+        # Send my location command handler
+        send_geolocation_handler = MessageHandler(
+            Filters.location,
+            self.handler.send_location_callback,
+        )
+        self.updater.dispatcher.add_handler(send_geolocation_handler)
+
+        # Messages command handler
+        message_handler = MessageHandler(
+            Filters.text & (~Filters.command),
+            self.handler.message_callback,
+        )
+        self.updater.dispatcher.add_handler(message_handler)
+
+        # Inline keyboard button handler
+        button_handler = CallbackQueryHandler(
+            callback=self.handler.keyboard_callback,
+            pass_chat_data=True,
+        )
+        self.updater.dispatcher.add_handler(button_handler)
+
+    def start(self) -> None:
+        if not self.WEBHOOK_MODE:
+            logger.info("Application running in pooling mode...")
+            # Start the Bot
+            self.updater.start_polling()
+            self.updater.idle()
+            logger.info("Application finished!")
+        if self.HEROKU_APP and self.WEBHOOK_MODE:
+            logger.info("Application running in webhook mode...")
+            # Start the Bot
+            self.updater.start_webhook(
+                listen="0.0.0.0",
+                port=self.PORT,
+                url_path=self.TOKEN,
+                webhook_url=f"https://{self.HEROKU_APP}.herokuapp.com/{self.TOKEN}",
+            )
+            self.updater.idle()
+            logger.info("Application finished!")
 
 
 if __name__ == "__main__":
-    main()
+    bot_instance = DosimeterBot()
+    bot_instance.start()

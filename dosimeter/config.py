@@ -18,7 +18,7 @@ __all__ = (
     "GOOGLE_DOMEN",
     "MONGO_DB_NAME",
     "PORT",
-    "HEROKU_APP_NAME",
+    "HEROKU_APP",
     "PWD",
     "WEBHOOK_MODE",
     "PROTOKOL",
@@ -57,7 +57,7 @@ PWD: str = os.getenv(
 ASYMMETRIC_ENCRYPTION: bool = False
 
 # Heroku
-HEROKU_APP_NAME: str = os.getenv("HEROKU_APP_NAME", "")
+HEROKU_APP: str = os.getenv("HEROKU_APP", "")
 WEBHOOK_MODE: bool = bool(os.getenv("WEBHOOK_MODE", 0))
 PORT: int = int(os.getenv("PORT", "8443"))
 

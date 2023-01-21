@@ -27,7 +27,7 @@ from dosimeter.utils import (
     greeting,
 )
 
-__all__ = ("handler",)
+__all__ = ("Callback", "handler")
 
 logger = CustomAdapter(get_logger(__name__), {"user_id": manager.get_one()})
 
