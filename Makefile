@@ -46,5 +46,5 @@ test-coverage: ## Run tests with coverage
 
 .PHONY: clean
 clean:  ## Clean up the cache folders
-	@rm -rf __pycache__ tests/.pytest_cache .mypy_cache
+	@rm -rf __pycache__ .pytest_cache .mypy_cache
 	@echo "Cache folders deleted!"
