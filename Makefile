@@ -38,7 +38,7 @@ fmt: fmt-isort fmt-black
 
 .PHONY: test
 test:  ## Run tests
-	$(POETRY) run pytest --numprocesses auto
+	$(POETRY) run pytest
 
 .PHONY: test-coverage
 test-coverage: ## Run tests with coverage

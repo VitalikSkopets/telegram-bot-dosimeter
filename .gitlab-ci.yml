@@ -13,6 +13,7 @@ before_script:
 stages:
   - Static Analysis
   - Type checking
+  - Tests
 
 isort:
   stage: Static Analysis
@@ -38,3 +39,15 @@ mypy:
     - echo "Running the Type checking stage..."
     - poetry run mypy .
     - echo "Type checking done!"
+
+unit-tests:
+  stage: Tests
+  needs: [isort, flake8, black, mypy]
+  script:
+    - echo "Running the Tests stage..."
+    - poetry run pytest --cov=${APP} --cov-report=html
+    - echo "Testing done!"
+  artifacts:
+    paths:
+      - coverage
+    expire_in: 30 days
