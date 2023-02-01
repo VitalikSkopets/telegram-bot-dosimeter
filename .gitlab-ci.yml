@@ -71,4 +71,4 @@ unit-tests:
   artifacts:
     expire_in: 30 days
     paths:
-      - coverage/
+      - coverage
