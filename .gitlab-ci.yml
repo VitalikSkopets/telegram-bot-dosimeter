@@ -72,6 +72,3 @@ unit-tests:
     expire_in: 30 days
     paths:
       - coverage/
-  retry:
-    max: 2
-    when: runner_system_failure
