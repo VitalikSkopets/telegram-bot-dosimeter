@@ -489,105 +489,6 @@ docs = ["furo (>=2022.9.29)", "sphinx (>=5.3)", "sphinx-autodoc-typehints (>=1.1
 testing = ["covdefaults (>=2.2.2)", "coverage (>=6.5)", "pytest (>=7.2)", "pytest-cov (>=4)", "pytest-timeout (>=2.1)"]
 
 [[package]]
-name = "flake8"
-version = "4.0.1"
-description = "the modular source code checker: pep8 pyflakes and co"
-category = "dev"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "flake8-4.0.1-py2.py3-none-any.whl", hash = "sha256:479b1304f72536a55948cb40a32dce8bb0ffe3501e26eaf292c7e60eb5e0428d"},
-    {file = "flake8-4.0.1.tar.gz", hash = "sha256:806e034dda44114815e23c16ef92f95c91e4c71100ff52813adf7132a6ad870d"},
-]
-
-[package.dependencies]
-mccabe = ">=0.6.0,<0.7.0"
-pycodestyle = ">=2.8.0,<2.9.0"
-pyflakes = ">=2.4.0,<2.5.0"
-
-[[package]]
-name = "flake8-broken-line"
-version = "0.4.0"
-description = "Flake8 plugin to forbid backslashes for line breaks"
-category = "dev"
-optional = false
-python-versions = ">=3.6,<4.0"
-files = [
-    {file = "flake8-broken-line-0.4.0.tar.gz", hash = "sha256:771aab5aa0997666796fed249d0e48e6c01cdfeca8c95521eea28a38b7ced4c7"},
-    {file = "flake8_broken_line-0.4.0-py3-none-any.whl", hash = "sha256:e9c522856862239a2c7ef2c1de0276fa598572aa864bd4e9c7efc2a827538515"},
-]
-
-[package.dependencies]
-flake8 = ">=3.5,<5"
-
-[[package]]
-name = "flake8-bugbear"
-version = "22.12.6"
-description = "A plugin for flake8 finding likely bugs and design problems in your program. Contains warnings that don't belong in pyflakes and pycodestyle."
-category = "dev"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "flake8-bugbear-22.12.6.tar.gz", hash = "sha256:4cdb2c06e229971104443ae293e75e64c6107798229202fbe4f4091427a30ac0"},
-    {file = "flake8_bugbear-22.12.6-py3-none-any.whl", hash = "sha256:b69a510634f8a9c298dfda2b18a8036455e6b19ecac4fe582e4d7a0abfa50a30"},
-]
-
-[package.dependencies]
-attrs = ">=19.2.0"
-flake8 = ">=3.0.0"
-
-[package.extras]
-dev = ["coverage", "hypothesis", "hypothesmith (>=0.2)", "pre-commit", "tox"]
-
-[[package]]
-name = "flake8-builtins"
-version = "1.5.3"
-description = "Check for python builtins being used as variables or parameters."
-category = "dev"
-optional = false
-python-versions = "*"
-files = [
-    {file = "flake8-builtins-1.5.3.tar.gz", hash = "sha256:09998853b2405e98e61d2ff3027c47033adbdc17f9fe44ca58443d876eb00f3b"},
-    {file = "flake8_builtins-1.5.3-py2.py3-none-any.whl", hash = "sha256:7706babee43879320376861897e5d1468e396a40b8918ed7bccf70e5f90b8687"},
-]
-
-[package.dependencies]
-flake8 = "*"
-
-[package.extras]
-test = ["coverage", "coveralls", "mock", "pytest", "pytest-cov"]
-
-[[package]]
-name = "flake8-coding"
-version = "1.3.2"
-description = "Adds coding magic comment checks to flake8"
-category = "dev"
-optional = false
-python-versions = "*"
-files = [
-    {file = "flake8-coding-1.3.2.tar.gz", hash = "sha256:b8f4d5157a8f74670e6cfea732c3d9f4291a4e994c8701d2c55f787c6e6cb741"},
-    {file = "flake8_coding-1.3.2-py2.py3-none-any.whl", hash = "sha256:79704112c44d09d4ab6c8965e76a20c3f7073d52146db60303bce777d9612260"},
-]
-
-[package.dependencies]
-flake8 = "*"
-
-[[package]]
-name = "flake8-tidy-imports"
-version = "4.8.0"
-description = "A flake8 plugin that helps you write tidier imports."
-category = "dev"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "flake8-tidy-imports-4.8.0.tar.gz", hash = "sha256:df44f9c841b5dfb3a7a1f0da8546b319d772c2a816a1afefcce43e167a593d83"},
-    {file = "flake8_tidy_imports-4.8.0-py3-none-any.whl", hash = "sha256:25bd9799358edefa0e010ce2c587b093c3aba942e96aeaa99b6d0500ae1bf09c"},
-]
-
-[package.dependencies]
-flake8 = ">=3.8.0"
-
-[[package]]
 name = "geographiclib"
 version = "2.0"
 description = "The geodesic routines from GeographicLib"
@@ -774,18 +675,6 @@ htmlsoup = ["BeautifulSoup4"]
 source = ["Cython (>=0.29.7)"]
 
 [[package]]
-name = "mccabe"
-version = "0.6.1"
-description = "McCabe checker, plugin for flake8"
-category = "dev"
-optional = false
-python-versions = "*"
-files = [
-    {file = "mccabe-0.6.1-py2.py3-none-any.whl", hash = "sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42"},
-    {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
-]
-
-[[package]]
 name = "mtranslate"
 version = "1.8"
 description = "Google translate console script with easy to use API"
@@ -955,18 +844,6 @@ files = [
 ]
 
 [[package]]
-name = "pycodestyle"
-version = "2.8.0"
-description = "Python style guide checker"
-category = "dev"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-files = [
-    {file = "pycodestyle-2.8.0-py2.py3-none-any.whl", hash = "sha256:720f8b39dde8b293825e7ff02c475f3077124006db4f440dcbc9a20b76548a20"},
-    {file = "pycodestyle-2.8.0.tar.gz", hash = "sha256:eddd5847ef438ea1c7870ca7eb78a9d47ce0cdb4851a5523949f2601d0cbbe7f"},
-]
-
-[[package]]
 name = "pycparser"
 version = "2.21"
 description = "C parser in Python"
@@ -976,18 +853,6 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 files = [
     {file = "pycparser-2.21-py2.py3-none-any.whl", hash = "sha256:8ee45429555515e1f6b185e78100aea234072576aa43ab53aefcae078162fca9"},
     {file = "pycparser-2.21.tar.gz", hash = "sha256:e644fdec12f7872f86c58ff790da456218b10f863970249516d60a5eaca77206"},
-]
-
-[[package]]
-name = "pyflakes"
-version = "2.4.0"
-description = "passive checker of Python programs"
-category = "dev"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-files = [
-    {file = "pyflakes-2.4.0-py2.py3-none-any.whl", hash = "sha256:3bb3a3f256f4b7968c9c788781e4ff07dce46bdf12339dcda61053375426ee2e"},
-    {file = "pyflakes-2.4.0.tar.gz", hash = "sha256:05a85c2872edf37a4ed30b0cce2f6093e1d0581f8c19d7393122da7e25b2b24c"},
 ]
 
 [[package]]
@@ -1373,6 +1238,32 @@ socks = ["PySocks (>=1.5.6,!=1.5.7)"]
 use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
+name = "ruff"
+version = "0.0.239"
+description = "An extremely fast Python linter, written in Rust."
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "ruff-0.0.239-py3-none-macosx_10_7_x86_64.whl", hash = "sha256:de9830cfcca81c5d25233bf4be6f2f95deb58a7eaf2295f91280de97a54240d7"},
+    {file = "ruff-0.0.239-py3-none-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:71c05f627fb9efb0859af248fe00f61391266d14e9406c10236dec7db1b1bfe5"},
+    {file = "ruff-0.0.239-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:3b1caea095c22067abc685b8452be5a9079ca27b88bffd80730f9e4ca8f81e7c"},
+    {file = "ruff-0.0.239-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:97293bae6da5bd82672473f6d43421de7dd27fe8a8b1b3c79ffeda37bcb492b4"},
+    {file = "ruff-0.0.239-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:25c3a84f8db9281385685041e98b67afd4a0bb5a872e897331af8229eb28b965"},
+    {file = "ruff-0.0.239-py3-none-manylinux_2_17_ppc64.manylinux2014_ppc64.whl", hash = "sha256:0056b7e1975a3ad7ef7eb9df4ca9f905661caf924c6843ecbe4e10719cd6cd0b"},
+    {file = "ruff-0.0.239-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:b38916c62eb2587743d2ec8e1f03a43eb5889cf4a56cb55f5eb3bffee5260e32"},
+    {file = "ruff-0.0.239-py3-none-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:7afe3bc50339b916b75a587ed299859fae9c1056ed73d35531c0af610dbe67f6"},
+    {file = "ruff-0.0.239-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:daac673996ecbef77bccf8cd03189c60302568b7aec669e352aa2d8925b074b2"},
+    {file = "ruff-0.0.239-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:d3e4bb03333b0c8012ad7d27246a7a95dba3d6ec8796c172af055a179a86b61c"},
+    {file = "ruff-0.0.239-py3-none-musllinux_1_2_armv7l.whl", hash = "sha256:801a209887f777811caf9fd4513eec9b505e139d1b0844e1eacd1b4683b0eba2"},
+    {file = "ruff-0.0.239-py3-none-musllinux_1_2_i686.whl", hash = "sha256:216592db3bd93c260cc329d3237548f17fea1f43f87673ab5cdeb04d548fbea9"},
+    {file = "ruff-0.0.239-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:1e523edf92c5e888d93a145ef20ad548fca4da7cbd7a8321b3539967a03b7caf"},
+    {file = "ruff-0.0.239-py3-none-win32.whl", hash = "sha256:e54233e7d97d5b705582f673dc3184c7b16c42f7eac3be707c0adf716e457293"},
+    {file = "ruff-0.0.239-py3-none-win_amd64.whl", hash = "sha256:a1bdd3b5ea60b160d3ceb2f8fef4d88af58b7932d4ed46c85c586ef2f277b71d"},
+    {file = "ruff-0.0.239.tar.gz", hash = "sha256:bbb1fe64d4641ce7e5855bbebd9e81f6a596501bcb67842600186b3aa9b950cf"},
+]
+
+[[package]]
 name = "sentry-sdk"
 version = "1.12.1"
 description = "Python client for Sentry (https://sentry.io)"
@@ -1662,4 +1553,4 @@ testing = ["coverage (>=6.2)", "coverage-enable-subprocess (>=1)", "flaky (>=3.7
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "395511e6dfb2118ca52a0449f437e2bb7c8052305a2af1da354da9ae6a11ca86"
+content-hash = "90d549bbed6d79d3ab0faee01a41302579c520449bbe491d72e59c1b5f8a809c"

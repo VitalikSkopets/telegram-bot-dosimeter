@@ -103,7 +103,7 @@ cryptographer = AsymmetricCryptographer()
 
 if __name__ == "__main__":
     enc_text = cryptographer.encrypt("Test string")
-    print(f"Encrypted string: {enc_text}")
+    # print(f"Encrypted string: {enc_text}")
 
     plain_text = cryptographer.decrypt(
         token="ApQnpEss/FJNWK7ImDH8vHLVgblCgbAVjBMnkIcDQZGJ4hZkhw6MFEWkATa/bG7"
@@ -113,4 +113,4 @@ if __name__ == "__main__":
         "+FfplQN7HJ6JZXoi/p/wWgZXIyfEZxbY+DVkdlFJaTp0nYIKHMNqj+H7emj1dxx4wvzam"
         "+h4aPzz2iPfWymt66Up0FM6TyPTA== "
     )
-    print(f"Decrypted string: {plain_text}")
+    # print(f"Decrypted string: {plain_text}")

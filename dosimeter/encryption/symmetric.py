@@ -41,12 +41,11 @@ class SymmetricCryptographer(BaseCryptographer):
 cryptographer = SymmetricCryptographer()
 
 if __name__ == "__main__":
-
     enc_text = cryptographer.encrypt("Test string")
-    print(f"Encrypted string: {enc_text}")
+    # print(f"Encrypted string: {enc_text}")
 
     plain_text = cryptographer.decrypt(
         token="Z0FBQUFBQmp5WVFSelUtaWdqRXN5MHdKenlGc1NYQ2RDYUctMTNtWC16UFdVRHhab2NGR2l"
         "jaFBhR2NKV1pUWTJKbVdyM21WblJFODM4VTMwWFdod1lNS3hnRWRlVENJbGc9PQ== "
     )
-    print(f"Decrypted string: {plain_text}")
+    # print(f"Decrypted string: {plain_text}")

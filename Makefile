@@ -21,8 +21,8 @@ run:  ## Run main function in main.py file - entry point in app
 .PHONY: lint
 lint:  ## Lint and static-check
 	$(POETRY) run isort --check-only --diff $(APP)
-	$(POETRY) run flake8 $(APP)
 	$(POETRY) run black --check --diff $(APP)
+	$(POETRY) run ruff $(APP)
 	$(POETRY) run mypy $(APP) --show-error-codes
 
 .PHONY: fmt-isort
@@ -46,5 +46,5 @@ test-coverage: ## Run tests with coverage
 
 .PHONY: clean
 clean:  ## Clean up the cache folders
-	@rm -rf __pycache__ .pytest_cache .mypy_cache
+	@rm -rf __pycache__ .pytest_cache .mypy_cache .ruff_cache
 	@echo "Cache folders deleted!"

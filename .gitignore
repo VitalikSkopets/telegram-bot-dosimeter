@@ -66,6 +66,9 @@ site/
 # mypy
 .mypy_cache/
 
+# ruff
+.ruff_cache/
+
 
 ### SublimeText ###
 # cache files for sublime text

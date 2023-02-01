@@ -19,19 +19,12 @@ repos:
     - id: black
       language_version: python3
       args: [--config=pyproject.toml]
-# Flake8 lints the Python code
-  - repo: https://github.com/PyCQA/flake8
-    rev: 4.0.1
+# Ruff lints the Python code
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.239
     hooks:
-    - id: flake8
-      args: [--config=setup.cfg]
-      additional_dependencies: [
-        "flake8-bugbear",
-        "flake8-builtins",
-        "flake8-broken-line",
-        "flake8-tidy-imports",
-        "flake8-coding",
-      ]
+    - id: ruff
+      args: [ --fix, --respect-gitignore ]
 # mypy checks types
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v0.991

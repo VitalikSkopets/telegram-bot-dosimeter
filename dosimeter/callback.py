@@ -103,8 +103,7 @@ class Callback:
     @send_action(ChatAction.TYPING)
     def keyboard_callback(self, update: Update, context: CallbackContext) -> None:
         """Inline keyboard buttons handler"""
-        query = update.callback_query
-        match query.data:
+        match update.callback_query.data:
             case Buttons.TOTAL_COUNT_USERS.callback_data:
                 return self._get_count_users_callback(update, context)
             case Buttons.LIST_ADMIN.callback_data:
