@@ -20,10 +20,6 @@ isort:
   script:
     - echo "Running the Static Analysis stage..."
     - poetry run isort .
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "push"'
-      changes:
-        - ${APP}/**/*.py
   retry:
     max: 2
     when: runner_system_failure
@@ -32,10 +28,6 @@ ruff:
   stage: Static Analysis
   script:
     - poetry run ruff ${APP}/*.py
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "push"'
-      changes:
-        - ${APP}/**/*.py
   retry:
     max: 2
     when: runner_system_failure
@@ -45,10 +37,6 @@ black:
   script:
     - poetry run black .
     - echo "linting done!"
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "push"'
-      changes:
-        - ${APP}/**/*.py
   retry:
     max: 2
     when: runner_system_failure
@@ -71,4 +59,4 @@ unit-tests:
   artifacts:
     expire_in: 30 days
     paths:
-      - coverage
+      - coverage/
