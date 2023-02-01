@@ -69,7 +69,7 @@ unit-tests:
     - poetry run pytest --cov=${APP} --cov-report=html
     - echo "Testing done!"
   artifacts:
-    expire_in: 1 week
+    expire_in: 30 days
     paths:
       - coverage/
   retry:
