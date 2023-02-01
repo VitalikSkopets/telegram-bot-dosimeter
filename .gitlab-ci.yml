@@ -66,18 +66,12 @@ unit-tests:
   needs: [isort, black, ruff, mypy]
   script:
     - echo "Running the Tests stage..."
-    - poetry run pytest --cov=${APP} --cov-report=xml
+    - poetry run pytest --cov=${APP} --cov-report=html
     - echo "Testing done!"
-  coverage: '/^TOTAL.+?(\d{2}\.\d{2}\%)$/'
   artifacts:
     expire_in: 1 week
     paths:
       - coverage/
-      - coverage.xml
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: coverage.xml
   retry:
     max: 2
     when: runner_system_failure
