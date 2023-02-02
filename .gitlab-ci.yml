@@ -51,12 +51,12 @@ mypy:
 
 unit-tests:
   stage: tests
-  needs: [isort, black, ruff, mypy]
+  needs: [mypy]
   script:
     - echo "Running the Tests stage..."
     - poetry run pytest --cov=${APP} --cov-report=term --cov-report=html
     - echo "Testing done!"
-  coverage: '/^TOTAL.+?(\d{2}\.\d{2}\%)$/'
+  coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
     paths:
       - coverage/
