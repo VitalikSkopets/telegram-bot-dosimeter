@@ -64,3 +64,17 @@ unit-tests:
   retry:
     max: 2
     when: runner_system_failure
+
+pages:
+  stage: tests
+  needs: [unit-tests]
+  script:
+    - rm -rf public
+    - mkdir -p public
+    - cp .coverage/index.html ./public/index.html
+  artifacts:
+    paths:
+      - public
+    expire_in: 30 days
+  only:
+    - master
