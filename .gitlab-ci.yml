@@ -68,9 +68,8 @@ unit-tests:
 
 badge:
   stage: build
-  before_script:
-    - poetry add anybadge
   script:
+    - poetry add anybadge
     - poetry run anybadge -l "Last Commit" -v "$(date '+%d.%m.%Y %H:%M')" -f last-commit.svg -c green
   artifacts:
     paths:
