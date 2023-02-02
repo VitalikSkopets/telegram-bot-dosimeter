@@ -71,7 +71,7 @@ pages:
   script:
     - rm -rf public
     - mkdir -p public
-    - cp .coverage/index.html ./public/index.html
+    - cp coverage/index.html ./public/index.html
   artifacts:
     paths:
       - public
