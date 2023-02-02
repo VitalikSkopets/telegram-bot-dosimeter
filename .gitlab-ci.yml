@@ -14,6 +14,7 @@ stages:
   - quality
   - typing
   - tests
+  - build
 
 isort:
   stage: quality
@@ -65,16 +66,14 @@ unit-tests:
     max: 2
     when: runner_system_failure
 
-pages:
-  stage: tests
-  needs: [unit-tests]
+badge:
+  stage: build
+  before_script:
+    - poetry add anybadge
   script:
-    - rm -rf public
-    - mkdir -p public
-    - cp coverage/index.html ./public/index.html
+    - poetry run anybadge -l "Last Commit" -v "$(date '+%d.%m.%Y %H:%M')" -f last-commit.svg -c green
   artifacts:
     paths:
-      - public
-    expire_in: 30 days
-  only:
-    - master
+      - last-commit.svg
+    when: always
+    expire_in: 4 weeks
