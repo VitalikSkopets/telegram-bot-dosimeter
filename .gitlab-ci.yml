@@ -11,12 +11,12 @@ before_script:
   - poetry install
 
 stages:
-  - Static Analysis
-  - Type checking
-  - Tests
+  - quality
+  - typing
+  - tests
 
 isort:
-  stage: Static Analysis
+  stage: quality
   script:
     - echo "Running the Static Analysis stage..."
     - poetry run isort .
@@ -25,7 +25,7 @@ isort:
     when: runner_system_failure
 
 ruff:
-  stage: Static Analysis
+  stage: quality
   script:
     - poetry run ruff ${APP}/*.py
   retry:
@@ -33,7 +33,7 @@ ruff:
     when: runner_system_failure
 
 black:
-  stage: Static Analysis
+  stage: quality
   script:
     - poetry run black .
     - echo "linting done!"
@@ -42,7 +42,7 @@ black:
     when: runner_system_failure
 
 mypy:
-  stage: Type checking
+  stage: typing
   needs: [isort, black, ruff]
   script:
     - echo "Running the Type checking stage..."
@@ -50,13 +50,17 @@ mypy:
     - echo "Type checking done!"
 
 unit-tests:
-  stage: Tests
+  stage: tests
   needs: [isort, black, ruff, mypy]
   script:
     - echo "Running the Tests stage..."
-    - poetry run pytest --cov=${APP} --cov-report=html
+    - poetry run pytest --cov=${APP} --cov-report=term --cov-report=html
     - echo "Testing done!"
+  coverage: '/^TOTAL.+?(\d{2}\.\d{2}\%)$/'
   artifacts:
-    expire_in: 30 days
     paths:
       - coverage/
+    expire_in: 30 days
+  retry:
+    max: 2
+    when: runner_system_failure

@@ -42,7 +42,7 @@ test:  ## Run tests
 
 .PHONY: test-coverage
 test-coverage: ## Run tests with coverage
-	$(POETRY) run pytest --cov=$(APP) --cov-report=html
+	$(POETRY) run pytest --cov=$(APP) --cov-report=term --cov-report=html
 
 .PHONY: clean
 clean:  ## Clean up the cache folders
