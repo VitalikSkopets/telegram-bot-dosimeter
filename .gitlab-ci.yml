@@ -4,6 +4,11 @@ default:
 variables:
   APP: "dosimeter"
 
+.retry:
+  retry:
+    max: 2
+    when: runner_system_failure
+
 before_script:
   - pip install --upgrade pip
   - pip install poetry
@@ -14,35 +19,30 @@ stages:
   - quality
   - typing
   - tests
-  - build
+  - deploy
 
 isort:
+  extends: .retry
   stage: quality
   script:
     - echo "Running the Static Analysis stage..."
     - poetry run isort .
-  retry:
-    max: 2
-    when: runner_system_failure
 
 ruff:
+  extends: .retry
   stage: quality
   script:
     - poetry run ruff ${APP}/*.py
-  retry:
-    max: 2
-    when: runner_system_failure
 
 black:
+  extends: .retry
   stage: quality
   script:
     - poetry run black .
     - echo "linting done!"
-  retry:
-    max: 2
-    when: runner_system_failure
 
 mypy:
+  extends: .retry
   stage: typing
   needs: [isort, black, ruff]
   script:
@@ -51,6 +51,7 @@ mypy:
     - echo "Type checking done!"
 
 unit-tests:
+  extends: .retry
   stage: tests
   needs: [mypy]
   script:
@@ -62,18 +63,17 @@ unit-tests:
     paths:
       - coverage/
     expire_in: 30 days
-  retry:
-    max: 2
-    when: runner_system_failure
 
 badge:
-  stage: build
+  stage: deploy
   needs: [unit-tests]
   script:
     - poetry add anybadge
     - poetry run anybadge -l "Last Commit" -v "$(date '+%d.%m.%Y %H:%M')" -f last-commit.svg -c green
+    - poetry run anybadge --style=gitlab-scoped --label=Telegram --value=Dosimeter --file=gitlab_scoped.svg --color=deepskyblue
   artifacts:
     paths:
       - last-commit.svg
+      - gitlab_scoped.svg
     when: always
     expire_in: 4 weeks
