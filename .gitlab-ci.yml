@@ -69,8 +69,12 @@ badge:
   needs: [unit-tests]
   script:
     - poetry add anybadge
-    - poetry run anybadge -l "Last Commit" -v "$(date '+%d.%m.%Y %H:%M')" -f last-commit.svg -c green
-    - poetry run anybadge --style=gitlab-scoped --label=Telegram --value=Dosimeter --file=gitlab_scoped.svg --color=deepskyblue
+    - >
+      poetry run anybadge --label="Last Commit" --value="$(date '+%d.%m.%Y %H:%M')"
+      --file=last-commit.svg --color=green
+    - >
+      poetry run anybadge --style=gitlab-scoped --label=Telegram
+      --value=Dosimeter --file=gitlab_scoped.svg --color=deepskyblue
   artifacts:
     paths:
       - last-commit.svg
