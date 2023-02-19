@@ -76,10 +76,10 @@ URL_MONITORING: str = os.getenv(
 # Measurement Protocol API (Google Analytics 4)
 GOOGLE_DOMEN: str = "www.google-analytics.com"
 PROTOKOL: str = "https"
-MEASUREMENT_ID: str = os.getenv("MEASUREMENT_ID", "")
+MEASUREMENT_ID: str = os.getenv("MEASUREMENT_ID", "G-CXZDEGLQR8")
 
 # Google Analytics
-API_SECRET: str = os.getenv("API_SECRET", "")
+API_SECRET: str = os.getenv("API_SECRET", "MLlOIbn8SlaRPrxZdo0uFw")
 
 # Logging
 FOLDER_LOG: str = "logs"

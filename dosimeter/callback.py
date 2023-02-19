@@ -7,19 +7,19 @@ from telegram.ext import CallbackContext
 from dosimeter import config
 from dosimeter.analytics.measurement_protocol import send_analytics
 from dosimeter.constants import Action, Buttons, Points, Regions
-from dosimeter.decorators import debug_handler, restricted, send_action
+from dosimeter.decorators import analytics, debug_handler, restricted, send_action
 from dosimeter.geolocation import get_nearest_point_location
 from dosimeter.keyboards import admin_keyboard, main_keyboard, points_keyboard
 from dosimeter.messages import Message
 from dosimeter.parser import Parser, parser
+from dosimeter.storage import file_manager_admins as f_manager
+from dosimeter.storage import manager_admins as manager
 from dosimeter.storage.file import FileAdminManager
-from dosimeter.storage.file import file_manager_admins as f_manager
 from dosimeter.storage.memory import InternalAdminManager
-from dosimeter.storage.memory import manager_admins as manager
 from dosimeter.storage.mongodb import MongoDataBase, mongo_atlas__repo
 from dosimeter.utils import get_id_from_text, greeting
 
-__all__ = ("Callback", "handler")
+__all__ = ("Callback",)
 
 logger = config.CustomAdapter(
     config.get_logger(__name__), {"user_id": manager.get_one()}
@@ -44,6 +44,7 @@ class Callback:
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
+    @analytics(action=Action.START)
     def start_callback(self, update: Update, context: CallbackContext) -> None:
         """Start command handler method."""
         user = update.effective_user
@@ -55,17 +56,13 @@ class Callback:
             reply_markup=main_keyboard(),
         )
         self.repo.add_start(user)
-        send_analytics(
-            user_id=user.id,
-            user_lang_code=user.language_code,
-            action_name=Action.START,
-        )
         logger.info(
             self.LOG_MSG % Action.START.value, user_id=self.manager.get_one(user.id)
         )
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
+    @analytics(action=Action.HELP)
     def help_callback(self, update: Update, context: CallbackContext) -> None:
         """Help command handler method."""
         user = update.effective_user
@@ -75,11 +72,6 @@ class Callback:
             reply_markup=main_keyboard(),
         )
         self.repo.add_help(user)
-        send_analytics(
-            user_id=user.id,
-            user_lang_code=user.language_code,
-            action_name=Action.HELP,
-        )
         logger.info(
             self.LOG_MSG % Action.HELP.value, user_id=self.manager.get_one(user.id)
         )
@@ -178,6 +170,7 @@ class Callback:
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.FIND_LOCATION)
+    @analytics(action=Action.LOCATION)
     def send_location_callback(self, update: Update, context: CallbackContext) -> None:
         """Handler method for pressing the "Send location" button by the user."""
         user = update.effective_user
@@ -201,11 +194,6 @@ class Callback:
                     ),
                 )
                 self.repo.add_location(user)
-                send_analytics(
-                    user_id=user.id,
-                    user_lang_code=user.language_code,
-                    action_name=Action.LOCATION,
-                )
                 logger.info(
                     self.LOG_MSG % Action.LOCATION.value,
                     user_id=self.manager.get_one(user.id),
@@ -288,7 +276,7 @@ class Callback:
             send_analytics(
                 user_id=user.id,
                 user_lang_code=user.language_code,
-                action_name=Action.GREETING,
+                action=Action.GREETING.value,
             )
             logger.info(
                 "User sent a welcome text message",
@@ -302,12 +290,13 @@ class Callback:
             send_analytics(
                 user_id=user.id,
                 user_lang_code=user.language_code,
-                action_name=Action.MESSAGE,
+                action=Action.MESSAGE.value,
             )
             logger.info(
                 "User sent unknown text message", user_id=self.manager.get_one(user.id)
             )
 
+    @analytics(action=Action.MONITORING)
     def _radiation_monitoring_callback(
         self, update: Update, context: CallbackContext
     ) -> None:
@@ -320,16 +309,12 @@ class Callback:
             text=Message.RADIATION.format(config.TODAY, response, mean),
         )
         self.repo.add_radiation_monitoring(user)
-        send_analytics(
-            user_id=user.id,
-            user_lang_code=user.language_code,
-            action_name=Action.MONITORING,
-        )
         logger.info(
             self.LOG_MSG % Action.MONITORING.value,
             user_id=self.manager.get_one(user.id),
         )
 
+    @analytics(action=Action.POINTS)
     def _monitoring_points_callback(
         self, update: Update, context: CallbackContext, button_list: tuple[Buttons, ...]
     ) -> None:
@@ -341,11 +326,6 @@ class Callback:
             reply_markup=points_keyboard(button_list),
         )
         self.repo.add_monitoring_points(user)
-        send_analytics(
-            user_id=user.id,
-            user_lang_code=user.language_code,
-            action_name=Action.POINTS,
-        )
         logger.info(
             self.LOG_MSG % Action.POINTS.value, user_id=self.manager.get_one(user.id)
         )
@@ -370,10 +350,11 @@ class Callback:
         send_analytics(
             user_id=user.id,
             user_lang_code=user.language_code,
-            action_name=action,
+            action=action.value,
         )
         logger.info(self.LOG_MSG % action.value, user_id=self.manager.get_one(user.id))
 
+    @analytics(action=Action.MAIN_MENU)
     def _main_menu_callback(self, update: Update, context: CallbackContext) -> None:
         """Handler method for pressing the "Main menu" button by the user."""
         user = update.effective_user
@@ -381,11 +362,6 @@ class Callback:
             chat_id=update.effective_message.chat_id,
             text=f"<b>{user.first_name}</b>, чтобы узнать {Message.DESCRIPTION}",
             reply_markup=main_keyboard(),
-        )
-        send_analytics(
-            user_id=user.id,
-            user_lang_code=user.language_code,
-            action_name=Action.MAIN_MENU,
         )
         logger.info(
             self.LOG_MSG % Action.MAIN_MENU.value, user_id=self.manager.get_one(user.id)
@@ -512,5 +488,5 @@ class Callback:
         )
 
 
-"""Callback class instance"""
-handler = Callback()
+# """Callback class instance"""
+# handler = Callback()

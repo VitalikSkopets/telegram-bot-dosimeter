@@ -1,7 +1,7 @@
 from dosimeter.constants import ADMIN_ID, LIST_OF_ADMIN_IDS
 from dosimeter.storage.repository import AdminManager
 
-__all__ = ("InternalAdminManager", "manager_admins")
+__all__ = ("InternalAdminManager",)
 
 
 class InternalAdminManager(AdminManager):
@@ -57,7 +57,3 @@ class InternalAdminManager(AdminManager):
             return "This user ID is not in the list of administrators.", False
         self.temp_list_admins.remove(uid)
         return f"User ID <u>{uid}</u> deleted to the list of admins.", True
-
-
-"""InternalAdminManager class instance"""
-manager_admins = InternalAdminManager()

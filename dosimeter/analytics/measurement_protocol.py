@@ -2,7 +2,6 @@ import requests
 
 from dosimeter import config
 from dosimeter.config import get_logger
-from dosimeter.constants import Action
 
 __all__ = ("send_analytics",)
 
@@ -15,14 +14,14 @@ URL: str = (
 )
 
 
-def send_analytics(user_id: int, user_lang_code: str, action_name: Action) -> None:
+def send_analytics(user_id: int, user_lang_code: str, action: str) -> None:
     """Send record to Google Analytics 4."""
     params = {
         "client_id": str(user_id),
         "user_id": str(user_id),
         "events": [
             {
-                "name": action_name,
+                "name": action,
                 "params": {
                     "language": user_lang_code,
                     "engagement_time_msec": "1",

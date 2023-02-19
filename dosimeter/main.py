@@ -11,8 +11,8 @@ from telegram.ext import (
 )
 from telegram.utils.request import Request
 
-from dosimeter import config
-from dosimeter.callback import Callback, handler  # type: ignore[attr-defined]
+from dosimeter import config, handler
+from dosimeter.callback import Callback  # type: ignore[attr-defined]
 from dosimeter.constants import Command
 
 logger = config.get_logger(__name__)

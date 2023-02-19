@@ -7,7 +7,7 @@ from dosimeter.analytics.measurement_protocol import send_analytics
 from dosimeter.config import CustomAdapter, get_logger
 from dosimeter.constants import ADMIN_ID, LIST_OF_ADMIN_IDS, Action, Emoji
 from dosimeter.messages import Message
-from dosimeter.storage.memory import manager_admins as manager
+from dosimeter.storage import manager_admins as manager
 
 __all__ = (
     "analytics",
@@ -59,7 +59,7 @@ def send_action(action: Any) -> Callable:
     return decorator
 
 
-def analytics(handler_method_name: Action) -> Callable:
+def analytics(action: Action) -> Callable:
     """Send record to Google Analytics 4."""
 
     def decorator(func: Callable) -> Callable:
@@ -70,7 +70,7 @@ def analytics(handler_method_name: Action) -> Callable:
                 send_analytics(
                     user_id=update.message.chat_id,
                     user_lang_code=update.message.from_user.language_code,
-                    action_name=handler_method_name,
+                    action=action.value,
                 )
             return func(*args, **kwargs)
 
