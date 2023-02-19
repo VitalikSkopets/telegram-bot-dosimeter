@@ -3,13 +3,12 @@ from typing import Union
 
 from dosimeter.config import ASYMMETRIC_ENCRYPTION
 from dosimeter.constants import ADMIN_ID, LIST_OF_ADMIN_IDS, Files
+from dosimeter.encryption import asym_cypher, sym_cypher
 from dosimeter.encryption.asymmetric import AsymmetricCryptographer
-from dosimeter.encryption.asymmetric import cryptographer as asym_cypher
 from dosimeter.encryption.symmetric import SymmetricCryptographer
-from dosimeter.encryption.symmetric import cryptographer as sym_cypher
 from dosimeter.storage.repository import AdminManager
 
-__all__ = ("FileAdminManager", "file_manager_admins")
+__all__ = ("FileAdminManager",)
 
 
 class FileAdminManager(AdminManager):
@@ -87,7 +86,3 @@ class FileAdminManager(AdminManager):
                 file.write(f"{self.cryptographer.encrypt(str(admin_id))}" + "\n")
 
         return f"User ID <u>{str(uid)}</u> deleted to the list of admins.", True
-
-
-"""FileAdminManager class instance"""
-file_manager_admins = FileAdminManager()

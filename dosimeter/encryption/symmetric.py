@@ -5,7 +5,7 @@ from cryptography.fernet import Fernet
 from dosimeter.config import PWD
 from dosimeter.encryption.interface import BaseCryptographer
 
-__all__ = ("SymmetricCryptographer", "cryptographer")
+__all__ = ("SymmetricCryptographer",)
 
 
 class SymmetricCryptographer(BaseCryptographer):
@@ -37,10 +37,8 @@ class SymmetricCryptographer(BaseCryptographer):
         return plaintext.decode(encoding="utf-8")
 
 
-"""SymmetricCryptographer class instance"""
-cryptographer = SymmetricCryptographer()
-
 if __name__ == "__main__":
+    cryptographer = SymmetricCryptographer()
     enc_text = cryptographer.encrypt("Test string")
     # print(f"Encrypted string: {enc_text}")
 

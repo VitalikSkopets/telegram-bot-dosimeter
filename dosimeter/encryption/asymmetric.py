@@ -10,7 +10,7 @@ from dosimeter.config import PWD
 from dosimeter.constants import Files
 from dosimeter.encryption.interface import BaseCryptographer
 
-__all__ = ("AsymmetricCryptographer", "cryptographer")
+__all__ = ("AsymmetricCryptographer",)
 
 
 class AsymmetricCryptographer(BaseCryptographer):
@@ -98,10 +98,8 @@ class AsymmetricCryptographer(BaseCryptographer):
         return plaintext.decode(encoding="utf-8")
 
 
-"""AsymmetricCryptographer class instance"""
-cryptographer = AsymmetricCryptographer()
-
 if __name__ == "__main__":
+    cryptographer = AsymmetricCryptographer()
     enc_text = cryptographer.encrypt("Test string")
     # print(f"Encrypted string: {enc_text}")
 
