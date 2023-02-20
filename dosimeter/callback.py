@@ -5,9 +5,11 @@ from telegram import ChatAction, ReplyKeyboardMarkup, ReplyKeyboardRemove, Updat
 from telegram.ext import CallbackContext
 
 from dosimeter import config
-from dosimeter.analytics.measurement_protocol import send_analytics
+from dosimeter.analytics import analytics
+from dosimeter.analytics.decorators import analytic
+from dosimeter.analytics.measurement_protocol import Analytics
 from dosimeter.constants import Action, Buttons, Points, Regions
-from dosimeter.decorators import analytics, debug_handler, restricted, send_action
+from dosimeter.decorators import debug_handler, restricted, send_action
 from dosimeter.geolocation import get_nearest_point_location
 from dosimeter.keyboards import admin_keyboard, main_keyboard, points_keyboard
 from dosimeter.messages import Message
@@ -36,16 +38,18 @@ class Callback:
         self,
         parse: Parser = parser,
         repo: MongoDataBase = mongo_atlas__repo,
+        measurement: Analytics = analytics,
         control: Union[InternalAdminManager, FileAdminManager] = manager or f_manager,
     ) -> None:
         """Constructor method for initializing objects of class Handlers."""
         self.parser = parse
         self.repo = repo
+        self.analytics = measurement
         self.manager = control
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
-    @analytics(action=Action.START)
+    @analytic(action=Action.START)
     def start_callback(self, update: Update, context: CallbackContext) -> None:
         """Start command handler method."""
         user = update.effective_user
@@ -63,7 +67,7 @@ class Callback:
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
-    @analytics(action=Action.HELP)
+    @analytic(action=Action.HELP)
     def help_callback(self, update: Update, context: CallbackContext) -> None:
         """Help command handler method."""
         user = update.effective_user
@@ -171,7 +175,7 @@ class Callback:
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.FIND_LOCATION)
-    @analytics(action=Action.LOCATION)
+    @analytic(action=Action.LOCATION)
     def send_location_callback(self, update: Update, context: CallbackContext) -> None:
         """Handler method for pressing the "Send location" button by the user."""
         user = update.effective_user
@@ -274,7 +278,7 @@ class Callback:
                 reply_markup=main_keyboard(),
             )
             self.repo.add_messages(user)
-            send_analytics(
+            self.analytics.send(
                 user_id=user.id,
                 user_lang_code=user.language_code,
                 action=Action.GREETING.value,
@@ -288,7 +292,7 @@ class Callback:
                 chat_id=update.effective_message.chat_id,
                 text=Message.UNKNOWN,
             )
-            send_analytics(
+            self.analytics.send(
                 user_id=user.id,
                 user_lang_code=user.language_code,
                 action=Action.MESSAGE.value,
@@ -297,7 +301,7 @@ class Callback:
                 "User sent unknown text message", user_id=self.manager.get_one(user.id)
             )
 
-    @analytics(action=Action.MONITORING)
+    @analytic(action=Action.MONITORING)
     def _radiation_monitoring_callback(
         self, update: Update, context: CallbackContext
     ) -> None:
@@ -315,7 +319,7 @@ class Callback:
             user_id=self.manager.get_one(user.id),
         )
 
-    @analytics(action=Action.POINTS)
+    @analytic(action=Action.POINTS)
     def _monitoring_points_callback(
         self, update: Update, context: CallbackContext, button_list: tuple[Buttons, ...]
     ) -> None:
@@ -348,14 +352,14 @@ class Callback:
         )
 
         self.repo.add_region(user, action)
-        send_analytics(
+        self.analytics.send(
             user_id=user.id,
             user_lang_code=user.language_code,
             action=action.value,
         )
         logger.info(self.LOG_MSG % action.value, user_id=self.manager.get_one(user.id))
 
-    @analytics(action=Action.MAIN_MENU)
+    @analytic(action=Action.MAIN_MENU)
     def _main_menu_callback(self, update: Update, context: CallbackContext) -> None:
         """Handler method for pressing the "Main menu" button by the user."""
         user = update.effective_user
@@ -487,7 +491,3 @@ class Callback:
             self.LOG_MSG % Action.HIDE_KEYBOARD.value,
             user_id=self.manager.get_one(user.id),
         )
-
-
-# """Callback class instance"""
-# handler = Callback()
