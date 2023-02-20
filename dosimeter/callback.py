@@ -11,7 +11,8 @@ from dosimeter.decorators import analytics, debug_handler, restricted, send_acti
 from dosimeter.geolocation import get_nearest_point_location
 from dosimeter.keyboards import admin_keyboard, main_keyboard, points_keyboard
 from dosimeter.messages import Message
-from dosimeter.parser import Parser, parser
+from dosimeter.parse import parser
+from dosimeter.parse.parser import Parser
 from dosimeter.storage import file_manager_admins as f_manager
 from dosimeter.storage import manager_admins as manager
 from dosimeter.storage.file import FileAdminManager
