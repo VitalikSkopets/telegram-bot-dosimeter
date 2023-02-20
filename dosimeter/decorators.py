@@ -3,14 +3,12 @@ from typing import Any, Callable, Optional
 
 import sentry_sdk
 
-from dosimeter.analytics.measurement_protocol import send_analytics
 from dosimeter.config import CustomAdapter, get_logger
-from dosimeter.constants import ADMIN_ID, LIST_OF_ADMIN_IDS, Action, Emoji
+from dosimeter.constants import ADMIN_ID, LIST_OF_ADMIN_IDS, Emoji
 from dosimeter.messages import Message
 from dosimeter.storage import manager_admins as manager
 
 __all__ = (
-    "analytics",
     "debug_handler",
     "restricted",
     "send_action",
@@ -55,26 +53,6 @@ def send_action(action: Any) -> Callable:
             return func(*args, **kwargs)
 
         return command_func
-
-    return decorator
-
-
-def analytics(action: Action) -> Callable:
-    """Send record to Google Analytics 4."""
-
-    def decorator(func: Callable) -> Callable:
-        @wraps(func)
-        def measurement(*args: Any, **kwargs: Any) -> Callable:
-            update = args[1]
-            if update and hasattr(update, "message"):
-                send_analytics(
-                    user_id=update.message.chat_id,
-                    user_lang_code=update.message.from_user.language_code,
-                    action=action.value,
-                )
-            return func(*args, **kwargs)
-
-        return measurement
 
     return decorator
 
