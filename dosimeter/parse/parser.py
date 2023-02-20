@@ -8,7 +8,7 @@ from dosimeter.cache import timed_lru_cache
 from dosimeter.constants import Points
 from dosimeter.messages import Message
 
-__all__ = ("Parser", "parser")
+__all__ = ("Parser",)
 
 logger = config.get_logger(__name__)
 
@@ -131,7 +131,3 @@ class Parser:
         while len(string) < min_length:
             string += "-"
         return string
-
-
-"""Parser class instance"""
-parser = Parser()
