@@ -10,10 +10,11 @@ variables:
     when: runner_system_failure
 
 before_script:
-  - pip install --upgrade pip
-  - pip install poetry
+  - curl -sSL https://install.python-poetry.org | python3 -
+  - export PATH="/root/.local/bin:$PATH"
+  - poetry --version
   - poetry config virtualenvs.create false
-  - poetry install
+  - poetry install -vv
 
 stages:
   - quality
@@ -39,7 +40,7 @@ black:
   stage: quality
   script:
     - poetry run black .
-    - echo "linting done!"
+    - echo "linting done! \(^_^)/"
 
 mypy:
   extends: .retry
@@ -48,7 +49,7 @@ mypy:
   script:
     - echo "Running the Type checking stage..."
     - poetry run mypy .
-    - echo "Type checking done!"
+    - echo "Type checking done! \(^_^)/"
 
 unit-tests:
   extends: .retry
@@ -57,7 +58,7 @@ unit-tests:
   script:
     - echo "Running the Tests stage..."
     - poetry run pytest --cov=${APP} --cov-report=term --cov-report=html
-    - echo "Testing done!"
+    - echo "Testing done! \(^_^)/"
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
     paths:
