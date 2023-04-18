@@ -20,7 +20,7 @@ logger = config.get_logger(__name__)
 
 class DosimeterBot:
     """The wrapper class encapsulates the logic of initializing and launching
-    the DosimeterBot object"""
+    the DosimeterBot object."""
 
     TOKEN: str = config.TOKEN
     WEBHOOK_MODE: bool = config.WEBHOOK_MODE
@@ -28,7 +28,7 @@ class DosimeterBot:
     PORT: int = config.PORT
 
     def __init__(self, callback: Callback = handler) -> None:
-        """Instantiate a DosimeterBot object"""
+        """Instantiate a DosimeterBot object."""
 
         # Initial and check bot application
         defaults = Defaults(
@@ -83,14 +83,14 @@ class DosimeterBot:
         self.updater.dispatcher.add_handler(button_handler)
 
     def start(self) -> None:
-        """Method for launching the DosimeterBot object"""
+        """Method for launching the DosimeterBot object."""
         if not self.WEBHOOK_MODE:
             logger.info("Application running in pooling mode...")
             # Start the Bot
             self.updater.start_polling()
             self.updater.idle()
             logger.info("Application finished!")
-        if self.HEROKU_APP and self.WEBHOOK_MODE:
+        if self.WEBHOOK_MODE and self.HEROKU_APP:
             logger.info("Application running in webhook mode...")
             # Start the Bot
             self.updater.start_webhook(
@@ -101,6 +101,12 @@ class DosimeterBot:
             )
             self.updater.idle()
             logger.info("Application finished!")
+
+
+def main() -> None:
+    """Application entry point."""
+    instance_of_bot = DosimeterBot()
+    instance_of_bot.start()
 
 
 if __name__ == "__main__":

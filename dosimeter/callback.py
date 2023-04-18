@@ -1,6 +1,4 @@
 # type: ignore
-from typing import Union
-
 from telegram import ChatAction, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import CallbackContext
 
@@ -17,9 +15,8 @@ from dosimeter.parse import parser
 from dosimeter.parse.parser import Parser
 from dosimeter.storage import file_manager_admins as f_manager
 from dosimeter.storage import manager_admins as manager
-from dosimeter.storage.file import FileAdminManager
-from dosimeter.storage.memory import InternalAdminManager
-from dosimeter.storage.mongodb import MongoDataBase, mongo_atlas__repo
+from dosimeter.storage.mongodb import mongo_atlas__repo
+from dosimeter.storage.repository import AdminManager, DocumentRepository
 from dosimeter.utils import get_id_from_text, greeting
 
 __all__ = ("Callback",)
@@ -37,9 +34,9 @@ class Callback:
     def __init__(
         self,
         parse: Parser = parser,
-        repo: MongoDataBase = mongo_atlas__repo,
+        repo: DocumentRepository = mongo_atlas__repo,
         measurement: Analytics = analytics,
-        control: Union[InternalAdminManager, FileAdminManager] = manager or f_manager,
+        control: AdminManager = manager or f_manager,
     ) -> None:
         """Constructor method for initializing objects of class Handlers."""
         self.parser = parse
@@ -379,7 +376,7 @@ class Callback:
         user = update.effective_user
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text=self.repo.get_users_count(user),
+            text=self.repo.get_count_of_users(user),
         )
         logger.debug(
             self.LOG_MSG % Action.GET_COUNT.value, user_id=self.manager.get_one(user.id)

@@ -39,47 +39,42 @@ TODAY: str = translate(DATE, DEFAULT_LOCALE)
 
 DEBUG: bool = True
 ENVIRON: str = "DEV" if DEBUG else "PROD"
+WEBHOOK_MODE: bool = bool(0) if DEBUG else bool(1)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # python-telegram-bot API TOKEN
-TOKEN: str = os.getenv("API_TOKEN", "1701801984:AAHb4Gl75jSqiC-uIVGuDRdK54ueEIfNQps")
+TOKEN: str = os.getenv("API_TOKEN", "")
 
 # MongoDB Atlas
-MONGO_DB_NAME: str = os.getenv("MONGO_DB_NAME", "users_db")
-MONGO_DB_LOGIN: str = os.getenv("MONGO_DB_LOGIN", "DosimeterBot")
-MONGO_DB_PASSWORD: str = os.getenv("MONGO_DB_PASSWORD", "dG7ntC7sa1RrDpBp")
-MONGO_DB_HOST: str = os.getenv("MONGO_DB_HOST", "cluster")
-MONGO_DB_CONNECTION: str = os.getenv(
-    "MONGO_DB_CONNECTION",
+MONGO_DB_NAME: str = os.getenv("MONGO_DB_NAME", "")
+MONGO_DB_LOGIN: str = os.getenv("MONGO_DB_LOGIN", "")
+MONGO_DB_PASSWORD: str = os.getenv("MONGO_DB_PASSWORD", "")
+MONGO_DB_HOST: str = os.getenv("MONGO_DB_HOST", "")
+MONGO_DB_CONNECTION: str = (
     f"mongodb+srv://{MONGO_DB_LOGIN}:{MONGO_DB_PASSWORD}@cluster.s3cxd.mongodb.net/"
-    f"{MONGO_DB_NAME}?retryWrites=true&w=majority",
+    f"{MONGO_DB_NAME}?retryWrites=true&w=majority"
 )
 
 # Encryption
-PWD: str = os.getenv(
-    "PASS", "N1dzNXJKMWZSWXBWZWpDSVk4NVFZSkR2dHhxWWpnUjg5Rk9HaTVFSDF5Yz0="
-)
+PWD: str = os.getenv("PASS", "")
 ASYMMETRIC_ENCRYPTION: bool = False
 
 # Heroku
 HEROKU_APP: str = os.getenv("HEROKU_APP", "")
-WEBHOOK_MODE: bool = bool(os.getenv("WEBHOOK_MODE", 0))
 PORT: int = int(os.getenv("PORT", "8443"))
 
 # Source data
-URL_RADIATION: str = os.getenv("URL_RADIATION", "https://rad.org.by/radiation.xml")
-URL_MONITORING: str = os.getenv(
-    "URL_MONITORING", "https://rad.org.by/monitoring/radiation"
-)
+URL_RADIATION: str = f"{os.getenv('DEFAULT_URL')}/radiation.xml"
+URL_MONITORING: str = f"{os.getenv('DEFAULT_URL')}/monitoring/radiation"
 
 # Measurement Protocol API (Google Analytics 4)
 GOOGLE_DOMEN: str = "www.google-analytics.com"
 PROTOKOL: str = "https"
-MEASUREMENT_ID: str = os.getenv("MEASUREMENT_ID", "G-CXZDEGLQR8")
+MEASUREMENT_ID: str = os.getenv("MEASUREMENT_ID", "")
 
 # Google Analytics
-API_SECRET: str = os.getenv("API_SECRET", "MLlOIbn8SlaRPrxZdo0uFw")
+API_SECRET: str = os.getenv("API_SECRET", "")
 
 # Logging
 FOLDER_LOG: str = "logs"

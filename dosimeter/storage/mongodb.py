@@ -1,4 +1,5 @@
-from typing import Any, Union
+import abc
+from typing import Any
 
 from pymongo import MongoClient
 from telegram import User
@@ -7,8 +8,7 @@ from dosimeter import config
 from dosimeter.config import ASYMMETRIC_ENCRYPTION, CustomAdapter, get_logger
 from dosimeter.constants import Action
 from dosimeter.encryption import asym_cypher, sym_cypher
-from dosimeter.encryption.asymmetric import AsymmetricCryptographer
-from dosimeter.encryption.symmetric import SymmetricCryptographer
+from dosimeter.encryption.interface import BaseCryptographer
 from dosimeter.storage import manager_admins as manager
 from dosimeter.storage.memory import InternalAdminManager
 from dosimeter.storage.repository import DocumentRepository
@@ -18,14 +18,14 @@ __all__ = ("MongoDataBase", "mongo_atlas__repo")
 logger = CustomAdapter(get_logger(__name__), {"user_id": manager.get_one()})
 
 
-class MongoDataBase(DocumentRepository):
+class MongoDataBase(DocumentRepository, abc.ABC):
     """Mongo Data Base client."""
 
     LOG_MSG = "Action '%s' added to Mongo DB."
 
     def __init__(
         self,
-        cypher: Union[SymmetricCryptographer, AsymmetricCryptographer] = (
+        cypher: BaseCryptographer = (
             asym_cypher if ASYMMETRIC_ENCRYPTION else sym_cypher
         ),
         control: InternalAdminManager = manager,
@@ -218,7 +218,7 @@ class MongoDataBase(DocumentRepository):
         logger.debug(f"Info about the user: {user}")
         return user
 
-    def get_users_count(self, user: User | None = None) -> str:
+    def get_count_of_users(self, user: User | None = None) -> str:
         """Method for getting the number of users from the database."""
         msg = "Users count in the database:"
         users_count = self.mdb.users.count_documents({})
@@ -265,4 +265,4 @@ if __name__ == "__main__":
     # print(mongo_atlas__repo.get_user_by_id(413818791))
     # print(mongo_atlas__repo.get_all_users_data())
     # print(mongo_atlas__repo.get_all_users_ids())
-    # print(mongo_atlas__repo.get_users_count())
+    # print(mongo_atlas__repo.get_count_of_users())

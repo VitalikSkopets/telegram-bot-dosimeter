@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "telegram-bot-dosimeter"
+name = "dosimeter"
 version = "0.1.0"
 description = "This bot can inform the user about the current state of the radiation encounter in Belarus and about the power level of the equivalent concentration-concentration recorded in the radiation monitoring network of the Ministry of Natural Resources and Environmental Protection of Belarus. Source: ©rad.org.by Designed by: ©itrexgroup.com"
 license = "MIT"
