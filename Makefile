@@ -2,10 +2,11 @@
 
 DOTENV_BASE_FILE ?= .env
 APP = dosimeter
+TESTS = tests/**/*.py
 
 -include $(DOTENV_BASE_FILE)
 
-# === Poetry ===
+# ==== Poetry ====
 
 .PHONY: install-poetry
 install-poetry:  ## Installation Poetry tool for dependency management and packaging in Python
@@ -17,13 +18,13 @@ install-poetry:  ## Installation Poetry tool for dependency management and packa
 update-poetry:  ## Updating Poetry to the latest stable version
 	poetry self update
 
-# === Launch App ===
+# ==== Launch App ====
 
 .PHONY: run
 run:  ## Run main function in main.py file - entry point in app
 	poetry run main-run
 
-# === Linters and formating ===
+# ==== Linters and formating ====
 
 .PHONY: lint
 lint:  ## Lint and static-check
@@ -31,8 +32,13 @@ lint:  ## Lint and static-check
 	poetry run isort --check-only --diff $(APP)
 	poetry run black --check --diff $(APP)
 	poetry run ruff $(APP)
-	poetry run mypy $(APP) --show-error-codes
+	poetry run mypy $(APP) $(TESTS) --show-error-codes
+	poetry run yamllint -d '{"extends": "default", "ignore": ".venv"}' -s .
 	@echo "====> Linter and style checking finished! \(^_^)/"
+
+.PHONY: fmt-yaml
+fmt-yaml:  ## to lint yaml files
+	poetry run yamllint -d '{"extends": "default", "ignore": ".venv"}' -s .
 
 .PHONY: fmt-isort
 fmt-isort:  ## To apply isort recursively
@@ -43,19 +49,39 @@ fmt-black:  ## To get started black recursively
 	poetry run black $(APP)
 
 .PHONY: fmt
-fmt: fmt-isort fmt-black
+fmt: fmt-yaml fmt-isort fmt-black
 
-# === Tests ===
+.PHONY: mypy
+mypy:  ## to run typing checking
+	poetry run mypy $(APP) $(TESTS) --show-error-codes
+
+# ==== Tests ====
 
 .PHONY: test
 test:  ## Run tests
-	poetry run pytest --verbose --capture=no --showlocals --durations=0
+	poetry run pytest --verbose --randomly-seed=default --capture=no --showlocals
 
 .PHONY: test-coverage
 test-coverage: ## Run tests with coverage
-	poetry run pytest --cov=$(APP) --cov-report=term --cov-report=html
+	poetry run pytest --verbose --randomly-seed=default --cov=$(APP) --cov-report=term --cov-report=html
 
-# === Cache ===
+.PHONY: find-tests-slow
+find-tests-slow: ## Find slow two tests
+	poetry run pytest --verbose --randomly-seed=default --durations=2 --no-cov --disable-warnings
+
+.PHONY: tests-slow
+tests-slow: ## Start tests with 'slow' mark
+	poetry run pytest --verbose --randomly-seed=default -m "slow" --no-cov --disable-warnings
+
+.PHONY: tests-not-slow
+tests-not-slow: ## Start quick tests (without 'slow' mark)
+	pytest --verbose --randomly-seed=default -m "not slow" --no-cov --disable-warnings
+
+.PHONY: tests-encryption
+tests-encryption: ## Start tests with 'login' mark
+	pytest --verbose --randomly-seed=default -m "encryption" --no-cov --disable-warnings
+
+# ==== Cache ====
 
 .PHONY: clean
 clean:  ## Clean up the cache folders

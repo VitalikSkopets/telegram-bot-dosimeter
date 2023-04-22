@@ -1,8 +1,11 @@
+---
+
 default:
   image: python:3.10
 
 variables:
   APP: "dosimeter"
+  TESTS: "tests/**/*.py"
 
 .retry:
   retry:
@@ -48,7 +51,7 @@ mypy:
   needs: [isort, black, ruff]
   script:
     - echo "Running the Type checking stage..."
-    - poetry run mypy .
+    - poetry run mypy ${APP} ${TESTS}
     - echo "Type checking done! \(^_^)/"
 
 unit-tests:
@@ -71,11 +74,13 @@ badge:
   script:
     - poetry add anybadge
     - >
-      poetry run anybadge --label="Last Commit" --value="$(date '+%d.%m.%Y %H:%M')"
+      poetry run anybadge --label="Last Commit"
+      --value="$(date '+%d.%m.%Y %H:%M')"
       --file=last-commit.svg --color=green
     - >
-      poetry run anybadge --style=gitlab-scoped --label=Telegram
-      --value=Dosimeter --file=gitlab_scoped.svg --color=deepskyblue
+      poetry run anybadge --style=gitlab-scoped
+      --label=Telegram --value=Dosimeter
+      --file=gitlab_scoped.svg --color=deepskyblue
   artifacts:
     paths:
       - last-commit.svg
