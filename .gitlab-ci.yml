@@ -68,6 +68,18 @@ unit-tests:
       - coverage/
     expire_in: 30 days
 
+pages:
+  stage: deploy
+  needs: [unit-tests]
+  script:
+    - mv coverage/ public
+  artifacts:
+    paths:
+      - public
+    expire_in: 30 days
+  only:
+    - master
+
 badge:
   stage: deploy
   needs: [unit-tests]
