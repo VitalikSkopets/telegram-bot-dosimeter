@@ -14,8 +14,10 @@ __all__ = ("AsymmetricCryptographer",)
 
 
 class AsymmetricCryptographer(BaseCryptographer):
-    """A class that encapsulates the logic of encrypting string objects using an
-    asymmetric method."""
+    """
+    A class that encapsulates the logic of encrypting string objects using an
+    asymmetric method.
+    """
 
     PASSWORD: bytes = bytes(PWD, encoding="utf-8")
     PRIV_KEY_PATH: pathlib.Path = Files.SECRET_KEY
@@ -55,7 +57,9 @@ class AsymmetricCryptographer(BaseCryptographer):
             key_file.write(pub_pem)
 
     def encrypt(self, message: str | None = None) -> str | None:
-        """Encryption method for string objects."""
+        """
+        Encryption method for string objects.
+        """
         if not isinstance(message, str):
             return None
         # downloading from a public key file
@@ -64,7 +68,8 @@ class AsymmetricCryptographer(BaseCryptographer):
                 key_file.read(),
             )
         # encryption
-        ciphertext: Any = public_key.encrypt(  # type: ignore[union-attr]
+        assert isinstance(public_key, RSAPublicKey)
+        ciphertext: Any = public_key.encrypt(
             bytes(message, encoding="utf-8"),
             padding.OAEP(
                 mgf=padding.MGF1(algorithm=hashes.SHA256()),
@@ -76,7 +81,9 @@ class AsymmetricCryptographer(BaseCryptographer):
         return token.decode(encoding="utf-8")
 
     def decrypt(self, token: str) -> str | None:
-        """Method for decrypting string objects."""
+        """
+        Method for decrypting string objects.
+        """
         if not token or not isinstance(token, str):
             return None
         # downloading from a secret key file
@@ -87,7 +94,8 @@ class AsymmetricCryptographer(BaseCryptographer):
             )
         pre_token = base64.b64decode(token)
         # decryption
-        plaintext = private_key.decrypt(  # type: ignore[union-attr]
+        assert isinstance(private_key, RSAPrivateKey)
+        plaintext = private_key.decrypt(
             pre_token,
             padding.OAEP(
                 mgf=padding.MGF1(algorithm=hashes.SHA256()),
@@ -96,19 +104,3 @@ class AsymmetricCryptographer(BaseCryptographer):
             ),
         )
         return plaintext.decode(encoding="utf-8")
-
-
-if __name__ == "__main__":
-    cryptographer = AsymmetricCryptographer()
-    enc_text = cryptographer.encrypt("Test string")
-    # print(f"Encrypted string: {enc_text}")
-
-    plain_text = cryptographer.decrypt(
-        token="ApQnpEss/FJNWK7ImDH8vHLVgblCgbAVjBMnkIcDQZGJ4hZkhw6MFEWkATa/bG7"
-        "+T0kGFV5S8+fGukJgZEq15ZnwwOMxt1CPh5y7eV9sTfXPjnRtaoHb9z/El2pdW2"
-        "+Fd5rYwJtNsS7hE5O7uqwxLbE2AlbdfE46WG7Rqz5v94BEi+I7cXzJfnU37ryB2Y"
-        "+zsUijypRVe4CeUgNXXYL9N4+BuKpFmE5MtRpXSgBZtwddGH643Sq+s"
-        "+FfplQN7HJ6JZXoi/p/wWgZXIyfEZxbY+DVkdlFJaTp0nYIKHMNqj+H7emj1dxx4wvzam"
-        "+h4aPzz2iPfWymt66Up0FM6TyPTA== "
-    )
-    # print(f"Decrypted string: {plain_text}")

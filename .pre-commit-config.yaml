@@ -1,34 +1,36 @@
+---
+
 repos:
-# Fixes the spaces
+  # Fixes the spaces
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
-    - id: check-yaml
-    - id: trailing-whitespace
-# isort sorts the imports
+      - id: check-yaml
+      - id: trailing-whitespace
+  # isort sorts the imports
   - repo: https://github.com/pycqa/isort
     rev: 5.11.2
     hooks:
-    - id: isort
-      name: isort (python)
-      args: [--settings-path=pyproject.toml]
-# Black formats the Python code
+      - id: isort
+        name: isort (python)
+        args: [--settings-path=pyproject.toml]
+  # Black formats the Python code
   - repo: https://github.com/psf/black
     rev: 22.12.0
     hooks:
-    - id: black
-      language_version: python3
-      args: [--config=pyproject.toml]
-# Ruff lints the Python code
+      - id: black
+        language_version: python3
+        args: [--config=pyproject.toml]
+  # Ruff lints the Python code
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: v0.0.239
     hooks:
-    - id: ruff
-      args: [ --fix, --respect-gitignore ]
-# mypy checks types
+      - id: ruff
+        args: [--fix, --respect-gitignore]
+  # mypy checks types
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v0.991
     hooks:
-    - id: mypy
-      name: mypy
-      exclude: ^(tests/)
+      - id: mypy
+        name: mypy
+        exclude: ^(tests/)

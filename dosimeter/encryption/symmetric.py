@@ -9,8 +9,10 @@ __all__ = ("SymmetricCryptographer",)
 
 
 class SymmetricCryptographer(BaseCryptographer):
-    """A class that encapsulates the logic of encrypting string objects with a
-    symmetric method."""
+    """
+    A class that encapsulates the logic of encrypting string objects with a
+    symmetric method.
+    """
 
     PASSWORD: bytes = bytes(PWD, encoding="utf-8")
 
@@ -35,15 +37,3 @@ class SymmetricCryptographer(BaseCryptographer):
         # decryption
         plaintext = self.cipher.decrypt(pre_token)
         return plaintext.decode(encoding="utf-8")
-
-
-if __name__ == "__main__":
-    cryptographer = SymmetricCryptographer()
-    enc_text = cryptographer.encrypt("Test string")
-    # print(f"Encrypted string: {enc_text}")
-
-    plain_text = cryptographer.decrypt(
-        token="Z0FBQUFBQmp5WVFSelUtaWdqRXN5MHdKenlGc1NYQ2RDYUctMTNtWC16UFdVRHhab2NGR2l"
-        "jaFBhR2NKV1pUWTJKbVdyM21WblJFODM4VTMwWFdod1lNS3hnRWRlVENJbGc9PQ== "
-    )
-    # print(f"Decrypted string: {plain_text}")
