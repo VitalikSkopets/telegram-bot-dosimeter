@@ -1,4 +1,3 @@
-import random
 from typing import Callable, TypeAlias
 
 import pytest
@@ -8,9 +7,6 @@ from py.path import local
 FilePaths: TypeAlias = tuple[local, local, local]
 MessageAssertion: TypeAlias = Callable[[str, str], None]
 TokenAssertion: TypeAlias = Callable[[str, str], None]
-
-
-PLAINTEXT = "Test string"
 
 
 @pytest.fixture(scope="class")
@@ -28,22 +24,11 @@ def get_keys(tmpdir_factory: pytest.TempdirFactory) -> FilePaths:
 
 
 @pytest.fixture()
-def _generate_encryption_test_data(
-    request: pytest.FixtureRequest,
-    fake_field: Field,
-) -> None:
+def fake_token(faker_seed: int, fake_field: Field) -> str:
     """
-    Generating data for testing encryption.
+    Generating mimesis random text string, in hexadecimal.
     """
-    request.cls.token = (
-        "Z0FBQUFBQmp5WVFSelUtaWdqRXN5MHdKenlGc1NYQ2RDYUctMTNtWC16UFdVRHhab2NGR2ljaFBhR"
-        "2NKV1pUWTJKbVdyM21WblJFODM4VTMwWFdod1lNS3hnRWRlVENJbGc9PQ== "
-    )
-    request.cls.plaintext = PLAINTEXT
-    request.cls.username = fake_field("person.username")
-    request.cls.number = random.randrange(10_000_000)
-    request.cls.empty = ""
-    request.cls.undefined = None
+    return fake_field("token_hex")
 
 
 @pytest.fixture()
@@ -63,7 +48,7 @@ def assert_correct_token() -> TokenAssertion:
 
 
 @pytest.fixture()
-def assert_correct_message() -> MessageAssertion:
+def assert_correct_message(fake_string: str) -> MessageAssertion:
     """
     Assert that message value is valid.
     """
@@ -71,7 +56,7 @@ def assert_correct_message() -> MessageAssertion:
     def factory(token: str, message: str) -> None:
         if token and isinstance(token, str):
             assert isinstance(message, str)
-            assert message == PLAINTEXT
+            assert message == fake_string
         if token is None or not isinstance(token, str):
             assert not message
 

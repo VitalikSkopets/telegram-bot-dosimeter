@@ -6,6 +6,7 @@ It may be also used for extending doctest's context:
 2. https://docs.pytest.org/en/latest/doctest.html
 """
 import random
+from string import ascii_letters, digits
 
 import pytest
 from mimesis.locales import Locale
@@ -14,6 +15,9 @@ from mimesis.schema import Field
 pytest_plugins = [
     "plugins.encryption",
 ]
+
+
+MAX_LENGTH = 12
 
 
 def pytest_configure(config: pytest.Config) -> None:
@@ -55,3 +59,43 @@ def fake_field(faker_seed: int) -> Field:
     Generating mimesis field with fake data for RU locale.
     """
     return Field(locale=Locale.RU, seed=faker_seed)
+
+
+@pytest.fixture()
+def fake_string(faker_seed: int, fake_field: Field) -> str:
+    """
+    Generating mimesis random string value.
+    """
+    return fake_field("random.randstr", length=MAX_LENGTH)
+
+
+@pytest.fixture()
+def fake_integer_number(faker_seed: int, fake_field: Field) -> int:
+    """
+    Generating mimesis random integer number.
+    """
+    return fake_field("numeric.integer_number", start=1000, end=1000000)
+
+
+@pytest.fixture()
+def fake_username(faker_seed: int, fake_field: Field) -> str:
+    """
+    Generating mimesis random person username.
+    """
+    return fake_field("person.username")
+
+
+@pytest.fixture()
+def generate_random_string() -> str:
+    """
+    Generating a random string of letters of different case and numbers without seed.
+    """
+    return "".join(random.choice(ascii_letters + digits) for _ in range(MAX_LENGTH))
+
+
+@pytest.fixture()
+def generate_random_number() -> int:
+    """
+    Generating random integer value without seed.
+    """
+    return random.randrange(10_000_000)
