@@ -6,11 +6,11 @@ from dosimeter import config
 from dosimeter.analytics import analytics
 from dosimeter.analytics.decorators import analytic
 from dosimeter.analytics.measurement_protocol import Analytics
-from dosimeter.constants import Action, Buttons, Points, Regions
+from dosimeter.constants import ADMIN_ID, Action, Buttons, Points, Regions
 from dosimeter.decorators import debug_handler, restricted, send_action
 from dosimeter.geolocation import get_nearest_point_location
 from dosimeter.keyboards import admin_keyboard, main_keyboard, points_keyboard
-from dosimeter.messages import Message
+from dosimeter.message_engine import TemplateEngine, message_engine
 from dosimeter.parse import parser
 from dosimeter.parse.parser import Parser
 from dosimeter.storage import file_manager_admins as f_manager
@@ -27,19 +27,25 @@ logger = config.CustomAdapter(
 
 
 class Callback:
-    """A class that encapsulates methods for processing Telegram bot commands."""
+    """
+    A class that encapsulates methods for processing Telegram bot commands.
+    """
 
     LOG_MSG = "User selected '%s'"
 
     def __init__(
         self,
         parse: Parser = parser,
+        template: TemplateEngine = message_engine,
         repo: DocumentRepository = mongo_atlas__repo,
         measurement: Analytics = analytics,
         control: AdminManager = manager or f_manager,
     ) -> None:
-        """Constructor method for initializing objects of class Handlers."""
+        """
+        Constructor method for initializing objects of class Handlers.
+        """
         self.parser = parse
+        self.template = template
         self.repo = repo
         self.analytics = measurement
         self.manager = control
@@ -48,12 +54,16 @@ class Callback:
     @send_action(ChatAction.TYPING)
     @analytic(action=Action.START)
     def start_callback(self, update: Update, context: CallbackContext) -> None:
-        """Start command handler method."""
+        """
+        Start command handler method.
+        """
         user = update.effective_user
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text="Рад нашему знакомству, <b>{}</b>!{}".format(
-                user.first_name, Message.START
+            text=self.template.render(
+                "start.html",
+                user=user,
+                button=Buttons,
             ),
             reply_markup=main_keyboard(),
         )
@@ -66,11 +76,13 @@ class Callback:
     @send_action(ChatAction.TYPING)
     @analytic(action=Action.HELP)
     def help_callback(self, update: Update, context: CallbackContext) -> None:
-        """Help command handler method."""
+        """
+        Help command handler method.
+        """
         user = update.effective_user
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text=Message.HELP,
+            text=self.template.render("help.html"),
             reply_markup=main_keyboard(),
         )
         self.repo.add_help(user)
@@ -82,11 +94,13 @@ class Callback:
     @send_action(ChatAction.TYPING)
     @restricted
     def admin_callback(self, update: Update, context: CallbackContext) -> None:
-        """Admin command handler method."""
+        """
+        Admin command handler method.
+        """
         user = update.effective_user
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text=Message.ADMIN,
+            text=self.template.render("admin.html"),
             reply_markup=admin_keyboard(),
         )
         logger.debug(
@@ -96,7 +110,9 @@ class Callback:
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
     def keyboard_callback(self, update: Update, context: CallbackContext) -> None:
-        """Inline keyboard buttons handler"""
+        """
+        Inline keyboard buttons handler
+        """
         match update.callback_query.data:
             case Buttons.TOTAL_COUNT_USERS.callback_data:
                 return self._get_count_users_callback(update, context)
@@ -108,7 +124,9 @@ class Callback:
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
     def message_callback(self, update: Update, context: CallbackContext) -> None:
-        """Handler method for an incoming text messages from the user."""
+        """
+        Handler method for an incoming text messages from the user.
+        """
         match update.message.text:
             case Buttons.MONITORING.label:
                 return self._radiation_monitoring_callback(update, context)
@@ -174,25 +192,27 @@ class Callback:
     @send_action(ChatAction.FIND_LOCATION)
     @analytic(action=Action.LOCATION)
     def send_location_callback(self, update: Update, context: CallbackContext) -> None:
-        """Handler method for pressing the "Send location" button by the user."""
+        """
+        Handler method for pressing the "Send location" button by the user.
+        """
         user = update.effective_user
         distance_to_nearest_point, nearest_point_name = get_nearest_point_location(
             latitude=update.message.location.latitude,
             longitude=update.message.location.longitude,
         )
-
         distance = f"{distance_to_nearest_point:,} м".replace(",", " ")
 
         for point, value in self.parser.get_points_with_radiation_level():
             if nearest_point_name == point:
                 context.bot.send_message(
                     chat_id=update.effective_message.chat_id,
-                    text=Message.LOCATION.format(
-                        distance,
-                        nearest_point_name,
-                        point,
-                        config.TODAY,
-                        value,
+                    text=self.template.render(
+                        "location.html",
+                        distance=distance,
+                        nearest_point=nearest_point_name,
+                        point=point,
+                        date=config.TODAY,
+                        value=value,
                     ),
                 )
                 self.repo.add_location(user)
@@ -205,7 +225,9 @@ class Callback:
     def _manage_menu_callback(
         self, update: Update, context: CallbackContext, command: str
     ) -> None:
-        """Handler method for generating keyboard buttons."""
+        """
+        Handler method for generating keyboard buttons.
+        """
         match command:
             case Buttons.NEXT.label:
                 button_list = (
@@ -258,20 +280,25 @@ class Callback:
         user = update.effective_user
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text=Message.REGION,
+            text=self.template.render("region.html"),
             reply_markup=keyboard,
         )
         logger.info(self.LOG_MSG % action.value, user_id=self.manager.get_one(user.id))
 
     def _greeting_callback(self, update: Update, context: CallbackContext) -> None:
-        """Handler method for an incoming text message from the user."""
+        """
+        Handler method for an incoming text message from the user.
+        """
         user = update.effective_user
         message = update.message.text
-        greet_msg = Message.GREET
         if message and message.lower() in greeting:
             context.bot.send_message(
                 chat_id=update.effective_message.chat_id,
-                text="Привет, <b>{}</b>!{}".format(user.first_name, greet_msg),
+                text=self.template.render(
+                    "greeting.html",
+                    user=user,
+                    button=Buttons,
+                ),
                 reply_markup=main_keyboard(),
             )
             self.repo.add_messages(user)
@@ -287,7 +314,7 @@ class Callback:
         else:
             context.bot.send_message(
                 chat_id=update.effective_message.chat_id,
-                text=Message.UNKNOWN,
+                text=self.template.render("unknown.html"),
             )
             self.analytics.send(
                 user_id=user.id,
@@ -302,13 +329,18 @@ class Callback:
     def _radiation_monitoring_callback(
         self, update: Update, context: CallbackContext
     ) -> None:
-        """Handler method for pressing the "Radiation monitoring" button by the user."""
+        """
+        Handler method for pressing the "Radiation monitoring" button by the user.
+        """
         user = update.effective_user
-        response = self.parser.get_info_about_radiation_monitoring()
-        mean = self.parser.get_avg_radiation_level()
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text=Message.RADIATION.format(config.TODAY, response, mean),
+            text=self.template.render(
+                "radiation.html",
+                date=config.TODAY,
+                response=self.parser.get_info_about_radiation_monitoring(),
+                value=self.parser.get_avg_radiation_level(),
+            ),
         )
         self.repo.add_radiation_monitoring(user)
         logger.info(
@@ -320,11 +352,13 @@ class Callback:
     def _monitoring_points_callback(
         self, update: Update, context: CallbackContext, button_list: tuple[Buttons, ...]
     ) -> None:
-        """Handler method for pressing the "Monitoring points" button by the user."""
+        """
+        Handler method for pressing the "Monitoring points" button by the user.
+        """
         user = update.effective_user
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text=Message.REGION,
+            text=self.template.render("region.html"),
             reply_markup=points_keyboard(button_list),
         )
         self.repo.add_monitoring_points(user)
@@ -339,13 +373,20 @@ class Callback:
         points: tuple[Points, ...],
         action: Action,
     ) -> None:
-        """Handler method for pressing the "* region" button by the user."""
+        """
+        Handler method for pressing the "* region" button by the user.
+        """
         user = update.effective_user
-        table, values_by_region = self.parser.get_info_about_region(region=points)
+        values_by_region, mean_value = self.parser.get_info_about_region(region=points)
 
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text=self.parser.get_user_message(table, values_by_region),
+            text=self.template.render(
+                "table.html",
+                date=config.TODAY,
+                values_by_region=values_by_region,
+                mean_value=mean_value,
+            ),
         )
 
         self.repo.add_region(user, action)
@@ -358,11 +399,17 @@ class Callback:
 
     @analytic(action=Action.MAIN_MENU)
     def _main_menu_callback(self, update: Update, context: CallbackContext) -> None:
-        """Handler method for pressing the "Main menu" button by the user."""
+        """
+        Handler method for pressing the "Main menu" button by the user.
+        """
         user = update.effective_user
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text=f"<b>{user.first_name}</b>, чтобы узнать {Message.DESCRIPTION}",
+            text=self.template.render(
+                "menu.html",
+                user=user,
+                button=Buttons,
+            ),
             reply_markup=main_keyboard(),
         )
         logger.info(
@@ -372,11 +419,16 @@ class Callback:
     def _get_count_users_callback(
         self, update: Update, context: CallbackContext
     ) -> None:
-        """Get total count users admin command handler method."""
+        """
+        Get total count users admin command handler method.
+        """
         user = update.effective_user
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text=self.repo.get_count_of_users(user),
+            text=self.template.render(
+                "count_of_users.html",
+                value=self.repo.get_count_of_users(user),
+            ),
         )
         logger.debug(
             self.LOG_MSG % Action.GET_COUNT.value, user_id=self.manager.get_one(user.id)
@@ -385,34 +437,39 @@ class Callback:
     def _get_list_admin_ids_callback(
         self, update: Update, context: CallbackContext
     ) -> None:
-        """An admin command handler method to get a list of admin IDs."""
+        """
+        An admin command handler method to get a list of admin IDs.
+        """
         user = update.effective_user
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text=self.manager.get_all(),
+            text=self.template.render(
+                "list_of_admins.html",
+                list_admins=self.manager.get_all(),
+                main_admin=ADMIN_ID,
+            ),
         )
         logger.debug(
             self.LOG_MSG % Action.GET_LIST.value, user_id=self.manager.get_one(user.id)
         )
 
-    @staticmethod
     def _enter_admin_by_user_id_callback(
-        update: Update, context: CallbackContext
+        self, update: Update, context: CallbackContext
     ) -> None:
         """
         The method of processing the administrator
         command for entering administrator IDs.
         """
-        message = None
+        command = None
         query = update.callback_query
         match query.data:
             case Buttons.ADD_ADMIN.callback_data:
-                message = Message.ADD_USER_ID
+                command = "add"
             case Buttons.DEL_ADMIN.callback_data:
-                message = Message.DEL_USER_ID
+                command = "del"
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text=message,
+            text=self.template.render("add_or_delete_user.html", command=command),
             reply_markup=ReplyKeyboardRemove(),
         )
 
@@ -477,11 +534,13 @@ class Callback:
         logger.debug(log_msg, user_id=self.manager.get_one(user.id))
 
     def _hide_keyboard_callback(self, update: Update, context: CallbackContext) -> None:
-        """Hide main keyboard handler method."""
+        """
+        Hide main keyboard handler method.
+        """
         user = update.effective_user
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text=Message.SHOW_KEYBOARD,
+            text=self.template.render("show_keyboard.html"),
             reply_markup=ReplyKeyboardRemove(),
         )
         logger.debug(
