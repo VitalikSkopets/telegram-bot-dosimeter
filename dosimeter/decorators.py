@@ -4,8 +4,8 @@ from typing import Any, Callable, Optional
 import sentry_sdk
 
 from dosimeter.config import CustomAdapter, get_logger
-from dosimeter.constants import ADMIN_ID, LIST_OF_ADMIN_IDS, Emoji
-from dosimeter.messages import Message
+from dosimeter.constants import ADMIN_ID, LIST_OF_ADMIN_IDS
+from dosimeter.message_engine import message_engine
 from dosimeter.storage import manager_admins as manager
 
 __all__ = (
@@ -75,14 +75,22 @@ def debug_handler(log_handler: CustomAdapter = logger) -> Callable:
                 )
                 return func(*args, **kwargs)
             except Exception as ex:
-                error_msg = f"{Emoji.SOS} [{manager.get_one(user.id)}] - [ERROR]: {ex}"
-
                 update.message.reply_text(
-                    f"К сожалению, <b>{user.first_name}</b>, {Message.INFO}",
+                    message_engine.render(
+                        "error_to_user.html",
+                        user=user,
+                    ),
                 )
 
                 if update and hasattr(update, "message"):
-                    context.bot.send_message(chat_id=ADMIN_ID, text=error_msg)
+                    context.bot.send_message(
+                        chat_id=ADMIN_ID,
+                        text=message_engine.render(
+                            "error_to_admin.html",
+                            admin=manager.get_one(user.id),
+                            exc_info=ex,
+                        ),
+                    )
 
                 log_handler.exception(
                     "In the callback handler '%s' an error occurred: %s"

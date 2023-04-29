@@ -65,7 +65,7 @@ class DocumentRepository(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def get_count_of_users(self, user: User | None = None) -> str:
+    def get_count_of_users(self, user: User | None = None) -> int:
         """Method for getting the number of users from the database."""
         pass
 
@@ -79,7 +79,7 @@ class AdminManager(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def get_all(self) -> str:
+    def get_all(self) -> list[tuple[int, int]] | str | None:
         """
         The method returns a numbered list of admin IDs from the admin repository.
         """

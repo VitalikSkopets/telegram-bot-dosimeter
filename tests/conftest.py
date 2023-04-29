@@ -74,7 +74,7 @@ def fake_integer_number(faker_seed: int, fake_field: Field) -> int:
     """
     Generating mimesis random integer number.
     """
-    return fake_field("numeric.integer_number", start=1000, end=1000000)
+    return fake_field("numeric.integer_number", start=1_000, end=1_000_000)
 
 
 @pytest.fixture()

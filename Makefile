@@ -81,6 +81,10 @@ tests-not-slow: ## Start quick tests (without 'slow' mark)
 tests-encryption: ## Start tests with 'login' mark
 	pytest --verbose --randomly-seed=default -m "encryption" --no-cov --disable-warnings
 
+.PHONY: tests-message-engine
+tests-message-engine: ## Start tests with 'message_engine' mark
+	pytest --verbose --randomly-seed=default -m "message_engine" --no-cov --disable-warnings
+
 # ==== Cache ====
 
 .PHONY: clean

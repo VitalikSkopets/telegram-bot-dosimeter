@@ -1,0 +1,6 @@
+{% if list_admins %}
+{% for num, admin_id in list_admins %}{% if admin_id == main_admin %}{{ num }}: {{ admin_id }} - Main admin{% else %}{{ num }}: {{ admin_id }}{% endif %}
+{% endfor %}
+{% else %}
+Admins not assigned
+{% endif %}

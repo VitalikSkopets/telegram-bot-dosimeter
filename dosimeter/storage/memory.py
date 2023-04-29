@@ -1,4 +1,4 @@
-from dosimeter.constants import ADMIN_ID, LIST_OF_ADMIN_IDS
+from dosimeter.constants import LIST_OF_ADMIN_IDS
 from dosimeter.storage.repository import AdminManager
 
 __all__ = ("InternalAdminManager",)
@@ -27,18 +27,17 @@ class InternalAdminManager(AdminManager):
             return "ADMIN"
         return None
 
-    def get_all(self) -> str:
+    def get_all(self) -> list[tuple[int, int]] | None:
         """
-        The method returns a string representation of the numbered list of admin
-        IDs from the temporary list of admins.
+        The method returns a numbered list of admin IDs
+        from the temporary list of admins.
         """
         if not self.temp_list_admins:
-            return "Admins not assigned"
-        output = []
+            return None
+        list_admin_ids = []
         for num, admin_id in enumerate(self.temp_list_admins, 1):
-            message = "{}: {} - Main admin" if admin_id == ADMIN_ID else "{}: {}"
-            output.append(message.format(num, admin_id))
-        return "\n".join(output)
+            list_admin_ids.append((num, admin_id))
+        return list_admin_ids
 
     def add(self, uid: int) -> tuple[str, bool]:
         """

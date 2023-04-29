@@ -5,7 +5,7 @@ from pathlib import Path
 
 from emoji.core import emojize
 
-from dosimeter.config import BASE_DIR
+from dosimeter import config
 
 __all__ = (
     "ADMIN_ID",
@@ -20,16 +20,16 @@ __all__ = (
     "Regions",
 )
 
-ADMIN_ID: int = 413818791 or 1120930631
+ADMIN_ID: int = config.MAIN_ADMIN_TELEGRAM_ID or config.ADMIN_TELEGRAM_ID
 LIST_OF_ADMIN_IDS: tuple[int, int] = (ADMIN_ID, 487236325)
 TEMP_LIST_OF_ADMIN_IDS: list[int] = []
 
 
 @dataclass(frozen=True)
 class Files:
-    SECRET_KEY: Path = BASE_DIR / "secret.pem"
-    PUBLIC_KEY: Path = BASE_DIR / "public.pem"
-    ADMINS_FILE_PATH = BASE_DIR / "admins.txt"
+    SECRET_KEY: Path = config.BASE_DIR / "secret.pem"
+    PUBLIC_KEY: Path = config.BASE_DIR / "public.pem"
+    ADMINS_FILE_PATH: Path = config.BASE_DIR / "admins.txt"
 
 
 @dataclass(frozen=True)
@@ -384,14 +384,10 @@ class Points(enum.Enum):
 
 
 class Emoji(str, enum.Enum):
-    RADIO = emojize("☢️")
-    ROBOT = emojize("🤖")
     HOUSE = emojize("🏡")
-    SOS = emojize("🆘")
     ARROW = emojize("⤵")
     RIGHT_ARROW = emojize("▶")
     LEFT_ARROW = emojize("◀")
-    KEYBOARD = emojize("⌨️")
 
 
 class Buttons(enum.Enum):
@@ -515,9 +511,10 @@ class Description:
     Этот бот может информировать пользователя по состоянию на текущую дату о
     радиационной обстановке в Беларуси и об уровне мощности эквивалентной дозы
     гамма-излучения, зафиксированного в сети радиационного мониторинга Министерства
-    природных ресурсов и охраны окружающей среды Беларуси. Источник: ©rad.org.by
-    Разработано: ©itrexgroup.com
+    природных ресурсов и охраны окружающей среды Беларуси.
+    Источник: ©<a href="https://rad.org.by/">rad.org.by</a>
+    Разработано: ©<a href="https://itrexgroup.com/">itrexgroup.com</a>
     """
-    START: str = "Launch this bot / Запустить этого бота"
-    HELP: str = "Useful information about this bot / Полезная информация об этом боте"
+    START: str = "Launch this bot / Запустить бота"
+    HELP: str = "Useful info about this bot / Полезная информация о боте"
     ADMIN: str = "List of admin commands (limited access)"

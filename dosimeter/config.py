@@ -4,82 +4,90 @@ import os
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, MutableMapping
 
 import pytz
 import sentry_sdk
 from mtranslate import translate
 
 __all__ = (
+    "APP",
     "API_SECRET",
     "ASYMMETRIC_ENCRYPTION",
     "BASE_DIR",
     "DEBUG",
     "GOOGLE_DOMEN",
+    "HEROKU_APP",
     "MONGO_DB_CONNECTION",
     "MONGO_DB_NAME",
     "PORT",
-    "HEROKU_APP",
     "PWD",
-    "WEBHOOK_MODE",
     "PROTOKOL",
     "MEASUREMENT_ID",
     "SENTRY_SDK",
+    "TEMPLATES_DIR",
     "TOKEN",
     "TODAY",
     "URL_RADIATION",
     "URL_MONITORING",
-    "get_logger",
+    "WEBHOOK_MODE",
     "CustomAdapter",
+    "get_logger",
 )
 
-DEFAULT_LOCALE: str = "ru"
+DEFAULT_LOCALE = "ru"
 DATE: str = datetime.now(pytz.timezone("Europe/Minsk")).strftime("%d-%b-%Y")
 TODAY: str = translate(DATE, DEFAULT_LOCALE)
 
-DEBUG: bool = True
-ENVIRON: str = "DEV" if DEBUG else "PROD"
-WEBHOOK_MODE: bool = bool(0) if DEBUG else bool(1)
+DEBUG = True
+ENVIRON = "DEV" if DEBUG else "PROD"
+WEBHOOK_MODE = bool(0) if DEBUG else bool(1)
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR: Path = Path(__file__).resolve().parent.parent
+TEMPLATES_DIR: Path = BASE_DIR / "templates"
+
+APP = "dosimeter"
 
 # python-telegram-bot API TOKEN
-TOKEN: str = os.getenv("API_TOKEN", "")
+TOKEN = os.environ["API_TOKEN"]
+
+MAIN_ADMIN_TELEGRAM_ID = int(os.environ["MAIN_ADMIN_TELEGRAM_ID"])
+ADMIN_TELEGRAM_ID = int(os.environ["ADMIN_TELEGRAM_ID"])
 
 # MongoDB Atlas
-MONGO_DB_NAME: str = os.getenv("MONGO_DB_NAME", "")
-MONGO_DB_LOGIN: str = os.getenv("MONGO_DB_LOGIN", "")
-MONGO_DB_PASSWORD: str = os.getenv("MONGO_DB_PASSWORD", "")
-MONGO_DB_HOST: str = os.getenv("MONGO_DB_HOST", "")
-MONGO_DB_CONNECTION: str = (
+MONGO_DB_NAME = os.environ["MONGO_DB_NAME"]
+MONGO_DB_LOGIN = os.environ["MONGO_DB_LOGIN"]
+MONGO_DB_PASSWORD = os.environ["MONGO_DB_PASSWORD"]
+MONGO_DB_HOST = os.environ["MONGO_DB_HOST"]
+MONGO_DB_CONNECTION = (
     f"mongodb+srv://{MONGO_DB_LOGIN}:{MONGO_DB_PASSWORD}@cluster.s3cxd.mongodb.net/"
     f"{MONGO_DB_NAME}?retryWrites=true&w=majority"
 )
 
 # Encryption
-PWD: str = os.getenv("PASS", "")
-ASYMMETRIC_ENCRYPTION: bool = False
+PWD = os.environ["PASS"]
+ASYMMETRIC_ENCRYPTION = False
 
 # Heroku
-HEROKU_APP: str = os.getenv("HEROKU_APP", "")
-PORT: int = int(os.getenv("PORT", "8443"))
+HEROKU_APP = os.environ["HEROKU_APP"]
+PORT = int(os.environ["PORT"])
 
 # Source data
-URL_RADIATION: str = f"{os.getenv('DEFAULT_URL')}/radiation.xml"
-URL_MONITORING: str = f"{os.getenv('DEFAULT_URL')}/monitoring/radiation"
+URL_RADIATION = f"{os.environ['DEFAULT_URL']}/radiation.xml"
+URL_MONITORING = f"{os.environ['DEFAULT_URL']}/monitoring/radiation"
 
 # Measurement Protocol API (Google Analytics 4)
-GOOGLE_DOMEN: str = "www.google-analytics.com"
-PROTOKOL: str = "https"
-MEASUREMENT_ID: str = os.getenv("MEASUREMENT_ID", "")
+GOOGLE_DOMEN = "www.google-analytics.com"
+PROTOKOL = "https"
+MEASUREMENT_ID = os.environ["MEASUREMENT_ID"]
 
 # Google Analytics
-API_SECRET: str = os.getenv("API_SECRET", "")
+API_SECRET = os.environ["API_SECRET"]
 
 # Logging
-FOLDER_LOG: str = "logs"
-LOG_FILENAME: str = "main.log"
-ERROR_LOG_FILENAME: str = "errors.log"
+FOLDER_LOG = "logs"
+LOG_FILENAME = "main.log"
+ERROR_LOG_FILENAME = "errors.log"
 
 
 class EnvironFilter(logging.Filter):
@@ -209,11 +217,11 @@ def get_logger(name: str = __name__, template: str = "file_logger") -> logging.L
 
 
 class CustomAdapter(logging.LoggerAdapter):
-    def process(self, msg, kwargs):  # type: ignore
-        context = kwargs.pop("user_id", self.extra["user_id"])
+    def process(self, msg: str, kwargs: Any) -> tuple[str, MutableMapping[str, Any]]:
+        context = kwargs.pop("user_id", self.extra["user_id"])  # type: ignore[index]
         return "user_id: [%s] - %s" % (context, msg), kwargs
 
 
 # Sentry SDK
-SENTRY_SDK: str = os.getenv("SENTRY_SDK", "")
+SENTRY_SDK = os.environ["SENTRY_SDK"]
 sentry_sdk.init(dsn=SENTRY_SDK, traces_sample_rate=1.0)

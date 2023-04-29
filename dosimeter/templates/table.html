@@ -1,0 +1,7 @@
+По состоянию на <u>{{ date }}</u>
+
+|<code>{{ "Пункт наблюдения"|center(width=20) }}</code>|<code>Мощность дозы</code>|
+{% for point, value in values_by_region %}|<code>{{ point }}</code>|<code>{{ value }} мкЗв/ч</code>|
+{% endfor %}
+
+<b>Среднее</b> значение уровня МД гамма-излучения в сети региоанльных пунктов радиационного мониторинга составляет <b>{{ mean_value|round(1) }}</b> мкЗв/ч.

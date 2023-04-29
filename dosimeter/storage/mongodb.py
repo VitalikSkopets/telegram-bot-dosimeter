@@ -218,7 +218,7 @@ class MongoDataBase(DocumentRepository, abc.ABC):
         logger.debug(f"Info about the user: {user}")
         return user
 
-    def get_count_of_users(self, user: User | None = None) -> str:
+    def get_count_of_users(self, user: User | None = None) -> int:
         """Method for getting the number of users from the database."""
         msg = "Users count in the database:"
         users_count = self.mdb.users.count_documents({})
@@ -226,7 +226,7 @@ class MongoDataBase(DocumentRepository, abc.ABC):
             "%s %d" % (msg, users_count),
             user_id=self.manager.get_one(user.id) if user else None,
         )
-        return f"{msg} [{users_count}]"
+        return users_count
 
     def get_all_users_ids(self) -> str:
         """
