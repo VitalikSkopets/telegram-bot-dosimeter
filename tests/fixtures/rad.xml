@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="https://rad.org.by/rss-info.xsl"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+   <channel>
+      <atom:link href="/monitoring/radiation.html" rel="self" type="application/rss+xml" />
+      <title>Радиационный контроль и мониторинг</title>
+      <link>/monitoring/radiation.html</link>
+      <description></description>
+      <language>ru</language>
+      <pubDate>Sun, 30 Apr 2023 20:02:56 +0300</pubDate>
+      <lastBuildDate>Sun, 30 Apr 2023 20:02:56 +0300</lastBuildDate>
+      <item>
+         <title>Гомель</title>
+         <description><![CDATA[ 0.11 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 18:00:00 +0300</pubDate>
+<rad>0.11</rad>      </item>
+      <item>
+         <title>Брагин</title>
+         <description><![CDATA[ 0.47 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 18:00:00 +0300</pubDate>
+<rad>0.47</rad>      </item>
+      <item>
+         <title>Василевичи</title>
+         <description><![CDATA[ 0.11 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 18:00:00 +0300</pubDate>
+<rad>0.11</rad>      </item>
+      <item>
+         <title>Житковичи</title>
+         <description><![CDATA[ 0.11 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 18:00:00 +0300</pubDate>
+<rad>0.11</rad>      </item>
+      <item>
+         <title>Жлобин</title>
+         <description><![CDATA[ 0.12 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 18:00:00 +0300</pubDate>
+<rad>0.12</rad>      </item>
+      <item>
+         <title>Мозырь</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 18:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Высокое</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 18:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Пинск</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 18:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Брест</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 18:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Пружаны</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 18:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Ивацевичи</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 18:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Барановичи</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 18:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Полесская, болотная</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 18:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Дрогичин</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Верхний Теребежов</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Олтуш</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Мокраны</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Волковыск</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Сенно</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Верхнедвинск</title>
+         <description><![CDATA[ 0.11 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.11</rad>      </item>
+      <item>
+         <title>Березино</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Столбцы</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Нарочь, озерная</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Орша</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Лынтупы</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Шарковщина</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Витебск</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Славгород</title>
+         <description><![CDATA[ 0.18 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.18</rad>      </item>
+      <item>
+         <title>Бобруйск</title>
+         <description><![CDATA[ 0.11 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.11</rad>      </item>
+      <item>
+         <title>Борисов</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Костюковичи</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Вилейка</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Минск</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Ошмяны</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Слуцк</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Воложин</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Горки</title>
+         <description><![CDATA[ 0.11 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.11</rad>      </item>
+      <item>
+         <title>Лида</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Мстиславль</title>
+         <description><![CDATA[ 0.12 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.12</rad>      </item>
+      <item>
+         <title>Могилев</title>
+         <description><![CDATA[ 0.13 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.13</rad>      </item>
+      <item>
+         <title>Полоцк</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+      <item>
+         <title>Домжерицы</title>
+         <description><![CDATA[ 0.1 мкЗв/ч ]]></description>
+         <guid></guid>
+         <pubDate>Sun, 30 Apr 2023 09:00:00 +0300</pubDate>
+<rad>0.1</rad>      </item>
+   </channel>
+</rss>

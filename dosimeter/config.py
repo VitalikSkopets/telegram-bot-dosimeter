@@ -26,6 +26,7 @@ __all__ = (
     "MEASUREMENT_ID",
     "SENTRY_SDK",
     "TEMPLATES_DIR",
+    "TESTS_DIR",
     "TOKEN",
     "TODAY",
     "URL_RADIATION",
@@ -45,6 +46,7 @@ WEBHOOK_MODE = bool(0) if DEBUG else bool(1)
 
 BASE_DIR: Path = Path(__file__).resolve().parent.parent
 TEMPLATES_DIR: Path = BASE_DIR / "templates"
+TESTS_DIR: Path = BASE_DIR / "tests"
 
 APP = "dosimeter"
 

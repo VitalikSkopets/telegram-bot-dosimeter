@@ -291,6 +291,14 @@ requests = ["requests (>=2.16.2)", "urllib3 (>=1.24.2)"]
 timezone = ["pytz"]
 
 [[package]]
+name = "httpretty"
+version = "1.1.4"
+description = "HTTP client mock for Python"
+category = "dev"
+optional = false
+python-versions = ">=3"
+
+[[package]]
 name = "identify"
 version = "2.5.11"
 description = "File identification library for Python"
@@ -890,7 +898,7 @@ setuptools = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "90209b7f1c11aebfb60ea21bcd03924a537deca64c2eee96a9cae61134061cf3"
+content-hash = "4b07186a172cadc6ebd9c4db09cfa871f18f6c48f06391a01a2066f46b9f3334"
 
 [metadata.files]
 apscheduler = [
@@ -1124,6 +1132,9 @@ geographiclib = [
 geopy = [
     {file = "geopy-2.3.0-py3-none-any.whl", hash = "sha256:4a29a16d41d8e56ba8e07310802a1cbdf098eeb6069cc3d6d3068fc770629ffc"},
     {file = "geopy-2.3.0.tar.gz", hash = "sha256:228cd53b6eef699b2289d1172e462a90d5057779a10388a7366291812601187f"},
+]
+httpretty = [
+    {file = "httpretty-1.1.4.tar.gz", hash = "sha256:20de0e5dd5a18292d36d928cc3d6e52f8b2ac73daec40d41eb62dee154933b68"},
 ]
 identify = [
     {file = "identify-2.5.11-py2.py3-none-any.whl", hash = "sha256:e7db36b772b188099616aaf2accbee122949d1c6a1bac4f38196720d6f9f06db"},

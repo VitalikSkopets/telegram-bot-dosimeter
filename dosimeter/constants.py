@@ -32,14 +32,13 @@ class Files:
     ADMINS_FILE_PATH: Path = config.BASE_DIR / "admins.txt"
 
 
-@dataclass(frozen=True)
-class Regions:
-    BREST: str = "Брестская область"
-    VITEBSK: str = "Витебская область"
-    GOMEL: str = "Гомельская область"
-    GRODNO: str = "Гродненская область"
-    MOGILEV: str = "Могилевская область"
-    MINSK: str = "Минск и Минская область"
+class Regions(str, enum.Enum):
+    BREST = "Брестская область"
+    VITEBSK = "Витебская область"
+    GOMEL = "Гомельская область"
+    GRODNO = "Гродненская область"
+    MOGILEV = "Могилевская область"
+    MINSK = "Минск и Минская область"
 
 
 class Points(enum.Enum):
@@ -127,8 +126,8 @@ class Points(enum.Enum):
         "region": Regions.GOMEL,
     }
 
-    SLAVGORORD = {
-        "label": "Славгорорд",
+    SLAVGOROD = {
+        "label": "Славгород",
         "longitude": 53.45088516337511,
         "latitude": 31.003458658160586,
         "region": Regions.MOGILEV,

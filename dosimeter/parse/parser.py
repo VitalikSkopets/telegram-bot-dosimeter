@@ -1,61 +1,73 @@
+from statistics import mean
+from typing import TypeAlias
+
 import requests
 import urllib3
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 from fake_useragent import UserAgent
 
 from dosimeter import config
 from dosimeter.cache import timed_lru_cache
 from dosimeter.constants import Points
 
-__all__ = ("Parser",)
+__all__ = ("ObservePoint", "Parser", "PowerOfRadiation")
 
 logger = config.get_logger(__name__)
 
 urllib3.disable_warnings()
 
+PowerOfRadiation: TypeAlias = float
+ObservePoint: TypeAlias = str
+
 
 class Parser:
-    """A class that encapsulates the logic of parsing and scribing web pages."""
+    """
+    A class that encapsulates the logic of parsing and scribing web pages.
+    """
 
     URL_RADIATION: str = config.URL_RADIATION
     URL_MONITORING: str = config.URL_MONITORING
 
     def __init__(self, target: str | None = None) -> None:
-        """Instantiate a Parser object"""
+        """
+        Instantiate a Parser object.
+        """
         self.url = target or self.URL_RADIATION
 
-    def get_points_with_radiation_level(self) -> list[tuple[str, str]]:
+    def get_points_with_radiation_level(
+        self,
+    ) -> dict[ObservePoint, PowerOfRadiation]:
         """
-        The method returns a list of tuples with the names of radiation monitoring
-        points and values of the equivalent dose rate of gamma radiation.
+        The method returns a dictionary in which the keys are the names of radiation
+        monitoring points, and the values of the keys are the power values
+        of the equivalent radiation dose.
         """
-        soup = self._get_html()
-        points: list[str] = [point.text for point in soup.find_all("title")]
-        points.reverse()
-        values: list[str] = [value.text for value in soup.find_all("rad")]
-        values.reverse()
-        return list(zip(points, values))
+        soup = self._get_markup()
+        points = [
+            point.text
+            for point in soup.find_all("title")
+            if point.text != "Радиационный контроль и мониторинг"
+        ]
+        values = [float(value.text) for value in soup.find_all("rad")]
+        return dict(zip(points, values))
 
-    def get_avg_radiation_level(self) -> float:
+    def get_mean_radiation_level(self) -> PowerOfRadiation:
         """
-        The method returns the float value of the average level of radiation.
+        Returns the arithmetic mean of the radiation dose rate.
         """
-        soup = self._get_html()
-        rad_level: list[str] = [val.text for val in soup.find_all("rad")]
-        rad_level.reverse()
-        return sum([float(level) for level in rad_level]) / len(rad_level)
+        return mean(list(self.get_points_with_radiation_level().values()))
 
     def get_info_about_radiation_monitoring(self) -> str | None:
         """
         The method makes a GET request and scripts the html markup
         https://rad.org.by/monitoring/radiation.
         """
-        markup = self._get_html(page=self.URL_MONITORING)
-        lines = [span.text for span in markup.find_all("span")]
-        data = ""
-        for line in lines:
-            if line.startswith("По состоянию") and line.endswith("АЭС."):
-                data = line.strip()
+        markup = self._get_markup(page=self.URL_MONITORING)
+
+        def has_substring(span: Tag) -> bool:
+            return span.text.startswith("По состоянию")
+
+        data = markup.find_all(has_substring)[0].text
         if "натекущую датурадиационная" in data:
             data = data.replace(
                 "натекущую датурадиационная", "на текущую дату радиационная"
@@ -64,29 +76,28 @@ class Parser:
 
     def get_info_about_region(
         self, region: tuple[Points, ...]
-    ) -> tuple[list[tuple[str, str]], float]:
+    ) -> tuple[list[tuple[ObservePoint, str]], PowerOfRadiation]:
         """
-        The method calls the _get_html() private method, which sends a GET request
-        and scripts the HTML markup of the https://rad.org.by/radiation.xml web
+        The method calls the _get_markup() private method, which sends a GET request
+        and scripts the HTML/XML markup of the https://rad.org.by/radiation.xml web
         resource. Return value: list of tuples containing the name of the
         monitoring point and the dose rate values, as well as the average
         dose rate value in the region.
         """
-        values_by_region: list[float] = []
-        table: list[tuple[str, str]] = []
+        values_by_region = []
+        table = []
 
-        for point, value in self.get_points_with_radiation_level():
+        for point, value in self.get_points_with_radiation_level().items():
             if point in [monitoring_point.label for monitoring_point in region]:
-                values_by_region.append(float(value))
+                values_by_region.append(value)
                 table.append((point.ljust(20, "-"), "{:>6}".format(value)))
 
-        mean_value = sum(values_by_region) / len(values_by_region)
-        return table, mean_value
+        return table, mean(values_by_region)
 
-    @timed_lru_cache(3600)
-    def _get_html(self, page: str | None = None) -> BeautifulSoup | None:
+    @timed_lru_cache(3_600)
+    def _get_markup(self, page: str | None = None) -> BeautifulSoup | None:
         """
-        Private method for scribing HTML markup of the web resource.
+        Private method for scribing HTML & XML markup of the web resource.
         """
         agent = UserAgent(
             browsers=[
