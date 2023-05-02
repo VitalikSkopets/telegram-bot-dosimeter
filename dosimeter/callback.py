@@ -200,7 +200,6 @@ class Callback:
             latitude=update.message.location.latitude,
             longitude=update.message.location.longitude,
         )
-        distance = f"{distance_to_nearest_point:,} м".replace(",", " ")
 
         for point, value in self.parser.get_points_with_radiation_level():
             if nearest_point_name == point:
@@ -208,7 +207,7 @@ class Callback:
                     chat_id=update.effective_message.chat_id,
                     text=self.template.render(
                         "location.html",
-                        distance=distance,
+                        distance=f"{distance_to_nearest_point:,} м".replace(",", " "),
                         nearest_point=nearest_point_name,
                         point=point,
                         date=config.TODAY,
@@ -339,7 +338,7 @@ class Callback:
                 "radiation.html",
                 date=config.TODAY,
                 response=self.parser.get_info_about_radiation_monitoring(),
-                value=self.parser.get_avg_radiation_level(),
+                value=self.parser.get_mean_radiation_level(),
             ),
         )
         self.repo.add_radiation_monitoring(user)

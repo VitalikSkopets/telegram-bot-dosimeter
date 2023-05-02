@@ -14,6 +14,7 @@ from mimesis.schema import Field
 
 pytest_plugins = [
     "plugins.encryption",
+    "plugins.parsing",
 ]
 
 
