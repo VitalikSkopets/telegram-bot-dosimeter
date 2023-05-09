@@ -1,38 +1,32 @@
 from statistics import mean
 from typing import TypeAlias
 
-import requests
-import urllib3
 from bs4 import BeautifulSoup, Tag
-from fake_useragent import UserAgent
 
-from dosimeter import config
-from dosimeter.cache import timed_lru_cache
-from dosimeter.constants import Points
+from dosimeter.api import api
+from dosimeter.api.interface_api import BaseApi
+from dosimeter.config.logger import get_logger
+from dosimeter.constants import URL, Points
 
 __all__ = ("ObservePoint", "Parser", "PowerOfRadiation")
 
-logger = config.get_logger(__name__)
-
-urllib3.disable_warnings()
+logger = get_logger(__name__)
 
 PowerOfRadiation: TypeAlias = float
 ObservePoint: TypeAlias = str
 
 
-class Parser:
+class Parser(object):
     """
-    A class that encapsulates the logic of parsing and scribing web pages.
+    A class that encapsulates the logic of parsing and scribing HTML & XML
+    markup of the web resource.
     """
 
-    URL_RADIATION: str = config.URL_RADIATION
-    URL_MONITORING: str = config.URL_MONITORING
-
-    def __init__(self, target: str | None = None) -> None:
+    def __init__(self, external_api: BaseApi = api) -> None:
         """
         Instantiate a Parser object.
         """
-        self.url = target or self.URL_RADIATION
+        self.api = external_api
 
     def get_points_with_radiation_level(
         self,
@@ -42,7 +36,8 @@ class Parser:
         monitoring points, and the values of the keys are the power values
         of the equivalent radiation dose.
         """
-        soup = self._get_markup()
+        soup = self._get_source(URL.RADIATION)
+        assert isinstance(soup, BeautifulSoup)
         points = [
             point.text
             for point in soup.find_all("title")
@@ -53,36 +48,33 @@ class Parser:
 
     def get_mean_radiation_level(self) -> PowerOfRadiation:
         """
-        Returns the arithmetic mean of the radiation dose rate.
+        The method returns the arithmetic mean of the radiation dose rate.
         """
         return mean(list(self.get_points_with_radiation_level().values()))
 
     def get_info_about_radiation_monitoring(self) -> str | None:
         """
-        The method makes a GET request and scripts the html markup
-        https://rad.org.by/monitoring/radiation.
+        A method for parsing an object of the BeautifulSoup class, which is html markup
+        https://rad.org.by/monitoring/radiation web resource.
         """
-        markup = self._get_markup(page=self.URL_MONITORING)
+        soup = self._get_source(URL.MONITORING)
+        assert isinstance(soup, BeautifulSoup)
 
         def has_substring(span: Tag) -> bool:
             return span.text.startswith("По состоянию")
 
-        data = markup.find_all(has_substring)[0].text
-        if "натекущую датурадиационная" in data:
-            data = data.replace(
-                "натекущую датурадиационная", "на текущую дату радиационная"
-            )
-        return data
+        return (
+            soup.find_all(has_substring)[0].text.replace("\xa0", " ").replace("  ", " ")
+        )
 
     def get_info_about_region(
         self, region: tuple[Points, ...]
     ) -> tuple[list[tuple[ObservePoint, str]], PowerOfRadiation]:
         """
-        The method calls the _get_markup() private method, which sends a GET request
-        and scripts the HTML/XML markup of the https://rad.org.by/radiation.xml web
-        resource. Return value: list of tuples containing the name of the
-        monitoring point and the dose rate values, as well as the average
-        dose rate value in the region.
+        The method for parsing an object of the BeautifulSoup class, which is the XML
+        markup web resource. Return the list of tuples containing the name of the
+        monitoring point and the dose rate values, as well as the average dose rate
+        value in the region.
         """
         values_by_region = []
         table = []
@@ -94,31 +86,16 @@ class Parser:
 
         return table, mean(values_by_region)
 
-    @timed_lru_cache(3_600)
-    def _get_markup(self, page: str | None = None) -> BeautifulSoup | None:
+    def _get_source(self, url: str | None = None) -> BeautifulSoup | None:
         """
-        Private method for scribing HTML & XML markup of the web resource.
+        Private method that calls API for getting HTML & XML markup of the web resource
+        and return object of the BeautifulSoup class.
         """
-        agent = UserAgent(
-            browsers=[
-                "chrome",
-                "edge",
-                "internet explorer",
-                "firefox",
-                "safari",
-                "opera",
-            ]
-        )
-        response = None
-        try:
-            response = requests.get(
-                page or self.url, verify=False, headers={"User-Agent": agent.random}
-            )
-        except Exception as ex:
-            logger.exception(
-                "Unable to connect to the URL: %s. Raised exception: %s"
-                % (page or self.url, ex)
-            )
-
-        soup = BeautifulSoup(response.text, features="lxml-xml") if response else None
-        return soup
+        match url:
+            case str() as uri if not uri.endswith(".xml"):
+                markup = self.api.get_html(uri)
+                formatter = "lxml"
+            case _:
+                markup = self.api.get_xml(url)
+                formatter = "lxml-xml"
+        return BeautifulSoup(markup, features=formatter) if markup else None

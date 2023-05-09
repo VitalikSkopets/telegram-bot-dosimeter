@@ -3,7 +3,7 @@ from unittest import mock
 import jinja2
 import pytest
 
-from dosimeter.message_engine import TemplateEngine
+from dosimeter.template_engine.engine import TemplateEngine
 
 
 @pytest.fixture(scope="session")
@@ -42,7 +42,7 @@ class TestMessageEngine(object):
     ) -> None:
         # Act
         with mock.patch(
-            "dosimeter.message_engine.TemplateEngine.render",
+            "dosimeter.template_engine.engine.TemplateEngine.render",
             return_value=f"Render success '{self.template}' template",
         ) as mocked:
             rendered_message = message_engine.render(self.template)

@@ -1,12 +1,13 @@
 import requests
 
-from dosimeter import config
-from dosimeter.config import get_logger
+from dosimeter.config import settings
+from dosimeter.config.logger import CustomAdapter, get_logger
+from dosimeter.storage import manager_admins as manager
 
 __all__ = ("Analytics",)
 
 
-logger = get_logger(__name__)
+logger = CustomAdapter(get_logger(__name__), {"user_id": manager.get_one()})
 
 
 class Analytics:
@@ -14,14 +15,14 @@ class Analytics:
 
     def __init__(
         self,
-        measurement_id: str = config.MEASUREMENT_ID,
-        api_secret: str = config.API_SECRET,
+        measurement_id: str = settings.MEASUREMENT_ID,
+        api_secret: str = settings.API_SECRET,
     ) -> None:
         """Instantiate a Analytics object"""
         self.measurement_id = measurement_id
         self.api_secret = api_secret
         self.url = (
-            f"{config.PROTOKOL}://{config.GOOGLE_DOMEN}/mp/collect?"
+            f"{settings.PROTOKOL}://{settings.GOOGLE_DOMEN}/mp/collect?"
             f"measurement_id={self.measurement_id}&api_secret={self.api_secret}"
         )
 
@@ -45,5 +46,6 @@ class Analytics:
         except Exception as ex:
             logger.exception(
                 "Unable to connect to '%s'. Raised exception: %s"
-                % (config.GOOGLE_DOMEN, ex)
+                % (settings.GOOGLE_DOMEN, ex),
+                user_id=manager.get_one(user_id),
             )

@@ -2,7 +2,7 @@ import base64
 
 from cryptography.fernet import Fernet
 
-from dosimeter.config import PWD
+from dosimeter.config import settings
 from dosimeter.encryption.interface import BaseCryptographer
 
 __all__ = ("SymmetricCryptographer",)
@@ -14,7 +14,7 @@ class SymmetricCryptographer(BaseCryptographer):
     symmetric method.
     """
 
-    PASSWORD: bytes = bytes(PWD, encoding="utf-8")
+    PASSWORD: bytes = bytes(settings.PWD, encoding="utf-8")
 
     def __init__(self) -> None:
         key = base64.b64decode(self.PASSWORD)

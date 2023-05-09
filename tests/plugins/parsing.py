@@ -21,7 +21,8 @@ def get_markup_from_file() -> Callable[[Path], BeautifulSoup]:
 
     def factory(file_name: Path) -> BeautifulSoup:
         with open(file_name) as file:
-            soup = BeautifulSoup(file, features="lxml-xml")
+            formatter = "lxml-xml" if file_name.suffix == ".xml" else "lxml"
+            soup = BeautifulSoup(file, features=formatter)
         return soup
 
     return factory
@@ -30,7 +31,7 @@ def get_markup_from_file() -> Callable[[Path], BeautifulSoup]:
 @pytest.fixture()
 def get_text_from_file() -> Callable[[Path], str]:
     """
-    Returns the plain text from xml format file.
+    Returns the plain text from html & xml format file.
     """
 
     def factory(file_name: Path) -> str:
