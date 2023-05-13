@@ -4,21 +4,21 @@ from typing import Any
 from pymongo import MongoClient
 from telegram import User
 
-from dosimeter import config
-from dosimeter.config import ASYMMETRIC_ENCRYPTION, CustomAdapter, get_logger
+from dosimeter.config import settings
+from dosimeter.config.logger import CustomAdapter, get_logger
 from dosimeter.constants import Action
 from dosimeter.encryption import asym_cypher, sym_cypher
 from dosimeter.encryption.interface import BaseCryptographer
 from dosimeter.storage import manager_admins as manager
 from dosimeter.storage.memory import InternalAdminManager
-from dosimeter.storage.repository import DocumentRepository
+from dosimeter.storage.repository import Repository
 
 __all__ = ("MongoDataBase", "mongo_atlas__repo")
 
 logger = CustomAdapter(get_logger(__name__), {"user_id": manager.get_one()})
 
 
-class MongoDataBase(DocumentRepository, abc.ABC):
+class MongoDataBase(Repository, abc.ABC):
     """Mongo Data Base client."""
 
     LOG_MSG = "Action '%s' added to Mongo DB."
@@ -26,18 +26,18 @@ class MongoDataBase(DocumentRepository, abc.ABC):
     def __init__(
         self,
         cypher: BaseCryptographer = (
-            asym_cypher if ASYMMETRIC_ENCRYPTION else sym_cypher
+            asym_cypher if settings.ASYMMETRIC_ENCRYPTION else sym_cypher
         ),
         control: InternalAdminManager = manager,
     ) -> None:
         """Constructor method for initializing objects of the MongoDataBase class."""
         try:
             client: MongoClient = MongoClient(
-                config.MONGO_DB_CONNECTION, serverSelectionTimeoutMS=5000
+                settings.MONGO_DB_CONNECTION, serverSelectionTimeoutMS=5000
             )
             logger.debug(
                 "Reference to cloud Mongo Atlas Database: '%s'"
-                % config.MONGO_DB_CONNECTION
+                % settings.MONGO_DB_CONNECTION
             )
             self.mdb = client.users_db
             logger.info(f"Info about server: {client.server_info()}")
@@ -76,7 +76,7 @@ class MongoDataBase(DocumentRepository, abc.ABC):
                 {"user_id": user.id},
                 {
                     "$push": {
-                        "start command": config.TODAY,
+                        "start command": settings.TODAY,
                     },
                 },
             )
@@ -85,13 +85,11 @@ class MongoDataBase(DocumentRepository, abc.ABC):
                 {"user_id": user.id},
                 {
                     "$push": {
-                        "start command": config.TODAY,
+                        "start command": settings.TODAY,
                     },
                 },
             )
-        logger.info(
-            self.LOG_MSG % Action.START.value, user_id=self.manager.get_one(user.id)
-        )
+        logger.info(self.LOG_MSG % Action.START, user_id=self.manager.get_one(user.id))
 
     def add_help(self, user: User) -> None:
         """
@@ -102,20 +100,18 @@ class MongoDataBase(DocumentRepository, abc.ABC):
             self.mdb.users.insert_one(self.create_collection(user))
             self.mdb.users.update_one(
                 {"user_id": user.id},
-                {"$push": {"help command": config.TODAY}},
+                {"$push": {"help command": settings.TODAY}},
             )
         if self.mdb.users.find_one({"user_id": user.id}):
             self.mdb.users.update_one(
                 {"user_id": user.id},
                 {
                     "$push": {
-                        "help command": config.TODAY,
+                        "help command": settings.TODAY,
                     },
                 },
             )
-        logger.info(
-            self.LOG_MSG % Action.HELP.value, user_id=self.manager.get_one(user.id)
-        )
+        logger.info(self.LOG_MSG % Action.HELP, user_id=self.manager.get_one(user.id))
 
     def add_messages(self, user: User) -> None:
         """
@@ -128,7 +124,7 @@ class MongoDataBase(DocumentRepository, abc.ABC):
                 {"user_id": user.id},
                 {
                     "$push": {
-                        "sent greeting message": config.TODAY,
+                        "sent greeting message": settings.TODAY,
                     },
                 },
             )
@@ -137,12 +133,12 @@ class MongoDataBase(DocumentRepository, abc.ABC):
                 {"user_id": user.id},
                 {
                     "$push": {
-                        "sent greeting message": config.TODAY,
+                        "sent greeting message": settings.TODAY,
                     },
                 },
             )
         logger.info(
-            self.LOG_MSG % Action.GREETING.value, user_id=self.manager.get_one(user.id)
+            self.LOG_MSG % Action.GREETING, user_id=self.manager.get_one(user.id)
         )
 
     def add_radiation_monitoring(self, user: User) -> None:
@@ -154,12 +150,12 @@ class MongoDataBase(DocumentRepository, abc.ABC):
             {"user_id": user.id},
             {
                 "$push": {
-                    "radiation monitoring": config.TODAY,
+                    "radiation monitoring": settings.TODAY,
                 },
             },
         )
         logger.info(
-            self.LOG_MSG % Action.MONITORING.value,
+            self.LOG_MSG % Action.MONITORING,
             user_id=self.manager.get_one(user.id),
         )
 
@@ -172,13 +168,11 @@ class MongoDataBase(DocumentRepository, abc.ABC):
             {"user_id": user.id},
             {
                 "$push": {
-                    "monitoring points": config.TODAY,
+                    "monitoring points": settings.TODAY,
                 },
             },
         )
-        logger.info(
-            self.LOG_MSG % Action.POINTS.value, user_id=self.manager.get_one(user.id)
-        )
+        logger.info(self.LOG_MSG % Action.POINTS, user_id=self.manager.get_one(user.id))
 
     def add_region(self, user: User, region: Action) -> None:
         """
@@ -188,7 +182,7 @@ class MongoDataBase(DocumentRepository, abc.ABC):
             {"user_id": user.id},
             {
                 "$push": {
-                    f"{region}": config.TODAY,
+                    f"{region}": settings.TODAY,
                 },
             },
         )
@@ -203,12 +197,12 @@ class MongoDataBase(DocumentRepository, abc.ABC):
             {"user_id": user.id},
             {
                 "$push": {
-                    "sent location": config.TODAY,
+                    "sent location": settings.TODAY,
                 },
             },
         )
         logger.info(
-            self.LOG_MSG % Action.LOCATION.value, user_id=self.manager.get_one(user.id)
+            self.LOG_MSG % Action.LOCATION, user_id=self.manager.get_one(user.id)
         )
 
     def get_user_by_id(self, user_id: int) -> Any:

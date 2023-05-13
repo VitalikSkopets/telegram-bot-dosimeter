@@ -97,7 +97,7 @@ sftp-config.json
 .python-version
 
 ### Other ###
-.env
+dosimeter/config/.env
 .env-custom
 .envrc
 .tool-versions

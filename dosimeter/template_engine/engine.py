@@ -2,9 +2,9 @@ from typing import Any
 
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-from dosimeter import config
+from dosimeter.config import settings
 
-__all__ = ("TemplateEngine", "message_engine")
+__all__ = ("TemplateEngine",)
 
 
 class TemplateEngine:
@@ -13,9 +13,9 @@ class TemplateEngine:
     (see more https://jinja.palletsprojects.com/en/3.1.x/api/)
     """
 
-    APP: str = config.APP
+    APP: str = settings.APP
 
-    def __init__(self, templates_dir_name: str = config.TEMPLATES_DIR.stem) -> None:
+    def __init__(self, templates_dir_name: str = settings.TEMPLATES_DIR.stem) -> None:
         """
         Constructor method for initializing objects of class TemplateEngine.
         """
@@ -31,7 +31,3 @@ class TemplateEngine:
         """
         template = self.env.get_template(name)
         return template.render(**kwargs)
-
-
-"""TemplateEngine class instance for rendering user messages"""
-message_engine = TemplateEngine()

@@ -6,7 +6,7 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPublicKey
 
-from dosimeter.config import PWD
+from dosimeter.config import settings
 from dosimeter.constants import Files
 from dosimeter.encryption.interface import BaseCryptographer
 
@@ -19,7 +19,7 @@ class AsymmetricCryptographer(BaseCryptographer):
     asymmetric method.
     """
 
-    PASSWORD: bytes = bytes(PWD, encoding="utf-8")
+    PASSWORD: bytes = bytes(settings.PWD, encoding="utf-8")
     PRIV_KEY_PATH: pathlib.Path = Files.SECRET_KEY
     PUB_KEY_PATH: pathlib.Path = Files.PUBLIC_KEY
 

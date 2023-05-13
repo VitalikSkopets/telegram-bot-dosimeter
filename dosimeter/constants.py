@@ -1,16 +1,18 @@
 import enum
+import os
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
 
 from emoji.core import emojize
 
-from dosimeter import config
+from dosimeter.config import settings
 
 __all__ = (
     "ADMIN_ID",
     "LIST_OF_ADMIN_IDS",
     "TEMP_LIST_OF_ADMIN_IDS",
+    "URL",
     "Action",
     "Buttons",
     "Command",
@@ -20,16 +22,24 @@ __all__ = (
     "Regions",
 )
 
-ADMIN_ID: int = config.MAIN_ADMIN_TELEGRAM_ID or config.ADMIN_TELEGRAM_ID
+ADMIN_ID: int = settings.MAIN_ADMIN_TELEGRAM_ID or settings.ADMIN_TELEGRAM_ID
 LIST_OF_ADMIN_IDS: tuple[int, int] = (ADMIN_ID, 487236325)
 TEMP_LIST_OF_ADMIN_IDS: list[int] = []
 
 
+class URL(str, enum.Enum):
+    RADIATION = f"{os.environ['DEFAULT_URL']}/radiation.xml"
+    MONITORING = f"{os.environ['DEFAULT_URL']}/monitoring/radiation"
+
+    def __str__(self) -> str:
+        return self.value
+
+
 @dataclass(frozen=True)
 class Files:
-    SECRET_KEY: Path = config.BASE_DIR / "secret.pem"
-    PUBLIC_KEY: Path = config.BASE_DIR / "public.pem"
-    ADMINS_FILE_PATH: Path = config.BASE_DIR / "admins.txt"
+    SECRET_KEY: Path = settings.BASE_DIR / "secret.pem"
+    PUBLIC_KEY: Path = settings.BASE_DIR / "public.pem"
+    ADMINS_FILE_PATH: Path = settings.BASE_DIR / "admins.txt"
 
 
 class Regions(str, enum.Enum):
@@ -39,6 +49,9 @@ class Regions(str, enum.Enum):
     GRODNO = "Гродненская область"
     MOGILEV = "Могилевская область"
     MINSK = "Минск и Минская область"
+
+    def __str__(self) -> str:
+        return self.value
 
 
 class Points(enum.Enum):
@@ -379,7 +392,7 @@ class Points(enum.Enum):
 
     @property
     def coordinates(self) -> tuple[float, float]:
-        return self.longitude, self.latitude
+        return self.latitude, self.longitude
 
 
 class Emoji(str, enum.Enum):
@@ -502,6 +515,9 @@ class Action(str, enum.Enum):
     NEXT = "next"
     PREV = "previosly"
     HIDE_KEYBOARD = "hide_keyboard"
+
+    def __str__(self) -> str:
+        return self.value
 
 
 @dataclass(frozen=True)

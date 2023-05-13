@@ -1,7 +1,7 @@
 .EXPORT_ALL_VARIABLES:
 
-DOTENV_BASE_FILE ?= .env
 APP = dosimeter
+DOTENV_BASE_FILE ?= $(APP)/config/.env
 TESTS = tests/**/*.py
 
 -include $(DOTENV_BASE_FILE)
@@ -88,6 +88,10 @@ tests-message-engine: ## Start tests with 'message_engine' mark
 .PHONY: tests-parse
 tests-parse: ## Start tests with 'parsing' mark
 	pytest --verbose --randomly-seed=default -m "parsing" --no-cov --disable-warnings
+
+.PHONY: tests-api
+tests-api: ## Start tests with 'api' mark
+	pytest --verbose --randomly-seed=default -m "api" --no-cov --disable-warnings
 
 # ==== Cache ====
 

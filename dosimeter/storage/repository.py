@@ -4,10 +4,10 @@ from telegram import User
 
 from dosimeter.constants import Action
 
-__all__ = ("AdminManager", "DocumentRepository")
+__all__ = ("AdminManager", "Repository")
 
 
-class DocumentRepository(abc.ABC):
+class Repository(abc.ABC):
     @abc.abstractmethod
     def add_start(self, user: User) -> None:
         """

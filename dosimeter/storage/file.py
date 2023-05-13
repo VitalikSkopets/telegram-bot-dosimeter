@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Union
 
-from dosimeter.config import ASYMMETRIC_ENCRYPTION
+from dosimeter.config import settings
 from dosimeter.constants import ADMIN_ID, LIST_OF_ADMIN_IDS, Files
 from dosimeter.encryption import asym_cypher, sym_cypher
 from dosimeter.encryption.asymmetric import AsymmetricCryptographer
@@ -21,7 +21,7 @@ class FileAdminManager(AdminManager):
     def __init__(
         self,
         cryptographer: Union[SymmetricCryptographer, AsymmetricCryptographer] = (
-            asym_cypher if ASYMMETRIC_ENCRYPTION else sym_cypher
+            asym_cypher if settings.ASYMMETRIC_ENCRYPTION else sym_cypher
         ),
     ) -> None:
         self.cryptographer = cryptographer

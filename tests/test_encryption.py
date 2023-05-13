@@ -18,7 +18,7 @@ MessageType: TypeAlias = None | str | int
 ERROR_MSG = "invalid internal test config"
 
 
-class TypeTokenValue(enum.Enum):
+class TypeTokenValue(str, enum.Enum):
     """
     Enumeration of token value types.
     """
@@ -28,8 +28,11 @@ class TypeTokenValue(enum.Enum):
     NUMBER = "number"
     INVALID = "invalid"
 
+    def __str__(self) -> str:
+        return self.value
 
-class TypeMessageValue(enum.Enum):
+
+class TypeMessageValue(str, enum.Enum):
     """
     Enumeration of message value types.
     """
@@ -39,6 +42,9 @@ class TypeMessageValue(enum.Enum):
     UNDEFINED = "undefined"
     EMPTY = "empty"
     NUMBER = "number"
+
+    def __str__(self) -> str:
+        return self.value
 
 
 @pytest.fixture()
@@ -51,13 +57,13 @@ def get_token(
     Generating token test data.
     """
     match request.param:
-        case TypeTokenValue.UNDEFINED.value:
+        case TypeTokenValue.UNDEFINED:
             return None
-        case TypeTokenValue.EMPTY.value:
+        case TypeTokenValue.EMPTY:
             return ""
-        case TypeTokenValue.NUMBER.value:
+        case TypeTokenValue.NUMBER:
             return fake_integer_number
-        case TypeTokenValue.INVALID.value:
+        case TypeTokenValue.INVALID:
             return pytest.param(fake_token, marks=pytest.mark.xfail)
         case _:
             raise ValueError(ERROR_MSG)
@@ -74,15 +80,15 @@ def get_message(
     Generating message test data.
     """
     match request.param:
-        case TypeMessageValue.USERNAME.value:
+        case TypeMessageValue.USERNAME:
             return fake_username
-        case TypeMessageValue.PLAINTEXT.value:
+        case TypeMessageValue.PLAINTEXT:
             return fake_string
-        case TypeMessageValue.UNDEFINED.value:
+        case TypeMessageValue.UNDEFINED:
             return None
-        case TypeMessageValue.EMPTY.value:
+        case TypeMessageValue.EMPTY:
             return ""
-        case TypeMessageValue.NUMBER.value:
+        case TypeMessageValue.NUMBER:
             return fake_integer_number
         case _:
             raise ValueError(ERROR_MSG)
@@ -98,7 +104,7 @@ class TestSymmetricEncryption(object):
 
     @pytest.mark.parametrize(
         "get_message",
-        vals := [msg_type.value for msg_type in TypeMessageValue],
+        vals := list(TypeMessageValue),
         indirect=True,
         ids=[val + "_message" for val in vals],
     )
@@ -115,7 +121,7 @@ class TestSymmetricEncryption(object):
 
     @pytest.mark.parametrize(
         "get_token",
-        vals := [token_type.value for token_type in TypeTokenValue],
+        vals := list(TypeTokenValue),
         indirect=True,
         ids=[val + "_token" for val in vals],
     )
@@ -162,7 +168,7 @@ class TestAsymmetricEncryption(object):
 
     @pytest.mark.parametrize(
         "get_message",
-        vals := [msg_type.value for msg_type in TypeMessageValue],
+        vals := list(TypeMessageValue),
         indirect=True,
         ids=[val + "_message" for val in vals],
     )
@@ -189,7 +195,7 @@ class TestAsymmetricEncryption(object):
 
     @pytest.mark.parametrize(
         "get_token",
-        vals := [token_type.value for token_type in TypeTokenValue],
+        vals := list(TypeTokenValue),
         indirect=True,
         ids=[val + "_token" for val in vals],
     )

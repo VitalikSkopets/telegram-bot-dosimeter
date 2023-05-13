@@ -100,3 +100,11 @@ def generate_random_number() -> int:
     Generating random integer value without seed.
     """
     return random.randrange(10_000_000)
+
+
+@pytest.fixture()
+def fake_url(faker_seed: int, fake_field: Field) -> str:
+    """
+    Generating mimesis random url.
+    """
+    return fake_field("url")

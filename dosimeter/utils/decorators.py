@@ -3,10 +3,10 @@ from typing import Any, Callable, Optional
 
 import sentry_sdk
 
-from dosimeter.config import CustomAdapter, get_logger
+from dosimeter.config.logger import CustomAdapter, get_logger
 from dosimeter.constants import ADMIN_ID, LIST_OF_ADMIN_IDS
-from dosimeter.message_engine import message_engine
 from dosimeter.storage import manager_admins as manager
+from dosimeter.template_engine import message_engine
 
 __all__ = (
     "debug_handler",
@@ -88,6 +88,7 @@ def debug_handler(log_handler: CustomAdapter = logger) -> Callable:
                         text=message_engine.render(
                             "error_to_admin.html",
                             admin=manager.get_one(user.id),
+                            func_name=func.__name__,
                             exc_info=ex,
                         ),
                     )

@@ -2,12 +2,11 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Callable
 from unittest import mock
 
-import httpretty
 import pytest
 from bs4 import BeautifulSoup
 
-from dosimeter import config
-from dosimeter.constants import Points, Regions
+from dosimeter.config import settings
+from dosimeter.constants import URL, Points, Regions
 from dosimeter.parse.parser import Parser
 
 if TYPE_CHECKING:
@@ -40,28 +39,73 @@ class TestParser(object):
     A class for testing logic encapsulated in the Parser class.
     """
 
-    xml: Path = config.TESTS_DIR / "fixtures" / "rad.xml"
-    html: Path = config.TESTS_DIR / "fixtures" / "rad.html"
-    method = "dosimeter.parse.Parser._get_markup"
+    xml: Path = settings.TESTS_DIR / "fixtures" / "rad.xml"
+    html: Path = settings.TESTS_DIR / "fixtures" / "rad.html"
+    method = "dosimeter.parse.Parser._get_source"
 
-    @httpretty.activate
-    def test_get_markup(self, get_text_from_file: Callable[[Path], str]) -> None:
-        # Arrange
-        httpretty.register_uri(
-            method=httpretty.GET,
-            uri=config.URL_RADIATION,
-            body=get_text_from_file(self.xml),
-            content_type="application/rss+xml",
-        )
-
+    @pytest.mark.parametrize(
+        "source,url",
+        [
+            (xml, URL.RADIATION),
+            (html, URL.MONITORING),
+        ],
+        ids=["xml", "html"],
+    )
+    def test_get_source(
+        self,
+        source: Path,
+        url: str,
+        get_markup_from_file: Callable[[Path], BeautifulSoup],
+    ) -> None:
         # Act
-        parser = Parser()
-        response = parser._get_markup()
+        with mock.patch("dosimeter.api.external_api.Api._get_markup") as mocked:
+            mocked.return_value = get_markup_from_file(source)
+            parser = Parser()
+            result = parser._get_source(url)
 
         # Assert
-        assert httpretty.last_request().method == "GET"
-        assert httpretty.last_request().path == "/radiation.xml"
-        assert isinstance(response, BeautifulSoup)
+        assert isinstance(result, BeautifulSoup)
+        mocked.assert_called_once()
+
+    def test_get_xml_source(
+        self,
+        get_text_from_file: Callable[[Path], str],
+    ) -> None:
+        # Act
+        with mock.patch.multiple(
+            "dosimeter.api.external_api.Api",
+            get_xml=mock.DEFAULT,
+            get_html=mock.DEFAULT,
+        ) as mocked:
+            mocked["get_xml"].return_value = get_text_from_file(self.xml)
+            mocked["get_html"].return_value = get_text_from_file(self.html)
+            parser = Parser()
+            result = parser._get_source(URL.RADIATION)
+
+        # Assert
+        assert isinstance(result, BeautifulSoup)
+        mocked["get_xml"].assert_called_once()
+        mocked["get_html"].assert_not_called()
+
+    def test_get_html_source(
+        self,
+        get_text_from_file: Callable[[Path], str],
+    ) -> None:
+        # Act
+        with mock.patch.multiple(
+            "dosimeter.api.external_api.Api",
+            get_html=mock.DEFAULT,
+            get_xml=mock.DEFAULT,
+        ) as mocked:
+            mocked["get_html"].return_value = get_text_from_file(self.html)
+            mocked["get_xml"].return_value = get_text_from_file(self.xml)
+            parser = Parser()
+            result = parser._get_source(URL.MONITORING)
+
+        # Assert
+        assert isinstance(result, BeautifulSoup)
+        mocked["get_html"].assert_called_once()
+        mocked["get_xml"].assert_not_called()
 
     def test_get_points_with_radiation_level(
         self,
@@ -116,7 +160,7 @@ class TestParser(object):
 
     @pytest.mark.parametrize(
         "get_points",
-        vals := [region.value for region in Regions.__members__.values()],
+        vals := list(Regions),
         indirect=True,
         ids=assign_id,
     )

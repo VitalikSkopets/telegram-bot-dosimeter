@@ -1,8 +1,8 @@
-from dosimeter import config
+from dosimeter.config.logger import get_logger
 
 __all__ = ("get_id_from_text", "greeting")
 
-logger = config.get_logger(__name__)
+logger = get_logger(__name__)
 
 greeting: tuple[str, ...] = (
     "hello",
