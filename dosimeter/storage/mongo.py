@@ -4,7 +4,7 @@ from typing import Any
 from pymongo import MongoClient
 from telegram import User
 
-from dosimeter.config import settings
+from dosimeter.config import db_settings, settings
 from dosimeter.config.logger import CustomAdapter, get_logger
 from dosimeter.constants import Action
 from dosimeter.encryption import asym_cypher, sym_cypher
@@ -33,11 +33,10 @@ class MongoDataBase(Repository, abc.ABC):
         """Constructor method for initializing objects of the MongoDataBase class."""
         try:
             client: MongoClient = MongoClient(
-                settings.MONGO_DB_CONNECTION, serverSelectionTimeoutMS=5000
+                db_settings.mongo_url, serverSelectionTimeoutMS=5000
             )
             logger.debug(
-                "Reference to cloud Mongo Atlas Database: '%s'"
-                % settings.MONGO_DB_CONNECTION
+                "Reference to cloud Mongo Atlas Database: '%s'" % db_settings.mongo_url
             )
             self.mdb = client.users_db
             logger.info(f"Info about server: {client.server_info()}")

@@ -1,31 +1,29 @@
 import os
 from datetime import datetime
 from pathlib import Path
+from urllib.parse import ParseResult, urlparse
 
 import pytz
 import sentry_sdk
 from mtranslate import translate
+from pydantic import BaseSettings, Field
 
 __all__ = (
     "APP",
-    "API_SECRET",
     "ASYMMETRIC_ENCRYPTION",
     "BASE_DIR",
     "DEBUG",
-    "GOOGLE_DOMEN",
     "HEROKU_APP",
-    "MONGO_DB_CONNECTION",
-    "MONGO_DB_NAME",
     "PORT",
     "PWD",
-    "PROTOKOL",
-    "MEASUREMENT_ID",
     "SENTRY_SDK",
     "TEMPLATES_DIR",
     "TESTS_DIR",
     "TOKEN",
     "TODAY",
     "WEBHOOK_MODE",
+    "AnalyticsSettings",
+    "DataBaseSettings",
 )
 
 DEFAULT_LOCALE = "ru"
@@ -48,16 +46,6 @@ TOKEN = os.environ["API_TOKEN"]
 MAIN_ADMIN_TELEGRAM_ID = int(os.environ["MAIN_ADMIN_TELEGRAM_ID"])
 ADMIN_TELEGRAM_ID = int(os.environ["ADMIN_TELEGRAM_ID"])
 
-# MongoDB Atlas
-MONGO_DB_NAME = os.environ["MONGO_DB_NAME"]
-MONGO_DB_LOGIN = os.environ["MONGO_DB_LOGIN"]
-MONGO_DB_PASSWORD = os.environ["MONGO_DB_PASSWORD"]
-MONGO_DB_HOST = os.environ["MONGO_DB_HOST"]
-MONGO_DB_CONNECTION = (
-    f"mongodb+srv://{MONGO_DB_LOGIN}:{MONGO_DB_PASSWORD}@cluster.s3cxd.mongodb.net/"
-    f"{MONGO_DB_NAME}?retryWrites=true&w=majority"
-)
-
 # Encryption
 PWD = os.environ["PASS"]
 ASYMMETRIC_ENCRYPTION = False
@@ -66,14 +54,45 @@ ASYMMETRIC_ENCRYPTION = False
 HEROKU_APP = os.environ["HEROKU_APP"]
 PORT = int(os.environ["PORT"])
 
-# Measurement Protocol API (Google Analytics 4)
-GOOGLE_DOMEN = "www.google-analytics.com"
-PROTOKOL = "https"
-MEASUREMENT_ID = os.environ["MEASUREMENT_ID"]
-
-# Google Analytics
-API_SECRET = os.environ["API_SECRET"]
-
 # Sentry SDK
 SENTRY_SDK = os.environ["SENTRY_SDK"]
 sentry_sdk.init(dsn=SENTRY_SDK, traces_sample_rate=1.0)
+
+
+# MongoDB Atlas
+class DataBaseSettings(BaseSettings):
+    host: str = Field(..., env="MONGO_HOST")
+    username: str = Field(..., env="MONGO_USERNAME")
+    password: str = Field(..., env="MONGO_PASSWORD")
+    db_name: str = Field(..., env="MONGO_NAME")
+    port: int = Field(default="8443")
+
+    class Config:
+        env_file = ".env"
+        env_prefix = "MONGO_"
+        env_file_encoding = "utf-8"
+
+    @property
+    def mongo_url(self) -> str:
+        return (
+            f"mongodb+srv://{self.username}:{self.password}@cluster.s3cxd.mongodb.net/"
+            f"{self.db_name}?retryWrites=true&w=majority"
+        )
+
+
+# Measurement Protocol API (Google Analytics 4)
+class AnalyticsSettings(BaseSettings):
+    measurement_id: str = Field(..., env="GOOGLE_MEASUREMENT_ID")
+    api_secret: str = Field(..., env="GOOGLE_API_SECRET")
+
+    class Config:
+        env_file = ".env"
+        env_prefix = "GOOGLE_"
+        env_file_encoding = "utf-8"
+
+    @property
+    def url(self) -> ParseResult:
+        return urlparse(
+            f"https://www.google-analytics.com/mp/collect?"
+            f"measurement_id={self.measurement_id}&api_secret={self.api_secret}"
+        )
