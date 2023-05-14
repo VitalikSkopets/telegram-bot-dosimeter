@@ -4,7 +4,7 @@ import pytest
 from mimesis.schema import Field
 from py.path import local
 
-from dosimeter.constants import Files
+from dosimeter.config import settings
 
 FilePaths: TypeAlias = tuple[local, local, local]
 MessageAssertion: TypeAlias = Callable[[str, str], None]
@@ -19,8 +19,8 @@ def get_keys(tmpdir_factory: pytest.TempdirFactory) -> FilePaths:
     path_to_keys = tmpdir_factory.mktemp("keys")
 
     return (
-        path_to_keys.join(Files.SECRET_KEY.name),
-        path_to_keys.join(Files.PUBLIC_KEY.name),
+        path_to_keys.join(settings.Key.SECRET.name),
+        path_to_keys.join(settings.Key.PUBLIC.name),
         path_to_keys.join("token.txt"),
     )
 

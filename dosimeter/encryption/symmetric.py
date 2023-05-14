@@ -14,7 +14,7 @@ class SymmetricCryptographer(BaseCryptographer):
     symmetric method.
     """
 
-    PASSWORD: bytes = bytes(settings.PWD, encoding="utf-8")
+    PASSWORD: bytes = bytes(settings.PWD, encoding=settings.UTF)
 
     def __init__(self) -> None:
         key = base64.b64decode(self.PASSWORD)
@@ -25,9 +25,9 @@ class SymmetricCryptographer(BaseCryptographer):
         if not isinstance(message, str):
             return None
         # encryption
-        ciphertext = self.cipher.encrypt(bytes(message, encoding="utf-8"))
+        ciphertext = self.cipher.encrypt(bytes(message, encoding=settings.UTF))
         token = base64.b64encode(ciphertext)
-        return token.decode(encoding="utf-8")
+        return token.decode(encoding=settings.UTF)
 
     def decrypt(self, token: str) -> str | None:
         """Method for decrypting string objects."""
@@ -36,4 +36,4 @@ class SymmetricCryptographer(BaseCryptographer):
         pre_token = base64.b64decode(token)
         # decryption
         plaintext = self.cipher.decrypt(pre_token)
-        return plaintext.decode(encoding="utf-8")
+        return plaintext.decode(encoding=settings.UTF)

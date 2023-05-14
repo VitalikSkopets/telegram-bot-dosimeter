@@ -7,12 +7,14 @@ from dosimeter.config.logger import CustomAdapter, get_logger
 from dosimeter.constants import ADMIN_ID, LIST_OF_ADMIN_IDS
 from dosimeter.storage import manager_admins as manager
 from dosimeter.template_engine import message_engine
+from dosimeter.template_engine.engine import Template
 
 __all__ = (
     "debug_handler",
     "restricted",
     "send_action",
 )
+
 
 logger = CustomAdapter(get_logger(__name__), {"user_id": manager.get_one()})
 
@@ -39,7 +41,9 @@ def restricted(func: Callable) -> Optional[Callable]:
 
 
 def send_action(action: Any) -> Callable:
-    """Sends `action` while processing callback handler func command."""
+    """
+    Sends `action` while processing callback handler func command.
+    """
 
     def decorator(func: Callable) -> Callable:
         @wraps(func)
@@ -77,7 +81,7 @@ def debug_handler(log_handler: CustomAdapter = logger) -> Callable:
             except Exception as ex:
                 update.message.reply_text(
                     message_engine.render(
-                        "error_to_user.html",
+                        Template.USER_ERROR,
                         user=user,
                     ),
                 )
@@ -86,7 +90,7 @@ def debug_handler(log_handler: CustomAdapter = logger) -> Callable:
                     context.bot.send_message(
                         chat_id=ADMIN_ID,
                         text=message_engine.render(
-                            "error_to_admin.html",
+                            Template.ADMIN_ERROR,
                             admin=manager.get_one(user.id),
                             func_name=func.__name__,
                             exc_info=ex,

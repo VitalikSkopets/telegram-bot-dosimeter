@@ -6,7 +6,7 @@ import pytest
 from bs4 import BeautifulSoup
 
 from dosimeter.config import settings
-from dosimeter.constants import URL, Points, Regions
+from dosimeter.constants import URL, Point, Region
 from dosimeter.parse.parser import Parser
 
 if TYPE_CHECKING:
@@ -19,18 +19,18 @@ def assign_id(val: str) -> str:
     """
     identifier = "{}_region"
     match val:
-        case Regions.BREST:
-            return identifier.format(Regions.BREST.name)
-        case Regions.VITEBSK:
-            return identifier.format(Regions.VITEBSK.name)
-        case Regions.GOMEL:
-            return identifier.format(Regions.GOMEL.name)
-        case Regions.GRODNO:
-            return identifier.format(Regions.GRODNO.name)
-        case Regions.MOGILEV:
-            return identifier.format(Regions.MOGILEV.name)
-        case Regions.MINSK:
-            return identifier.format(Regions.MINSK.name)
+        case Region.BREST:
+            return identifier.format(Region.BREST.name)
+        case Region.VITEBSK:
+            return identifier.format(Region.VITEBSK.name)
+        case Region.GOMEL:
+            return identifier.format(Region.GOMEL.name)
+        case Region.GRODNO:
+            return identifier.format(Region.GRODNO.name)
+        case Region.MOGILEV:
+            return identifier.format(Region.MOGILEV.name)
+        case Region.MINSK:
+            return identifier.format(Region.MINSK.name)
 
 
 @pytest.mark.parsing()
@@ -120,7 +120,7 @@ class TestParser(object):
         # Assert
         assert isinstance(result, dict)
         for key in result.keys():
-            assert key in tuple(point.label for point in Points)
+            assert key in tuple(point.label for point in Point)
         for value in result.values():
             assert isinstance(value, float)
         mocked.assert_called_once()
@@ -160,14 +160,14 @@ class TestParser(object):
 
     @pytest.mark.parametrize(
         "get_points",
-        vals := list(Regions),
+        vals := list(Region),
         indirect=True,
         ids=assign_id,
     )
     def test_get_info_about_region(
         self,
         get_markup_from_file: Callable[[Path], BeautifulSoup],
-        get_points: tuple[Points],
+        get_points: tuple[Point],
         assert_correct_region_info: "RegionInfoAssertion",
     ) -> None:
         # Act

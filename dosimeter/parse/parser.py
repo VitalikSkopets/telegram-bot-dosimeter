@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup, Tag
 from dosimeter.api import api
 from dosimeter.api.interface_api import BaseApi
 from dosimeter.config.logger import get_logger
-from dosimeter.constants import URL, Points
+from dosimeter.constants import URL, Point
 
 __all__ = ("ObservePoint", "Parser", "PowerOfRadiation")
 
@@ -68,7 +68,7 @@ class Parser(object):
         )
 
     def get_info_about_region(
-        self, region: tuple[Points, ...]
+        self, region: tuple[Point, ...]
     ) -> tuple[list[tuple[ObservePoint, str]], PowerOfRadiation]:
         """
         The method for parsing an object of the BeautifulSoup class, which is the XML

@@ -2,21 +2,19 @@
 from telegram import ChatAction, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import CallbackContext
 
-from dosimeter.analytics import analytics
+from dosimeter.analytics import Analytics, analytics
 from dosimeter.analytics.decorators import analytic
-from dosimeter.analytics.measurement_protocol import Analytics
 from dosimeter.config import settings
 from dosimeter.config.logger import CustomAdapter, get_logger
-from dosimeter.constants import ADMIN_ID, Action, Buttons, Points, Regions
+from dosimeter.constants import ADMIN_ID, Action, Button, Point, Region
 from dosimeter.navigator import Navigator, navigator
-from dosimeter.parse import parser
-from dosimeter.parse.parser import Parser
+from dosimeter.parse import Parser, parser
 from dosimeter.storage import file_manager_admins as f_manager
 from dosimeter.storage import manager_admins as manager
 from dosimeter.storage.mongo import mongo_atlas__repo
 from dosimeter.storage.repository import AdminManager, Repository
-from dosimeter.template_engine import message_engine
-from dosimeter.template_engine.engine import TemplateEngine
+from dosimeter.template_engine import TemplateEngine, message_engine
+from dosimeter.template_engine.engine import Template
 from dosimeter.utils import keyboards, utils
 from dosimeter.utils.decorators import debug_handler, restricted, send_action
 
@@ -62,9 +60,9 @@ class Handler(object):
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
             text=self.template.render(
-                "start.html",
+                Template.START,
                 user=user,
-                button=Buttons,
+                button=Button,
             ),
             reply_markup=keyboards.main_keyboard(),
         )
@@ -81,7 +79,7 @@ class Handler(object):
         user = update.effective_user
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text=self.template.render("help.html"),
+            text=self.template.render(Template.HELP),
             reply_markup=keyboards.main_keyboard(),
         )
         self.repo.add_help(user)
@@ -97,7 +95,7 @@ class Handler(object):
         user = update.effective_user
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text=self.template.render("admin.html"),
+            text=self.template.render(Template.ADMIN),
             reply_markup=keyboards.admin_keyboard(),
         )
         logger.debug(self.LOG_MSG % Action.ADMIN, user_id=self.manager.get_one(user.id))
@@ -109,11 +107,11 @@ class Handler(object):
         Inline keyboard buttons handler
         """
         match update.callback_query.data:
-            case Buttons.TOTAL_COUNT_USERS.callback_data:
+            case Button.TOTAL_COUNT_USERS.callback_data:
                 return self._get_count_users_callback(update, context)
-            case Buttons.LIST_ADMIN.callback_data:
+            case Button.LIST_ADMIN.callback_data:
                 return self._get_list_admin_ids_callback(update, context)
-            case Buttons.ADD_ADMIN.callback_data | Buttons.DEL_ADMIN.callback_data:
+            case Button.ADD_ADMIN.callback_data | Button.DEL_ADMIN.callback_data:
                 return self._enter_admin_by_user_id_callback(update, context)
 
     @debug_handler(log_handler=logger)
@@ -123,55 +121,49 @@ class Handler(object):
         Handler method for an incoming text messages from the user.
         """
         match update.message.text:
-            case Buttons.MONITORING.label:
+            case Button.MONITORING.label:
                 return self._radiation_monitoring_callback(update, context)
-            case Buttons.POINTS.label:
+            case Button.POINTS.label:
                 button_list = (
-                    Buttons.BREST,
-                    Buttons.VITEBSK,
-                    Buttons.MAIN_MENU,
-                    Buttons.NEXT,
+                    Button.BREST,
+                    Button.VITEBSK,
+                    Button.MAIN_MENU,
+                    Button.NEXT,
                 )
                 return self._monitoring_points_callback(update, context, button_list)
             case str() as command if command in (
-                Buttons.NEXT.label,
-                Buttons.NEXT_ARROW.label,
-                Buttons.PREV.label,
-                Buttons.PREV_ARROW.label,
+                Button.NEXT.label,
+                Button.NEXT_ARROW.label,
+                Button.PREV.label,
+                Button.PREV_ARROW.label,
             ):
                 return self._manage_menu_callback(update, context, command)
-            case Buttons.MAIN_MENU.label:
+            case Button.MAIN_MENU.label:
                 return self._main_menu_callback(update, context)
-            case Buttons.HIDE_KEYBOARD.label:
+            case Button.HIDE_KEYBOARD.label:
                 return self._hide_keyboard_callback(update, context)
-            case Buttons.BREST.label:
-                points = tuple(
-                    point for point in Points if point.region == Regions.BREST
-                )
+            case Button.BREST.label:
+                points = tuple(point for point in Point if point.region == Region.BREST)
                 action = Action.BREST
-            case Buttons.VITEBSK.label:
+            case Button.VITEBSK.label:
                 points = tuple(
-                    point for point in Points if point.region == Regions.VITEBSK
+                    point for point in Point if point.region == Region.VITEBSK
                 )
                 action = Action.VITEBSK
-            case Buttons.GOMEL.label:
-                points = tuple(
-                    point for point in Points if point.region == Regions.GOMEL
-                )
+            case Button.GOMEL.label:
+                points = tuple(point for point in Point if point.region == Region.GOMEL)
                 action = Action.GOMEL
-            case Buttons.GRODNO.label:
+            case Button.GRODNO.label:
                 points = tuple(
-                    point for point in Points if point.region == Regions.GRODNO
+                    point for point in Point if point.region == Region.GRODNO
                 )
                 action = Action.GRODNO
-            case Buttons.MINSK.label:
-                points = tuple(
-                    point for point in Points if point.region == Regions.MINSK
-                )
+            case Button.MINSK.label:
+                points = tuple(point for point in Point if point.region == Region.MINSK)
                 action = Action.MINSK
-            case Buttons.MOGILEV.label:
+            case Button.MOGILEV.label:
                 points = tuple(
-                    point for point in Points if point.region == Regions.MOGILEV
+                    point for point in Point if point.region == Region.MOGILEV
                 )
                 action = Action.MOGILEV
             case str() as user_id if user_id.startswith("add "):
@@ -191,21 +183,20 @@ class Handler(object):
         Handler method for pressing the "Send location" button by the user.
         """
         user = update.effective_user
-        distance_to_nearest_point, nearest_point_name = self.navigator.get_min_distance(
+        near_point = self.navigator.get_near_point(
             user.id,
             latitude=update.message.location.latitude,
             longitude=update.message.location.longitude,
         )
 
         for point, value in self.parser.get_points_with_radiation_level().items():
-            if nearest_point_name == point:
+            if near_point.title == point:
                 context.bot.send_message(
                     chat_id=update.effective_message.chat_id,
                     text=self.template.render(
-                        "location.html",
-                        distance=f"{distance_to_nearest_point:,} м".replace(",", " "),
-                        nearest_point=nearest_point_name,
-                        point=point,
+                        Template.LOCATION,
+                        distance=f"{near_point.distance:,} м".replace(",", " "),
+                        point=near_point.title,
                         date=settings.TODAY,
                         value=value,
                     ),
@@ -224,36 +215,36 @@ class Handler(object):
         Handler method for generating keyboard buttons.
         """
         match command:
-            case Buttons.NEXT.label:
+            case Button.NEXT.label:
                 button_list = (
-                    Buttons.GOMEL,
-                    Buttons.GRODNO,
-                    Buttons.PREV_ARROW,
-                    Buttons.NEXT_ARROW,
+                    Button.GOMEL,
+                    Button.GRODNO,
+                    Button.PREV_ARROW,
+                    Button.NEXT_ARROW,
                 )
                 action = Action.NEXT
-            case Buttons.NEXT_ARROW.label:
+            case Button.NEXT_ARROW.label:
                 button_list = (
-                    Buttons.MINSK,
-                    Buttons.MOGILEV,
-                    Buttons.PREV,
-                    Buttons.MAIN_MENU,
+                    Button.MINSK,
+                    Button.MOGILEV,
+                    Button.PREV,
+                    Button.MAIN_MENU,
                 )
                 action = Action.NEXT
-            case Buttons.PREV.label:
+            case Button.PREV.label:
                 button_list = (
-                    Buttons.GOMEL,
-                    Buttons.GRODNO,
-                    Buttons.PREV_ARROW,
-                    Buttons.NEXT_ARROW,
+                    Button.GOMEL,
+                    Button.GRODNO,
+                    Button.PREV_ARROW,
+                    Button.NEXT_ARROW,
                 )
                 action = Action.PREV
-            case Buttons.PREV_ARROW.label:
+            case Button.PREV_ARROW.label:
                 button_list = (
-                    Buttons.BREST,
-                    Buttons.VITEBSK,
-                    Buttons.MAIN_MENU,
-                    Buttons.NEXT,
+                    Button.BREST,
+                    Button.VITEBSK,
+                    Button.MAIN_MENU,
+                    Button.NEXT,
                 )
                 action = Action.PREV
             case _:
@@ -275,7 +266,7 @@ class Handler(object):
         user = update.effective_user
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text=self.template.render("region.html"),
+            text=self.template.render(Template.REGION),
             reply_markup=keyboard,
         )
         logger.info(self.LOG_MSG % action.value, user_id=self.manager.get_one(user.id))
@@ -290,9 +281,9 @@ class Handler(object):
             context.bot.send_message(
                 chat_id=update.effective_message.chat_id,
                 text=self.template.render(
-                    "greeting.html",
+                    Template.GREET,
                     user=user,
-                    button=Buttons,
+                    button=Button,
                 ),
                 reply_markup=keyboards.main_keyboard(),
             )
@@ -309,7 +300,7 @@ class Handler(object):
         else:
             context.bot.send_message(
                 chat_id=update.effective_message.chat_id,
-                text=self.template.render("unknown.html"),
+                text=self.template.render(Template.UNKNOWN),
             )
             self.analytics.send(
                 user_id=user.id,
@@ -331,7 +322,7 @@ class Handler(object):
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
             text=self.template.render(
-                "radiation.html",
+                Template.RADIATION,
                 date=settings.TODAY,
                 response=self.parser.get_info_about_radiation_monitoring(),
                 value=self.parser.get_mean_radiation_level(),
@@ -345,7 +336,7 @@ class Handler(object):
 
     @analytic(action=Action.POINTS)
     def _monitoring_points_callback(
-        self, update: Update, context: CallbackContext, button_list: tuple[Buttons, ...]
+        self, update: Update, context: CallbackContext, button_list: tuple[Button, ...]
     ) -> None:
         """
         Handler method for pressing the "Monitoring points" button by the user.
@@ -353,7 +344,7 @@ class Handler(object):
         user = update.effective_user
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text=self.template.render("region.html"),
+            text=self.template.render(Template.REGION),
             reply_markup=keyboards.points_keyboard(button_list),
         )
         self.repo.add_monitoring_points(user)
@@ -363,7 +354,7 @@ class Handler(object):
         self,
         update: Update,
         context: CallbackContext,
-        points: tuple[Points, ...],
+        points: tuple[Point, ...],
         action: Action,
     ) -> None:
         """
@@ -375,7 +366,7 @@ class Handler(object):
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
             text=self.template.render(
-                "table.html",
+                Template.TABLE,
                 date=settings.TODAY,
                 values_by_region=values_by_region,
                 mean_value=mean_value,
@@ -399,9 +390,9 @@ class Handler(object):
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
             text=self.template.render(
-                "menu.html",
+                Template.MENU,
                 user=user,
-                button=Buttons,
+                button=Button,
             ),
             reply_markup=keyboards.main_keyboard(),
         )
@@ -419,7 +410,7 @@ class Handler(object):
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
             text=self.template.render(
-                "count_of_users.html",
+                Template.USER_COUNT,
                 value=self.repo.get_count_of_users(user),
             ),
         )
@@ -437,7 +428,7 @@ class Handler(object):
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
             text=self.template.render(
-                "list_of_admins.html",
+                Template.ADMINS_LIST,
                 list_admins=self.manager.get_all(),
                 main_admin=ADMIN_ID,
             ),
@@ -456,13 +447,13 @@ class Handler(object):
         command = None
         query = update.callback_query
         match query.data:
-            case Buttons.ADD_ADMIN.callback_data:
+            case Button.ADD_ADMIN.callback_data:
                 command = "add"
-            case Buttons.DEL_ADMIN.callback_data:
+            case Button.DEL_ADMIN.callback_data:
                 command = "del"
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text=self.template.render("add_or_delete_user.html", command=command),
+            text=self.template.render(Template.ADD_OR_DEL_USER, command=command),
             reply_markup=ReplyKeyboardRemove(),
         )
 
@@ -541,7 +532,7 @@ class Handler(object):
         user = update.effective_user
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
-            text=self.template.render("show_keyboard.html"),
+            text=self.template.render(Template.KEYBOARD),
             reply_markup=ReplyKeyboardRemove(),
         )
         logger.debug(

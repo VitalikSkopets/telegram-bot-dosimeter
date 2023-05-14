@@ -1,9 +1,10 @@
+import pathlib
 from unittest import mock
 
 import jinja2
 import pytest
 
-from dosimeter.template_engine.engine import TemplateEngine
+from dosimeter.template_engine.engine import Template, TemplateEngine
 
 
 @pytest.fixture(scope="session")
@@ -18,7 +19,7 @@ class TestMessageEngine(object):
     A class for testing the message template rendering.
     """
 
-    template = "help.html"
+    template: pathlib.Path = Template.HELP
 
     def test_render_message_with_template_render_mock(
         self,
@@ -70,7 +71,7 @@ class TestMessageEngine(object):
 
         # Act
         with pytest.raises(jinja2.exceptions.TemplateNotFound) as exc_info:
-            message_engine.render("")
+            message_engine.render(pathlib.Path(""))
 
         # Assert
         assert exc_info

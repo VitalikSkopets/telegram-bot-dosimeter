@@ -7,7 +7,6 @@ from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPublicKey
 
 from dosimeter.config import settings
-from dosimeter.constants import Files
 from dosimeter.encryption.interface import BaseCryptographer
 
 __all__ = ("AsymmetricCryptographer",)
@@ -19,12 +18,12 @@ class AsymmetricCryptographer(BaseCryptographer):
     asymmetric method.
     """
 
-    PASSWORD: bytes = bytes(settings.PWD, encoding="utf-8")
-    PRIV_KEY_PATH: pathlib.Path = Files.SECRET_KEY
-    PUB_KEY_PATH: pathlib.Path = Files.PUBLIC_KEY
+    PASSWORD: bytes = bytes(settings.PWD, encoding=settings.UTF)
+    PRIV_KEY: pathlib.Path = settings.Key.SECRET
+    PUB_KEY: pathlib.Path = settings.Key.PUBLIC
 
     def __init__(self) -> None:
-        if pathlib.Path(self.PRIV_KEY_PATH and self.PUB_KEY_PATH).exists():
+        if pathlib.Path(self.PRIV_KEY and self.PUB_KEY).exists():
             return
         # creating a private (secret) key
         private_key: RSAPrivateKey = rsa.generate_private_key(
@@ -49,11 +48,11 @@ class AsymmetricCryptographer(BaseCryptographer):
         )
 
         # writing to the secret key file
-        with open(self.PRIV_KEY_PATH, "wb") as key_file:
+        with open(self.PRIV_KEY, "wb") as key_file:
             key_file.write(priv_pem)
 
         # writing to a public key file
-        with open(self.PUB_KEY_PATH, "wb") as key_file:
+        with open(self.PUB_KEY, "wb") as key_file:
             key_file.write(pub_pem)
 
     def encrypt(self, message: str | None = None) -> str | None:
@@ -63,14 +62,14 @@ class AsymmetricCryptographer(BaseCryptographer):
         if not isinstance(message, str):
             return None
         # downloading from a public key file
-        with open(self.PUB_KEY_PATH, "rb") as key_file:
+        with open(self.PUB_KEY, "rb") as key_file:
             public_key = serialization.load_pem_public_key(
                 key_file.read(),
             )
         # encryption
         assert isinstance(public_key, RSAPublicKey)
         ciphertext: Any = public_key.encrypt(
-            bytes(message, encoding="utf-8"),
+            bytes(message, encoding=settings.UTF),
             padding.OAEP(
                 mgf=padding.MGF1(algorithm=hashes.SHA256()),
                 algorithm=hashes.SHA256(),
@@ -78,7 +77,7 @@ class AsymmetricCryptographer(BaseCryptographer):
             ),
         )
         token = base64.b64encode(ciphertext)
-        return token.decode(encoding="utf-8")
+        return token.decode(encoding=settings.UTF)
 
     def decrypt(self, token: str) -> str | None:
         """
@@ -87,7 +86,7 @@ class AsymmetricCryptographer(BaseCryptographer):
         if not token or not isinstance(token, str):
             return None
         # downloading from a secret key file
-        with open(self.PRIV_KEY_PATH, "rb") as key_file:
+        with open(self.PRIV_KEY, "rb") as key_file:
             private_key = serialization.load_pem_private_key(
                 key_file.read(),
                 password=self.PASSWORD,
@@ -103,4 +102,4 @@ class AsymmetricCryptographer(BaseCryptographer):
                 label=None,
             ),
         )
-        return plaintext.decode(encoding="utf-8")
+        return plaintext.decode(encoding=settings.UTF)
