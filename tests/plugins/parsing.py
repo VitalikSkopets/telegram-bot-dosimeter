@@ -5,11 +5,11 @@ import pytest
 from _pytest.fixtures import SubRequest
 from bs4 import BeautifulSoup
 
-from dosimeter.constants import Points, Regions
+from dosimeter.constants import Point, Region
 from dosimeter.parse.parser import ObservePoint, PowerOfRadiation
 
 RegionInfoAssertion: TypeAlias = Callable[
-    [tuple[list[tuple[ObservePoint, str]], PowerOfRadiation], tuple[Points, ...]], None
+    [tuple[list[tuple[ObservePoint, str]], PowerOfRadiation], tuple[Point, ...]], None
 ]
 
 
@@ -42,23 +42,23 @@ def get_text_from_file() -> Callable[[Path], str]:
 
 
 @pytest.fixture()
-def get_points(request: SubRequest) -> tuple[Points, ...]:
+def get_points(request: SubRequest) -> tuple[Point, ...]:
     """
     Returns a tuple consisting of objects of monitoring points depending on the region.
     """
     match request.param:
-        case Regions.BREST:
-            return tuple(point for point in Points if point.region == Regions.BREST)
-        case Regions.VITEBSK:
-            return tuple(point for point in Points if point.region == Regions.VITEBSK)
-        case Regions.GOMEL:
-            return tuple(point for point in Points if point.region == Regions.GOMEL)
-        case Regions.GRODNO:
-            return tuple(point for point in Points if point.region == Regions.GRODNO)
-        case Regions.MOGILEV:
-            return tuple(point for point in Points if point.region == Regions.MOGILEV)
-        case Regions.MINSK:
-            return tuple(point for point in Points if point.region == Regions.MINSK)
+        case Region.BREST:
+            return tuple(point for point in Point if point.region == Region.BREST)
+        case Region.VITEBSK:
+            return tuple(point for point in Point if point.region == Region.VITEBSK)
+        case Region.GOMEL:
+            return tuple(point for point in Point if point.region == Region.GOMEL)
+        case Region.GRODNO:
+            return tuple(point for point in Point if point.region == Region.GRODNO)
+        case Region.MOGILEV:
+            return tuple(point for point in Point if point.region == Region.MOGILEV)
+        case Region.MINSK:
+            return tuple(point for point in Point if point.region == Region.MINSK)
         case _:
             raise ValueError("invalid internal test config")
 
@@ -71,7 +71,7 @@ def assert_correct_region_info() -> RegionInfoAssertion:
 
     def factory(
         result: tuple[list[tuple[ObservePoint, str]], PowerOfRadiation],
-        region: tuple[Points, ...],
+        region: tuple[Point, ...],
     ) -> None:
         assert isinstance(result, tuple)
         assert isinstance(result[0], list)

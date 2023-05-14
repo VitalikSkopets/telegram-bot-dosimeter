@@ -160,7 +160,7 @@ class MongoDataBase(Repository, abc.ABC):
 
     def add_monitoring_points(self, user: User) -> None:
         """
-        Method for adding information about a user who used Monitoring Points to the
+        Method for adding information about a user who used Monitoring Point to the
         database.
         """
         self.mdb.users.update_one(

@@ -1,18 +1,23 @@
-from typing import TypeAlias
+from typing import NamedTuple, TypeAlias
 
 from geopy import distance
 
 from dosimeter.config.logger import CustomAdapter, get_logger
-from dosimeter.constants import Points
+from dosimeter.constants import Point
 from dosimeter.storage import manager_admins as manager
 
-__all__ = ("Navigator",)
+__all__ = ("Navigator", "NearPoint")
 
 logger = CustomAdapter(get_logger(__name__), {"user_id": manager.get_one()})
 
 Latitude: TypeAlias = float
 Longitude: TypeAlias = float
 Distance: TypeAlias = float
+
+
+class NearPoint(NamedTuple):
+    distance: float
+    title: str
 
 
 class Navigator(object):
@@ -27,35 +32,29 @@ class Navigator(object):
         """
         self.distance = distance.distance
 
-    def get_min_distance(
+    def get_near_point(
         self,
         user_id: int,
         latitude: Latitude = 0.0,
         longitude: Longitude = 0.0,
-    ) -> tuple[Distance, str]:
+    ) -> NearPoint:
         """
         The method calculates the minimum distance in meters relative to the user's
         location to the nearest monitoring point.
         """
         user_coordinates = (latitude, longitude)
+
         logger.debug(
             "User coordinates - Latitude: %f Longitude: %f" % (latitude, longitude),
             user_id=manager.get_one(user_id),
         )
 
-        try:
-            distance_list = [
-                (
-                    round(self.distance(user_coordinates, point.coordinates).m, 3),
-                    point.label,
-                )
-                for point in Points
-            ]
-        except Exception as ex:
-            logger.exception(
-                "Unable to calculates the min distance. Raised exception: %s" % ex,
-                user_id=manager.get_one(user_id),
+        distance_list = [
+            (
+                round(self.distance(user_coordinates, point.coordinates).m, 3),
+                point.label,
             )
-            raise
+            for point in Point
+        ]
 
-        return min(distance_list)
+        return NearPoint(*min(distance_list))

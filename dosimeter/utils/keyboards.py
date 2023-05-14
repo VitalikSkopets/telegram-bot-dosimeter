@@ -5,7 +5,7 @@ from telegram import (
     ReplyKeyboardMarkup,
 )
 
-from dosimeter.constants import Buttons
+from dosimeter.constants import Button
 
 __all__ = (
     "admin_keyboard",
@@ -19,15 +19,15 @@ def main_keyboard() -> ReplyKeyboardMarkup:
     The function returns the menu buttons to the user instead of the standard keyboard
     """
     keyboard = [
-        [KeyboardButton(Buttons.MONITORING.label)],
-        [KeyboardButton(Buttons.POINTS.label)],
-        [KeyboardButton(Buttons.SEND_LOCATION.label, request_location=True)],
-        [KeyboardButton(Buttons.HIDE_KEYBOARD.label)],
+        [KeyboardButton(Button.MONITORING.label)],
+        [KeyboardButton(Button.POINTS.label)],
+        [KeyboardButton(Button.SEND_LOCATION.label, request_location=True)],
+        [KeyboardButton(Button.HIDE_KEYBOARD.label)],
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 
-def points_keyboard(button_list: tuple[Buttons, ...]) -> ReplyKeyboardMarkup:
+def points_keyboard(button_list: tuple[Button, ...]) -> ReplyKeyboardMarkup:
     """
     The menu monitoring points buttons to the user instead of the standard keyboard
     """
@@ -42,10 +42,10 @@ def points_keyboard(button_list: tuple[Buttons, ...]) -> ReplyKeyboardMarkup:
 def admin_keyboard() -> InlineKeyboardMarkup:
     """The admin inline menu buttons"""
     inline_button_list = (
-        Buttons.TOTAL_COUNT_USERS,
-        Buttons.LIST_ADMIN,
-        Buttons.ADD_ADMIN,
-        Buttons.DEL_ADMIN,
+        Button.TOTAL_COUNT_USERS,
+        Button.LIST_ADMIN,
+        Button.ADD_ADMIN,
+        Button.DEL_ADMIN,
     )
     keyboard = [
         [InlineKeyboardButton(button.label, callback_data=button.callback_data)]

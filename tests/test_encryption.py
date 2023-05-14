@@ -166,6 +166,8 @@ class TestAsymmetricEncryption(object):
     A class for testing the asymmetric encryption logic.
     """
 
+    obj = "dosimeter.encryption.AsymmetricCryptographer"
+
     @pytest.mark.parametrize(
         "get_message",
         vals := list(TypeMessageValue),
@@ -180,11 +182,7 @@ class TestAsymmetricEncryption(object):
     ) -> None:
         # Arrange
         priv_key, pub_key, token_file = get_keys
-        with mock.patch.multiple(
-            "dosimeter.encryption.AsymmetricCryptographer",
-            PRIV_KEY_PATH=priv_key,
-            PUB_KEY_PATH=pub_key,
-        ):
+        with mock.patch.multiple(self.obj, PRIV_KEY=priv_key, PUB_KEY=pub_key):
             cryptographer = AsymmetricCryptographer()
 
             # Act
@@ -207,11 +205,7 @@ class TestAsymmetricEncryption(object):
     ) -> None:
         # Arrange
         priv_key, pub_key, token_file = get_keys
-        with mock.patch.multiple(
-            "dosimeter.encryption.AsymmetricCryptographer",
-            PRIV_KEY_PATH=priv_key,
-            PUB_KEY_PATH=pub_key,
-        ):
+        with mock.patch.multiple(self.obj, PRIV_KEY=priv_key, PUB_KEY=pub_key):
             cryptographer = AsymmetricCryptographer()
 
             # Act
@@ -228,11 +222,7 @@ class TestAsymmetricEncryption(object):
     ) -> None:
         # Arrange
         priv_key, pub_key, token_file = get_keys
-        with mock.patch.multiple(
-            "dosimeter.encryption.AsymmetricCryptographer",
-            PRIV_KEY_PATH=priv_key,
-            PUB_KEY_PATH=pub_key,
-        ):
+        with mock.patch.multiple(self.obj, PRIV_KEY=priv_key, PUB_KEY=pub_key):
             cryptographer = AsymmetricCryptographer()
             token_file.write(cryptographer.encrypt(fake_string))
             token = token_file.read()

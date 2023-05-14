@@ -1,8 +1,8 @@
-from pathlib import Path
+import pathlib
 from typing import Union
 
 from dosimeter.config import settings
-from dosimeter.constants import ADMIN_ID, LIST_OF_ADMIN_IDS, Files
+from dosimeter.constants import ADMIN_ID, LIST_OF_ADMIN_IDS
 from dosimeter.encryption import asym_cypher, sym_cypher
 from dosimeter.encryption.asymmetric import AsymmetricCryptographer
 from dosimeter.encryption.symmetric import SymmetricCryptographer
@@ -15,7 +15,7 @@ class FileAdminManager(AdminManager):
     """A class that encapsulates the logic of managing the list of administrators
     stored in a file."""
 
-    FILE_PATH = Files.ADMINS_FILE_PATH
+    FILE_PATH: pathlib.Path = settings.BASE_DIR / "admins.txt"
     LIST_OF_ADMINS = LIST_OF_ADMIN_IDS
 
     def __init__(
@@ -26,7 +26,7 @@ class FileAdminManager(AdminManager):
     ) -> None:
         self.cryptographer = cryptographer
         self.temp_list_admins = [*self.LIST_OF_ADMINS]
-        if Path(self.FILE_PATH).exists():
+        if pathlib.Path(self.FILE_PATH).exists():
             return
         with open(self.FILE_PATH, "w+") as file:
             for uid in self.temp_list_admins:

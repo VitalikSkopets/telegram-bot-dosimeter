@@ -1,6 +1,7 @@
 import os
+import pathlib
+from dataclasses import dataclass
 from datetime import datetime
-from pathlib import Path
 from urllib.parse import ParseResult, urlparse
 
 import pytz
@@ -21,9 +22,11 @@ __all__ = (
     "TESTS_DIR",
     "TOKEN",
     "TODAY",
+    "UTF",
     "WEBHOOK_MODE",
     "AnalyticsSettings",
     "DataBaseSettings",
+    "Key",
 )
 
 DEFAULT_LOCALE = "ru"
@@ -34,21 +37,19 @@ DEBUG = True
 ENVIRON = "DEV" if DEBUG else "PROD"
 WEBHOOK_MODE = bool(0) if DEBUG else bool(1)
 
-BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent
-TEMPLATES_DIR: Path = BASE_DIR / "templates"
-TESTS_DIR: Path = BASE_DIR / "tests"
+BASE_DIR: pathlib.Path = pathlib.Path(__file__).resolve().parent.parent.parent
+TEMPLATES_DIR: pathlib.Path = BASE_DIR / "templates"
+TESTS_DIR: pathlib.Path = BASE_DIR / "tests"
 
 APP = "dosimeter"
+ENV_FILE = ".env"
+UTF = "utf-8"
 
 # python-telegram-bot API TOKEN
 TOKEN = os.environ["API_TOKEN"]
 
 MAIN_ADMIN_TELEGRAM_ID = int(os.environ["MAIN_ADMIN_TELEGRAM_ID"])
 ADMIN_TELEGRAM_ID = int(os.environ["ADMIN_TELEGRAM_ID"])
-
-# Encryption
-PWD = os.environ["PASS"]
-ASYMMETRIC_ENCRYPTION = False
 
 # Heroku
 HEROKU_APP = os.environ["HEROKU_APP"]
@@ -57,6 +58,16 @@ PORT = int(os.environ["PORT"])
 # Sentry SDK
 SENTRY_SDK = os.environ["SENTRY_SDK"]
 sentry_sdk.init(dsn=SENTRY_SDK, traces_sample_rate=1.0)
+
+# Encryption
+PWD = os.environ["PASS"]
+ASYMMETRIC_ENCRYPTION = False
+
+
+@dataclass(frozen=True)
+class Key:
+    SECRET: pathlib.Path = BASE_DIR / "secret.pem"
+    PUBLIC: pathlib.Path = BASE_DIR / "public.pem"
 
 
 # MongoDB Atlas
@@ -68,9 +79,9 @@ class DataBaseSettings(BaseSettings):
     port: int = Field(default="8443")
 
     class Config:
-        env_file = ".env"
+        env_file = ENV_FILE
         env_prefix = "MONGO_"
-        env_file_encoding = "utf-8"
+        env_file_encoding = UTF
 
     @property
     def mongo_url(self) -> str:
@@ -86,9 +97,9 @@ class AnalyticsSettings(BaseSettings):
     api_secret: str = Field(..., env="GOOGLE_API_SECRET")
 
     class Config:
-        env_file = ".env"
+        env_file = ENV_FILE
         env_prefix = "GOOGLE_"
-        env_file_encoding = "utf-8"
+        env_file_encoding = UTF
 
     @property
     def url(self) -> ParseResult:
