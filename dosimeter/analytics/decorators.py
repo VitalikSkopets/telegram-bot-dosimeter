@@ -16,7 +16,7 @@ def analytic(action: Action) -> Callable:
                 analytics.send(
                     user_id=update.message.chat_id,
                     user_lang_code=update.message.from_user.language_code,
-                    action=action.value,
+                    action=action,
                 )
             return func(*args, **kwargs)
 
