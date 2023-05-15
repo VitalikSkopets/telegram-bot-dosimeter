@@ -93,6 +93,14 @@ tests-parse: ## Start tests with 'parsing' mark
 tests-api: ## Start tests with 'api' mark
 	pytest --verbose --randomly-seed=default -m "api" --no-cov --disable-warnings
 
+.PHONY: tests-navigator
+tests-navigator: ## Start tests with 'navigator' mark
+	pytest --verbose --randomly-seed=default -m "navigator" --no-cov --disable-warnings
+
+.PHONY: tests-analytics
+tests-analytics: ## Start tests with 'analytics' mark
+	pytest --verbose --randomly-seed=default -m "analytics" --no-cov --disable-warnings
+
 # ==== Cache ====
 
 .PHONY: clean

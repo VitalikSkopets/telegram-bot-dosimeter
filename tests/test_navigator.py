@@ -24,6 +24,7 @@ def fake_longitude(faker_seed: int, fake_field: Field) -> float:
     return fake_field("address.longitude")
 
 
+@pytest.mark.navigator()
 class TestNavigator(object):
 
     mock = create_autospec(Navigator)
