@@ -10,7 +10,7 @@ __all__ = (
     "Analytics",
     "Event",
     "Param",
-    "Request",
+    "Payload",
 )
 
 
@@ -35,7 +35,7 @@ class Event(BaseModel):
     params: Param
 
 
-class Request(BaseModel):
+class Payload(BaseModel):
     """
     Schema for Request.
     """
@@ -59,17 +59,31 @@ class Analytics(object):
     def send(self, user_id: int, user_lang_code: str, action: Action) -> None:
         """
         Method for sending a record to Google Analytics 4.
+        The Google Analytics Measurement Protocol does not return HTTP error codes,
+        even if a Measurement Protocol hit is malformed or missing required parameters.
         """
-        param = Param(language=user_lang_code, engagement_time_msec=str(1))
-        event = Event(name=action, params=param)
-        request = Request(client_id=str(user_id), user_id=str(user_id), events=[event])
+        payload = self._create_payload(user_id, user_lang_code, action)
 
         try:
             with requests.session() as session:
-                session.post(self.url, json=request.dict())
+                session.post(self.url, json=payload.dict())
         except Exception as ex:
             logger.exception(
                 "Unable to connect to '%s'. Raised exception: %s"
                 % (analytics_settings.url.hostname, ex),
                 user_id=manager.get_one(user_id),
             )
+
+    @staticmethod
+    def _create_payload(uid: int, lang_code: str, action: Action) -> Payload:
+        """
+        A static method for forming the structure and validating
+        the payload data values.
+        """
+        code = (
+            lang_code.split("-")[1].upper() if len(lang_code) > 2 else lang_code.upper()
+        )
+        param = Param(language=code, engagement_time_msec=str(1))
+        event = Event(name=action, params=param)
+
+        return Payload(client_id=str(uid), user_id=str(uid), events=[event])
