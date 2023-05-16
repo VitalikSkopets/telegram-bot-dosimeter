@@ -1,18 +1,22 @@
-from http import HTTPStatus
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import httpretty
 import pytest
 
 from dosimeter.analytics import Analytics
-from dosimeter.analytics.measurement_protocol import Request
-from dosimeter.config import settings
+from dosimeter.analytics.measurement_protocol import Payload
+from dosimeter.config.settings import UTF
 from dosimeter.constants import Action
+
+if TYPE_CHECKING:
+    from plugins.analytics import PayloadDataAssertion
 
 
 @pytest.mark.analytics()
 class TestAnalytics(object):
 
+    analytics = Analytics()
     mocked = mock.create_autospec(Analytics)
     error_msg = "missing a required argument: '{arg}'"
 
@@ -83,13 +87,28 @@ class TestAnalytics(object):
         assert exc_info
         assert str(exc_info.value) == "Mock object has no attribute 'recieve'"
 
+    def test_create_correct_payload_data(
+        self,
+        fake_integer_number: int,
+        fake_locale: str,
+        get_random_action: Action,
+        assert_correct_payload_data: "PayloadDataAssertion",
+    ) -> None:
+        # Act
+        payload = self.analytics._create_payload(
+            fake_integer_number, fake_locale, get_random_action
+        )
+
+        # Assert
+        assert_correct_payload_data(payload)
+
     def test_correct_method_call(
         self,
         fake_integer_number: int,
         fake_locale: str,
         get_random_action: Action,
-        get_request_params: Request,
-    ):
+        get_payload: Payload,
+    ) -> None:
         # Act
         with mock.patch("requests.sessions.Session.post") as mocked:
             mocked.return_value = None
@@ -97,7 +116,7 @@ class TestAnalytics(object):
             analytics.send(fake_integer_number, fake_locale, get_random_action)
 
         # Assert
-        mocked.assert_called_once_with(analytics.url, json=get_request_params.dict())
+        mocked.assert_called_once_with(analytics.url, json=get_payload.dict())
 
     @httpretty.activate
     def test_success_send_request(
@@ -105,26 +124,21 @@ class TestAnalytics(object):
         fake_integer_number: int,
         fake_locale: str,
         get_random_action: Action,
-        get_request_params: Request,
-    ):
+        get_payload: Payload,
+    ) -> None:
         # Arrange
-        analytics = Analytics()
-
         httpretty.register_uri(
             method=httpretty.POST,
-            uri=analytics.url,
-            body=get_request_params.json(),
-            status=HTTPStatus.OK,
+            uri=self.analytics.url,
+            body=get_payload.json(),
             content_type="application/json",
         )
 
         # Act
-        analytics.send(fake_integer_number, fake_locale, get_random_action)
+        self.analytics.send(fake_integer_number, fake_locale, get_random_action)
 
         # Assert
         assert httpretty.has_request()
         assert httpretty.last_request().method == "POST"
         assert "/mp/collect?measurement_id=" in httpretty.last_request().path
-        assert httpretty.last_request().body == bytes(
-            get_request_params.json(), encoding=settings.UTF
-        )
+        assert httpretty.last_request().body == bytes(get_payload.json(), encoding=UTF)
