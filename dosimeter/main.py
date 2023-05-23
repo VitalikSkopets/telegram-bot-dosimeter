@@ -10,63 +10,49 @@ from dosimeter.handle import Handler, handler
 logger = get_logger(__name__)
 
 
-class DosimeterBot:
-    """The wrapper class encapsulates the logic of initializing and launching
-    the DosimeterBot object."""
+class DosimeterBot(object):
+    """
+    The wrapper class encapsulates the logic of initializing and launching
+    the DosimeterBot object.
+    """
 
-    TOKEN: str = settings.TOKEN
     WEBHOOK_MODE: bool = settings.WEBHOOK_MODE
     HEROKU_APP: str = settings.HEROKU_APP
     PORT: int = settings.PORT
 
-    def __init__(self, callback: Handler = handler) -> None:
-        """Instantiate a DosimeterBot object."""
+    def __init__(self, token: str, callback: Handler = handler) -> None:
+        """
+        Instantiate a DosimeterBot object.
+        """
+        self.token = token
 
         # Initial and check bot application
         defaults = ext.Defaults(
             parse_mode=ParseMode.HTML, tzinfo=pytz.timezone("Europe/Minsk")
         )
         request = Request(con_pool_size=8, connect_timeout=0.5, read_timeout=1.0)
-        bot = ext.ExtBot(request=request, token=self.TOKEN, defaults=defaults)
+        bot = ext.ExtBot(request=request, token=self.token, defaults=defaults)
         self.updater = ext.Updater(bot=bot, use_context=True)
         logger.info(f"Checking bot...{self.updater.bot.get_me()}")
         self.handler = callback
         dispatcher = self.updater.dispatcher
 
-        # Start command handler
-        start_handler = ext.CommandHandler(
-            Command.START,
-            self.handler.start_callback,
-        )
-        dispatcher.add_handler(start_handler)
+        command_handlers = {
+            Command.START: self.handler.start_callback,
+            Command.HELP: self.handler.help_callback,
+            Command.ADMIN: self.handler.admin_callback,
+        }
 
-        # Help command handler
-        help_handler = ext.CommandHandler(
-            Command.HELP,
-            self.handler.help_callback,
-        )
-        dispatcher.add_handler(help_handler)
+        for command_name, command_handler in command_handlers.items():
+            dispatcher.add_handler(ext.CommandHandler(command_name, command_handler))
 
-        # Admin command handler
-        admin_handler = ext.CommandHandler(
-            Command.ADMIN,
-            self.handler.admin_callback,
-        )
-        dispatcher.add_handler(admin_handler)
+        message_handlers = {
+            ext.Filters.location: self.handler.send_location_callback,
+            ext.Filters.text & (~ext.Filters.command): self.handler.message_callback,
+        }
 
-        # Send my location command handler
-        send_geolocation_handler = ext.MessageHandler(
-            ext.Filters.location,
-            self.handler.send_location_callback,
-        )
-        dispatcher.add_handler(send_geolocation_handler)
-
-        # Messages command handler
-        message_handler = ext.MessageHandler(
-            ext.Filters.text & (~ext.Filters.command),
-            self.handler.message_callback,
-        )
-        dispatcher.add_handler(message_handler)
+        for message_name, message_handler in message_handlers.items():
+            dispatcher.add_handler(ext.MessageHandler(message_name, message_handler))
 
         # Inline keyboard button handler
         button_handler = ext.CallbackQueryHandler(
@@ -76,7 +62,9 @@ class DosimeterBot:
         dispatcher.add_handler(button_handler)
 
     def start(self) -> None:
-        """Method for launching the DosimeterBot object."""
+        """
+        Method for launching the DosimeterBot object.
+        """
         if not self.WEBHOOK_MODE:
             logger.info("Application running in pooling mode...")
             # Start the Bot
@@ -89,19 +77,21 @@ class DosimeterBot:
             self.updater.start_webhook(
                 listen="0.0.0.0",
                 port=self.PORT,
-                url_path=self.TOKEN,
-                webhook_url=f"https://{self.HEROKU_APP}.herokuapp.com/{self.TOKEN}",
+                url_path=self.token,
+                webhook_url=f"https://{self.HEROKU_APP}.herokuapp.com/{self.token}",
             )
             self.updater.idle()
             logger.info("Application finished!")
 
 
 def main() -> None:
-    """Application entry point."""
-    instance_of_bot = DosimeterBot()
+    """
+    Application entry point.
+    """
+    instance_of_bot = DosimeterBot(settings.TOKEN)
     instance_of_bot.start()
 
 
 if __name__ == "__main__":
-    bot_instance = DosimeterBot()
+    bot_instance = DosimeterBot(settings.TOKEN)
     bot_instance.start()

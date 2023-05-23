@@ -101,6 +101,10 @@ tests-navigator: ## Start tests with 'navigator' mark
 tests-analytics: ## Start tests with 'analytics' mark
 	pytest --verbose --randomly-seed=default -m "analytics" --no-cov --disable-warnings
 
+.PHONY: tests-bot
+tests-bot: ## Start tests with 'bot' mark
+	pytest --verbose --randomly-seed=default -m "bot" --no-cov --disable-warnings
+
 # ==== Cache ====
 
 .PHONY: clean
