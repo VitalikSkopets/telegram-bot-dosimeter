@@ -1,6 +1,8 @@
 import abc
-from typing import Any
+from datetime import datetime
+from typing import Any, Mapping, TypeAlias, TypeVar
 
+from pydantic import BaseModel, ValidationError, validator
 from pymongo import MongoClient
 from telegram import User
 
@@ -17,9 +19,54 @@ __all__ = ("MongoDataBase", "mongo_atlas__repo")
 
 logger = CustomAdapter(get_logger(__name__), {"user_id": manager.get_one()})
 
+Date: TypeAlias = str
+CollectionType: TypeAlias = dict[str, Any]
+DocumentType = TypeVar("DocumentType", bound=Mapping[str, Any])
+
+
+# noinspection PyMethodParameters
+class CollectionDataSchema(BaseModel):
+    """
+    Schema for data documents collection in Mongo DB.
+    """
+
+    user_id: int
+    first_name: str
+    last_name: str
+    user_name: str
+    start_command: list[Date] = []
+    help_command: list[Date] = []
+    donate_command: list[Date] = []
+    sent_greeting_message: list[Date] = []
+    radiation_monitoring: list[Date] = []
+    monitoring_points: list[Date] = []
+    sent_location: list[Date] = []
+
+    @validator(
+        "start_command",
+        "help_command",
+        "donate_command",
+        "sent_greeting_message",
+        "radiation_monitoring",
+        "monitoring_points",
+        "sent_location",
+        each_item=True,
+    )
+    def check_date(cls, value: Date) -> Date:
+        if not isinstance(value, str):
+            raise TypeError("date must be a string.")
+        else:
+            try:
+                datetime.strptime(value, "%d-%b-%Y")
+                return value
+            except ValueError:
+                raise ValueError("date must be %d-%b-%Y format.")
+
 
 class MongoDataBase(Repository, abc.ABC):
-    """Mongo Data Base client."""
+    """
+    Mongo Data Base client.
+    """
 
     LOG_MSG = "Action '%s' added to Mongo DB."
 
@@ -30,7 +77,9 @@ class MongoDataBase(Repository, abc.ABC):
         ),
         control: InternalAdminManager = manager,
     ) -> None:
-        """Constructor method for initializing objects of the MongoDataBase class."""
+        """
+        Constructor method for initializing objects of the MongoDataBase class.
+        """
         try:
             client: MongoClient = MongoClient(
                 db_settings.mongo_url, serverSelectionTimeoutMS=5000
@@ -47,179 +96,55 @@ class MongoDataBase(Repository, abc.ABC):
         self.cypher = cypher
         self.manager = control
 
-    def create_collection(self, user: User) -> dict[str, Any]:
-        """Method for creating a document base stored in a data collection."""
-        current_user: dict[str, Any] = {
+    def create(self, user: User) -> CollectionType | None:
+        """
+        Method for creating a document base stored in a data collection.
+        """
+        data = {
             "user_id": user.id,
             "first_name": self.cypher.encrypt(user.first_name),
             "last_name": self.cypher.encrypt(user.last_name),
             "user_name": self.cypher.encrypt(user.username),
-            "start command": [],
-            "help command": [],
-            "sent greeting message": [],
-            "radiation monitoring": [],
-            "monitoring points": [],
-            "sent location": [],
         }
+        try:
+            collection = CollectionDataSchema(**data)
+        except ValidationError as ex:
+            logger.exception("Validation error. Raised exception: %s" % ex)
+            collection = None
+        if not collection:
+            return None
         logger.info("New collection created", user_id=self.manager.get_one(user.id))
-        return current_user
+        return collection.dict()
 
-    def add_start(self, user: User) -> None:
+    def put(self, user: User, action: Action) -> None:
         """
-        Method for adding information to the database about the user's call to the
-        Start command.
+        Method for adding information to the database about the user's call
+        to the command.
         """
         if not self.mdb.users.find_one({"user_id": user.id}):
-            self.mdb.users.insert_one(self.create_collection(user))
-            self.mdb.users.update_one(
-                {"user_id": user.id},
-                {
-                    "$push": {
-                        "start command": settings.TODAY,
-                    },
-                },
-            )
-        if self.mdb.users.find_one({"user_id": user.id}):
-            self.mdb.users.update_one(
-                {"user_id": user.id},
-                {
-                    "$push": {
-                        "start command": settings.TODAY,
-                    },
-                },
-            )
-        logger.info(self.LOG_MSG % Action.START, user_id=self.manager.get_one(user.id))
+            self.mdb.users.insert_one(self.create(user))
+        self._update(user.id, action)
+        logger.info(self.LOG_MSG % action, user_id=self.manager.get_one(user.id))
 
-    def add_help(self, user: User) -> None:
+    def get_count_of_users(self, user: User | None = None) -> int:
         """
-        Method for adding information to the database about the user calling the Help
-        command.
+        Method for getting the number of users from the database.
         """
-        if not self.mdb.users.find_one({"user_id": user.id}):
-            self.mdb.users.insert_one(self.create_collection(user))
-            self.mdb.users.update_one(
-                {"user_id": user.id},
-                {"$push": {"help command": settings.TODAY}},
-            )
-        if self.mdb.users.find_one({"user_id": user.id}):
-            self.mdb.users.update_one(
-                {"user_id": user.id},
-                {
-                    "$push": {
-                        "help command": settings.TODAY,
-                    },
-                },
-            )
-        logger.info(self.LOG_MSG % Action.HELP, user_id=self.manager.get_one(user.id))
+        users_count = self.mdb.users.count_documents({})
+        logger.debug(
+            "Users count in the database: %d" % users_count,
+            user_id=self.manager.get_one(user.id) if user else None,
+        )
+        return users_count
 
-    def add_messages(self, user: User) -> None:
+    def get_user_by_id(self, user_id: int) -> DocumentType | None:
         """
-        Method for adding to the database information about the user sending a
-        greeting message.
+        Method for getting info about the user by id from the database.
         """
-        if not self.mdb.users.find_one({"user_id": user.id}):
-            self.mdb.users.insert_one(self.create_collection(user))
-            self.mdb.users.update_one(
-                {"user_id": user.id},
-                {
-                    "$push": {
-                        "sent greeting message": settings.TODAY,
-                    },
-                },
-            )
-        if self.mdb.users.find_one({"user_id": user.id}):
-            self.mdb.users.update_one(
-                {"user_id": user.id},
-                {
-                    "$push": {
-                        "sent greeting message": settings.TODAY,
-                    },
-                },
-            )
-        logger.info(
-            self.LOG_MSG % Action.GREETING, user_id=self.manager.get_one(user.id)
-        )
-
-    def add_radiation_monitoring(self, user: User) -> None:
-        """
-        Method for adding information about a user who used Radiation Monitoring to
-        the database.
-        """
-        self.mdb.users.update_one(
-            {"user_id": user.id},
-            {
-                "$push": {
-                    "radiation monitoring": settings.TODAY,
-                },
-            },
-        )
-        logger.info(
-            self.LOG_MSG % Action.MONITORING,
-            user_id=self.manager.get_one(user.id),
-        )
-
-    def add_monitoring_points(self, user: User) -> None:
-        """
-        Method for adding information about a user who used Monitoring Point to the
-        database.
-        """
-        self.mdb.users.update_one(
-            {"user_id": user.id},
-            {
-                "$push": {
-                    "monitoring points": settings.TODAY,
-                },
-            },
-        )
-        logger.info(self.LOG_MSG % Action.POINTS, user_id=self.manager.get_one(user.id))
-
-    def add_region(self, user: User, region: Action) -> None:
-        """
-        Method for adding information about a user who used Region to the database.
-        """
-        self.mdb.users.update_one(
-            {"user_id": user.id},
-            {
-                "$push": {
-                    f"{region}": settings.TODAY,
-                },
-            },
-        )
-        logger.info(self.LOG_MSG % region.value, user_id=self.manager.get_one(user.id))
-
-    def add_location(self, user: User) -> None:
-        """
-        Method for adding information about the user who sent his geolocation to the
-        database.
-        """
-        self.mdb.users.update_one(
-            {"user_id": user.id},
-            {
-                "$push": {
-                    "sent location": settings.TODAY,
-                },
-            },
-        )
-        logger.info(
-            self.LOG_MSG % Action.LOCATION, user_id=self.manager.get_one(user.id)
-        )
-
-    def get_user_by_id(self, user_id: int) -> Any:
-        """Method for getting info about the user by id from the database."""
         query = {"user_id": user_id}
         user = self.mdb.users.find_one(query)
         logger.debug(f"Info about the user: {user}")
         return user
-
-    def get_count_of_users(self, user: User | None = None) -> int:
-        """Method for getting the number of users from the database."""
-        msg = "Users count in the database:"
-        users_count = self.mdb.users.count_documents({})
-        logger.debug(
-            "%s %d" % (msg, users_count),
-            user_id=self.manager.get_one(user.id) if user else None,
-        )
-        return users_count
 
     def get_all_users_ids(self) -> str:
         """
@@ -247,6 +172,20 @@ class MongoDataBase(Repository, abc.ABC):
             for num, user_data in enumerate(self.mdb.users.find(), 1)
         ]
         return "\n\n".join(response)
+
+    def _update(self, user_id: int, field: str) -> None:
+        """
+        Private method for adding the current date of the corresponding field of the
+        data collection.
+        """
+        self.mdb.users.update_one(
+            {"user_id": user_id},
+            {
+                "$push": {
+                    field: settings.DATE,
+                },
+            },
+        )
 
 
 """MongoDataBase class instance"""

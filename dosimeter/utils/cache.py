@@ -6,7 +6,8 @@ __all__ = ("timed_lru_cache",)
 
 
 def timed_lru_cache(seconds: int, maxsize: int = 128) -> Callable:
-    """The cache returns the result to the request only if the record caching
+    """
+    The cache returns the result to the request only if the record caching
     period has not expired yet.
     """
 

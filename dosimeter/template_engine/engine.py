@@ -30,6 +30,7 @@ class Template:
     START: pathlib.Path = settings.TEMPLATES_DIR / "start.html"
     TABLE: pathlib.Path = settings.TEMPLATES_DIR / "table.html"
     UNKNOWN: pathlib.Path = settings.TEMPLATES_DIR / "unknown.html"
+    DONATE: pathlib.Path = settings.TEMPLATES_DIR / "donate.html"
 
 
 class TemplateEngine:

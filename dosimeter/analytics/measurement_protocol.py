@@ -1,5 +1,5 @@
 import requests
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 from dosimeter.config import analytics_settings
 from dosimeter.config.logger import CustomAdapter, get_logger
@@ -63,19 +63,19 @@ class Analytics(object):
         even if a Measurement Protocol hit is malformed or missing required parameters.
         """
         payload = self._create_payload(user_id, user_lang_code, action)
-
-        try:
-            with requests.session() as session:
-                session.post(self.url, json=payload.dict())
-        except Exception as ex:
-            logger.exception(
-                "Unable to connect to '%s'. Raised exception: %s"
-                % (analytics_settings.url.hostname, ex),
-                user_id=manager.get_one(user_id),
-            )
+        if isinstance(payload, Payload):
+            try:
+                with requests.session() as session:
+                    session.post(self.url, json=payload.dict())
+            except Exception as ex:
+                logger.exception(
+                    "Unable to connect to '%s'. Raised exception: %s"
+                    % (analytics_settings.url.hostname, ex),
+                    user_id=manager.get_one(user_id),
+                )
 
     @staticmethod
-    def _create_payload(uid: int, lang_code: str, action: Action) -> Payload:
+    def _create_payload(uid: int, lang_code: str, action: Action) -> Payload | None:
         """
         A static method for forming the structure and validating
         the payload data values.
@@ -83,7 +83,11 @@ class Analytics(object):
         code = (
             lang_code.split("-")[1].upper() if len(lang_code) > 2 else lang_code.upper()
         )
-        param = Param(language=code, engagement_time_msec=str(1))
-        event = Event(name=action, params=param)
-
-        return Payload(client_id=str(uid), user_id=str(uid), events=[event])
+        try:
+            param = Param(language=code, engagement_time_msec=str(1))
+            event = Event(name=action, params=param)
+            payload = Payload(client_id=str(uid), user_id=str(uid), events=[event])
+        except ValidationError as ex:
+            logger.exception("Validation error. Raised exception: %s" % ex)
+            payload = None
+        return payload if payload else None
