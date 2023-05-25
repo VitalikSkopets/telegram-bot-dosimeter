@@ -37,11 +37,11 @@ DEBUG = True
 ENVIRON = "DEV" if DEBUG else "PROD"
 WEBHOOK_MODE = bool(0) if DEBUG else bool(1)
 
-BASE_DIR: pathlib.Path = pathlib.Path(__file__).resolve().parent.parent.parent
-TEMPLATES_DIR: pathlib.Path = BASE_DIR / "templates"
-TESTS_DIR: pathlib.Path = BASE_DIR / "tests"
-
 APP = "dosimeter"
+BASE_DIR: pathlib.Path = pathlib.Path(__file__).resolve().parent.parent.parent
+APP_DIR: pathlib.Path = BASE_DIR / APP
+TEMPLATES_DIR: pathlib.Path = APP_DIR / "templates"
+TESTS_DIR: pathlib.Path = BASE_DIR / "tests"
 ENV_FILE = ".env"
 UTF = "utf-8"
 

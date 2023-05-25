@@ -26,6 +26,9 @@ def fake_longitude(faker_seed: int, fake_field: Field) -> float:
 
 @pytest.mark.navigator()
 class TestNavigator(object):
+    """
+    A class for testing logic encapsulated in the Navigator class.
+    """
 
     mock = create_autospec(Navigator)
     navigator = Navigator()
