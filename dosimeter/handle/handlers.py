@@ -66,7 +66,7 @@ class Handler(object):
             ),
             reply_markup=keyboards.main_keyboard(),
         )
-        self.repo.add_start(user)
+        self.repo.put(user, Action.START)
         logger.info(self.LOG_MSG % Action.START, user_id=self.manager.get_one(user.id))
 
     @debug_handler(log_handler=logger)
@@ -82,8 +82,26 @@ class Handler(object):
             text=self.template.render(Template.HELP),
             reply_markup=keyboards.main_keyboard(),
         )
-        self.repo.add_help(user)
+        self.repo.put(user, Action.HELP)
         logger.info(self.LOG_MSG % Action.HELP, user_id=self.manager.get_one(user.id))
+
+    @debug_handler(log_handler=logger)
+    @send_action(ChatAction.TYPING)
+    @analytic(action=Action.DONATE)
+    def donate_callback(self, update: Update, context: CallbackContext) -> None:
+        """
+        Donate command handler method.
+        """
+        user = update.effective_user
+        context.bot.send_message(
+            chat_id=update.effective_message.chat_id,
+            text=self.template.render(Template.DONATE),
+            reply_markup=keyboards.donate_keyboard(),
+        )
+        self.repo.put(user, Action.DONATE)
+        logger.debug(
+            self.LOG_MSG % Action.DONATE, user_id=self.manager.get_one(user.id)
+        )
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -201,7 +219,7 @@ class Handler(object):
                         value=value,
                     ),
                 )
-                self.repo.add_location(user)
+                self.repo.put(user, Action.LOCATION)
                 logger.info(
                     self.LOG_MSG % Action.LOCATION,
                     user_id=self.manager.get_one(user.id),
@@ -287,7 +305,7 @@ class Handler(object):
                 ),
                 reply_markup=keyboards.main_keyboard(),
             )
-            self.repo.add_messages(user)
+            self.repo.put(user, Action.GREETING)
             self.analytics.send(
                 user_id=user.id,
                 user_lang_code=user.language_code,
@@ -328,7 +346,7 @@ class Handler(object):
                 value=self.parser.get_mean_radiation_level(),
             ),
         )
-        self.repo.add_radiation_monitoring(user)
+        self.repo.put(user, Action.MONITORING)
         logger.info(
             self.LOG_MSG % Action.MONITORING,
             user_id=self.manager.get_one(user.id),
@@ -347,7 +365,7 @@ class Handler(object):
             text=self.template.render(Template.REGION),
             reply_markup=keyboards.points_keyboard(button_list),
         )
-        self.repo.add_monitoring_points(user)
+        self.repo.put(user, Action.POINTS)
         logger.info(self.LOG_MSG % Action.POINTS, user_id=self.manager.get_one(user.id))
 
     def _points_callback(
@@ -373,7 +391,7 @@ class Handler(object):
             ),
         )
 
-        self.repo.add_region(user, action)
+        self.repo.put(user, action)
         self.analytics.send(
             user_id=user.id,
             user_lang_code=user.language_code,

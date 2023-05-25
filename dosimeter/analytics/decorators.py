@@ -6,7 +6,9 @@ from dosimeter.constants import Action
 
 
 def analytic(action: Action) -> Callable:
-    """Send record to Google Analytics 4."""
+    """
+    Send record to Google Analytics 4.
+    """
 
     def decorator(func: Callable) -> Callable:
         @wraps(func)

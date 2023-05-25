@@ -40,6 +40,7 @@ class DosimeterBot(object):
         command_handlers = {
             Command.START: self.handler.start_callback,
             Command.HELP: self.handler.help_callback,
+            Command.DONATE: self.handler.donate_callback,
             Command.ADMIN: self.handler.admin_callback,
         }
 

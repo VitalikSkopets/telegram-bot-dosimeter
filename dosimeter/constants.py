@@ -2,6 +2,8 @@ import enum
 import os
 import uuid
 from dataclasses import dataclass
+from typing import TypeAlias, TypedDict
+from urllib.parse import ParseResult, urlparse
 
 from emoji.core import emojize
 
@@ -20,9 +22,31 @@ __all__ = (
     "Region",
 )
 
+Coordinates: TypeAlias = tuple[float, float]
+
 ADMIN_ID: int = settings.MAIN_ADMIN_TELEGRAM_ID or settings.ADMIN_TELEGRAM_ID
 LIST_OF_ADMIN_IDS: tuple[int, int] = (ADMIN_ID, 487236325)
 TEMP_LIST_OF_ADMIN_IDS: list[int] = []
+
+
+@dataclass(frozen=True)
+class BotInfo:
+    DESCRIPTION: str = """
+    Этот бот может информировать пользователя по состоянию на текущую дату о
+    радиационной обстановке в Беларуси и об уровне мощности эквивалентной дозы
+    гамма-излучения, зафиксированного в сети радиационного мониторинга Министерства
+    природных ресурсов и охраны окружающей среды Беларуси.
+
+    Источник: ©rad.org.by
+    Разработано: ©itrexgroup.com
+    """
+    ABOUT: str = """
+    Бот информирует об обстановке в сети радиационного мониторинга Беларуси.
+    """
+    START: str = "Launch this bot / Запустить бота"
+    HELP: str = "Useful info about this bot / Полезная информация о боте"
+    ADMIN: str = "List of admin commands (limited access)"
+    DONATE: str = "Buy me a coffee"
 
 
 class URL(str, enum.Enum):
@@ -45,344 +69,355 @@ class Region(str, enum.Enum):
         return self.value
 
 
+class PointSchema(TypedDict):
+    """
+    Schema for Point.
+    """
+
+    label: str
+    latitude: float
+    longitude: float
+    region: Region
+
+
 class Point(enum.Enum):
-    MOGILEV = {
-        "label": "Могилев",
-        "longitude": 53.69298772769127,
-        "latitude": 30.375068475712993,
-        "region": Region.MOGILEV,
-    }
+    MOGILEV = PointSchema(
+        label="Могилев",
+        latitude=30.375068475712993,
+        longitude=53.69298772769127,
+        region=Region.MOGILEV,
+    )
 
-    MSTISLAVL = {
-        "label": "Мстиславль",
-        "longitude": 54.025123497951235,
-        "latitude": 31.742790754635983,
-        "region": Region.MOGILEV,
-    }
+    MSTISLAVL = PointSchema(
+        label="Мстиславль",
+        latitude=31.742790754635983,
+        longitude=54.025123497951235,
+        region=Region.MOGILEV,
+    )
 
-    POLOTSK = {
-        "label": "Полоцк",
-        "longitude": 55.47475184602021,
-        "latitude": 28.751296645976183,
-        "region": Region.VITEBSK,
-    }
+    POLOTSK = PointSchema(
+        label="Полоцк",
+        latitude=28.751296645976183,
+        longitude=55.47475184602021,
+        region=Region.VITEBSK,
+    )
 
-    SHARKOVSHCHINA = {
-        "label": "Шарковщина",
-        "longitude": 55.36281482842422,
-        "latitude": 27.456996363944278,
-        "region": Region.VITEBSK,
-    }
+    SHARKOVSHCHINA = PointSchema(
+        label="Шарковщина",
+        latitude=27.456996363944278,
+        longitude=55.36281482842422,
+        region=Region.VITEBSK,
+    )
 
-    MINSK = {
-        "label": "Минск",
-        "longitude": 53.92751824354786,
-        "latitude": 27.63548838979854,
-        "region": Region.MINSK,
-    }
+    MINSK = PointSchema(
+        label="Минск",
+        latitude=27.63548838979854,
+        longitude=53.92751824354786,
+        region=Region.MINSK,
+    )
 
-    LYNTUPY = {
-        "label": "Лынтупы",
-        "longitude": 55.04878637860638,
-        "latitude": 26.306634538263953,
-        "region": Region.VITEBSK,
-    }
+    LYNTUPY = PointSchema(
+        label="Лынтупы",
+        latitude=26.306634538263953,
+        longitude=55.04878637860638,
+        region=Region.VITEBSK,
+    )
 
-    VISOKOE = {
-        "label": "Высокое",
-        "longitude": 52.366928433095,
-        "latitude": 23.38374438625246,
-        "region": Region.BREST,
-    }
+    VISOKOE = PointSchema(
+        label="Высокое",
+        latitude=23.38374438625246,
+        longitude=52.366928433095,
+        region=Region.BREST,
+    )
 
-    PRUZHANY = {
-        "label": "Пружаны",
-        "longitude": 52.567268449727045,
-        "latitude": 24.48545241420398,
-        "region": Region.BREST,
-    }
+    PRUZHANY = PointSchema(
+        label="Пружаны",
+        latitude=24.48545241420398,
+        longitude=52.567268449727045,
+        region=Region.BREST,
+    )
 
-    SLUTSK = {
-        "label": "Слуцк",
-        "longitude": 53.05284098247522,
-        "latitude": 27.552283199561725,
-        "region": Region.MINSK,
-    }
+    SLUTSK = PointSchema(
+        label="Слуцк",
+        latitude=27.552283199561725,
+        longitude=53.05284098247522,
+        region=Region.MINSK,
+    )
 
-    BRAGIN = {
-        "label": "Брагин",
-        "longitude": 51.7969974359342,
-        "latitude": 30.246689891878724,
-        "region": Region.GOMEL,
-    }
+    BRAGIN = PointSchema(
+        label="Брагин",
+        latitude=30.246689891878724,
+        longitude=51.7969974359342,
+        region=Region.GOMEL,
+    )
 
-    ORSHA = {
-        "label": "Орша",
-        "longitude": 54.503170699795774,
-        "latitude": 30.443815788156527,
-        "region": Region.VITEBSK,
-    }
+    ORSHA = PointSchema(
+        label="Орша",
+        latitude=30.443815788156527,
+        longitude=54.503170699795774,
+        region=Region.VITEBSK,
+    )
 
-    MOZYR = {
-        "label": "Мозырь",
-        "longitude": 52.036635775856084,
-        "latitude": 29.1925370196736,
-        "region": Region.GOMEL,
-    }
+    MOZYR = PointSchema(
+        label="Мозырь",
+        latitude=29.1925370196736,
+        longitude=52.036635775856084,
+        region=Region.GOMEL,
+    )
 
-    SLAVGOROD = {
-        "label": "Славгород",
-        "longitude": 53.45088516337511,
-        "latitude": 31.003458658160586,
-        "region": Region.MOGILEV,
-    }
+    SLAVGOROD = PointSchema(
+        label="Славгород",
+        latitude=31.003458658160586,
+        longitude=53.45088516337511,
+        region=Region.MOGILEV,
+    )
 
-    VASILEVICHI = {
-        "label": "Василевичи",
-        "longitude": 52.25207675198943,
-        "latitude": 29.838848231201965,
-        "region": Region.GOMEL,
-    }
+    VASILEVICHI = PointSchema(
+        label="Василевичи",
+        latitude=29.838848231201965,
+        longitude=52.25207675198943,
+        region=Region.GOMEL,
+    )
 
-    ZHLOBIN = {
-        "label": "Жлобин",
-        "longitude": 52.89414619807851,
-        "latitude": 30.043705893277984,
-        "region": Region.GOMEL,
-    }
+    ZHLOBIN = PointSchema(
+        label="Жлобин",
+        latitude=30.043705893277984,
+        longitude=52.89414619807851,
+        region=Region.GOMEL,
+    )
 
-    GORKI = {
-        "label": "Горки",
-        "longitude": 54.30393502455042,
-        "latitude": 30.94344246329931,
-        "region": Region.MOGILEV,
-    }
+    GORKI = PointSchema(
+        label="Горки",
+        latitude=30.94344246329931,
+        longitude=54.30393502455042,
+        region=Region.MOGILEV,
+    )
 
-    VOLKOVYSK = {
-        "label": "Волковыск",
-        "longitude": 53.16692103793095,
-        "latitude": 24.448995268762964,
-        "region": Region.GRODNO,
-    }
+    VOLKOVYSK = PointSchema(
+        label="Волковыск",
+        latitude=24.448995268762964,
+        longitude=53.16692103793095,
+        region=Region.GRODNO,
+    )
 
-    OKTYABR = {
-        "label": "Октябрь",
-        "longitude": 52.63342658653018,
-        "latitude": 28.883476209528087,
-        "region": Region.GOMEL,
-    }
+    OKTYABR = PointSchema(
+        label="Октябрь",
+        latitude=28.883476209528087,
+        longitude=52.63342658653018,
+        region=Region.GOMEL,
+    )
 
-    KOSTYUKOVICHI = {
-        "label": "Костюковичи",
-        "longitude": 53.35847386774336,
-        "latitude": 32.070027796122154,
-        "region": Region.MOGILEV,
-    }
+    KOSTYUKOVICHI = PointSchema(
+        label="Костюковичи",
+        latitude=32.070027796122154,
+        longitude=53.35847386774336,
+        region=Region.MOGILEV,
+    )
 
-    BREST = {
-        "label": "Брест",
-        "longitude": 52.116580901478635,
-        "latitude": 23.685652135212752,
-        "region": Region.BREST,
-    }
+    BREST = PointSchema(
+        label="Брест",
+        latitude=23.685652135212752,
+        longitude=52.116580901478635,
+        region=Region.BREST,
+    )
 
-    BOBRUISK = {
-        "label": "Бобруйск",
-        "longitude": 53.20853347538013,
-        "latitude": 29.127272432117724,
-        "region": Region.MOGILEV,
-    }
+    BOBRUISK = PointSchema(
+        label="Бобруйск",
+        latitude=29.127272432117724,
+        longitude=53.20853347538013,
+        region=Region.MOGILEV,
+    )
 
-    IVATSEVICHI = {
-        "label": "Ивацевичи",
-        "longitude": 52.716654759080775,
-        "latitude": 25.350471424000386,
-        "region": Region.BREST,
-    }
+    IVATSEVICHI = PointSchema(
+        label="Ивацевичи",
+        latitude=25.350471424000386,
+        longitude=52.716654759080775,
+        region=Region.BREST,
+    )
 
-    VILEYKA = {
-        "label": "Вилейка",
-        "longitude": 54.48321442087189,
-        "latitude": 26.89989831916185,
-        "region": Region.MINSK,
-    }
+    VILEYKA = PointSchema(
+        label="Вилейка",
+        latitude=26.89989831916185,
+        longitude=54.48321442087189,
+        region=Region.MINSK,
+    )
 
-    BORISOV = {
-        "label": "Борисов",
-        "longitude": 54.26563317790094,
-        "latitude": 28.49760585109516,
-        "region": Region.MINSK,
-    }
+    BORISOV = PointSchema(
+        label="Борисов",
+        latitude=28.49760585109516,
+        longitude=54.26563317790094,
+        region=Region.MINSK,
+    )
 
-    ZHITKOVICHI = {
-        "label": "Житковичи",
-        "longitude": 52.21411222651425,
-        "latitude": 27.870082634924596,
-        "region": Region.GOMEL,
-    }
+    ZHITKOVICHI = PointSchema(
+        label="Житковичи",
+        latitude=27.870082634924596,
+        longitude=52.21411222651425,
+        region=Region.GOMEL,
+    )
 
-    OSHMYANY = {
-        "label": "Ошмяны",
-        "longitude": 54.43300284193779,
-        "latitude": 25.935350063150867,
-        "region": Region.GRODNO,
-    }
+    OSHMYANY = PointSchema(
+        label="Ошмяны",
+        latitude=25.935350063150867,
+        longitude=54.43300284193779,
+        region=Region.GRODNO,
+    )
 
-    BEREZINO = {
-        "label": "Березино",
-        "longitude": 53.82838181057285,
-        "latitude": 28.99727106523084,
-        "region": Region.MINSK,
-    }
+    BEREZINO = PointSchema(
+        label="Березино",
+        latitude=28.99727106523084,
+        longitude=53.82838181057285,
+        region=Region.MINSK,
+    )
 
-    PINSK = {
-        "label": "Пинск",
-        "longitude": 52.12223760297976,
-        "latitude": 26.111811093605997,
-        "region": Region.BREST,
-    }
+    PINSK = PointSchema(
+        label="Пинск",
+        latitude=26.111811093605997,
+        longitude=52.12223760297976,
+        region=Region.BREST,
+    )
 
-    VITEBSK = {
-        "label": "Витебск",
-        "longitude": 55.25257562100984,
-        "latitude": 30.250042135934226,
-        "region": Region.VITEBSK,
-    }
+    VITEBSK = PointSchema(
+        label="Витебск",
+        latitude=30.250042135934226,
+        longitude=55.25257562100984,
+        region=Region.VITEBSK,
+    )
 
-    LIDA = {
-        "label": "Лида",
-        "longitude": 53.90227318372977,
-        "latitude": 25.32336091231988,
-        "region": Region.GRODNO,
-    }
+    LIDA = PointSchema(
+        label="Лида",
+        latitude=25.32336091231988,
+        longitude=53.90227318372977,
+        region=Region.GRODNO,
+    )
 
-    BARANOVICHI = {
-        "label": "Барановичи",
-        "longitude": 53.13190185894763,
-        "latitude": 25.97158074066798,
-        "region": Region.BREST,
-    }
+    BARANOVICHI = PointSchema(
+        label="Барановичи",
+        longitude=53.13190185894763,
+        latitude=25.97158074066798,
+        region=Region.BREST,
+    )
 
-    STOLBTSY = {
-        "label": "Столбцы",
-        "longitude": 53.46677208676115,
-        "latitude": 26.732607935963017,
-        "region": Region.MINSK,
-    }
+    STOLBTSY = PointSchema(
+        label="Столбцы",
+        latitude=26.732607935963017,
+        longitude=53.46677208676115,
+        region=Region.MINSK,
+    )
 
-    POLESSKAYA_BOLOTNAYA = {
-        "label": "Полесская, болотная",
-        "longitude": 52.29983981155924,
-        "latitude": 26.667029013394274,
-        "region": Region.BREST,
-    }
+    POLESSKAYA_BOLOTNAYA = PointSchema(
+        label="Полесская, болотная",
+        latitude=26.667029013394274,
+        longitude=52.29983981155924,
+        region=Region.BREST,
+    )
 
-    DROGICHIN = {
-        "label": "Дрогичин",
-        "longitude": 52.20004370649066,
-        "latitude": 25.0838433995118,
-        "region": Region.BREST,
-    }
+    DROGICHIN = PointSchema(
+        label="Дрогичин",
+        latitude=25.0838433995118,
+        longitude=52.20004370649066,
+        region=Region.BREST,
+    )
 
-    GOMEL = {
-        "label": "Гомель",
-        "longitude": 52.402061468751455,
-        "latitude": 30.963081201303428,
-        "region": Region.GOMEL,
-    }
+    GOMEL = PointSchema(
+        label="Гомель",
+        latitude=30.963081201303428,
+        longitude=52.402061468751455,
+        region=Region.GOMEL,
+    )
 
-    NAROCH_OZERNAYA = {
-        "label": "Нарочь, озерная",
-        "longitude": 54.899256667266,
-        "latitude": 26.684290791688372,
-        "region": Region.VITEBSK,
-    }
+    NAROCH_OZERNAYA = PointSchema(
+        label="Нарочь, озерная",
+        latitude=26.684290791688372,
+        longitude=54.899256667266,
+        region=Region.VITEBSK,
+    )
 
-    VOLOZHIN = {
-        "label": "Воложин",
-        "longitude": 54.10018849587838,
-        "latitude": 26.51694607389268,
-        "region": Region.MINSK,
-    }
+    VOLOZHIN = PointSchema(
+        label="Воложин",
+        latitude=26.51694607389268,
+        longitude=54.10018849587838,
+        region=Region.MINSK,
+    )
 
-    VERHNEDVINSK = {
-        "label": "Верхнедвинск",
-        "longitude": 55.8208765412649,
-        "latitude": 27.940101948630605,
-        "region": Region.VITEBSK,
-    }
+    VERHNEDVINSK = PointSchema(
+        label="Верхнедвинск",
+        latitude=27.940101948630605,
+        longitude=55.8208765412649,
+        region=Region.VITEBSK,
+    )
 
-    SENNO = {
-        "label": "Сенно",
-        "longitude": 54.80456568197694,
-        "latitude": 29.687798174910593,
-        "region": Region.VITEBSK,
-    }
+    SENNO = PointSchema(
+        label="Сенно",
+        latitude=29.687798174910593,
+        longitude=54.80456568197694,
+        region=Region.VITEBSK,
+    )
 
-    GRODNO_AMSG = {
-        "label": "Гродно, АМСГ",
-        "longitude": 53.60193676812893,
-        "latitude": 24.05807929514318,
-        "region": Region.GRODNO,
-    }
+    GRODNO_AMSG = PointSchema(
+        label="Гродно, АМСГ",
+        latitude=24.05807929514318,
+        longitude=53.60193676812893,
+        region=Region.GRODNO,
+    )
 
-    MOKRANY = {
-        "label": "Мокраны",
-        "longitude": 51.83469016263843,
-        "latitude": 24.262048260884608,
-        "region": Region.BREST,
-    }
+    MOKRANY = PointSchema(
+        label="Мокраны",
+        latitude=24.262048260884608,
+        longitude=51.83469016263843,
+        region=Region.BREST,
+    )
 
-    OLTUSH = {
-        "label": "Олтуш",
-        "longitude": 51.69107406162166,
-        "latitude": 23.97093118533709,
-        "region": Region.BREST,
-    }
+    OLTUSH = PointSchema(
+        label="Олтуш",
+        latitude=23.97093118533709,
+        longitude=51.69107406162166,
+        region=Region.BREST,
+    )
 
-    VERCHNI_TEREBEZHOV = {
-        "label": "Верхний Теребежов",
-        "longitude": 51.83600602350391,
-        "latitude": 26.725999562270026,
-        "region": Region.BREST,
-    }
+    VERCHNI_TEREBEZHOV = PointSchema(
+        label="Верхний Теребежов",
+        latitude=26.725999562270026,
+        longitude=51.83600602350391,
+        region=Region.BREST,
+    )
 
-    GLUSHKEVICHI = {
-        "label": "Глушкевичи",
-        "longitude": 51.61087690551236,
-        "latitude": 27.825665051237728,
-        "region": Region.GOMEL,
-    }
+    GLUSHKEVICHI = PointSchema(
+        label="Глушкевичи",
+        latitude=27.825665051237728,
+        longitude=51.61087690551236,
+        region=Region.GOMEL,
+    )
 
-    SLOVECHNO = {
-        "label": "Словечно",
-        "longitude": 51.63093077915665,
-        "latitude": 29.068442241735667,
-        "region": Region.GOMEL,
-    }
+    SLOVECHNO = PointSchema(
+        label="Словечно",
+        latitude=29.068442241735667,
+        longitude=51.63093077915665,
+        region=Region.GOMEL,
+    )
 
-    NOVAYA_IOLCHA = {
-        "label": "Новая Иолча",
-        "longitude": 51.49095727903912,
-        "latitude": 30.531611339649682,
-        "region": Region.GOMEL,
-    }
+    NOVAYA_IOLCHA = PointSchema(
+        label="Новая Иолча",
+        latitude=30.531611339649682,
+        longitude=51.49095727903912,
+        region=Region.GOMEL,
+    )
 
-    DOMZHERITSY = {
-        "label": "Домжерицы",
-        "longitude": 54.73569818149728,
-        "latitude": 28.349495110191032,
-        "region": Region.VITEBSK,
-    }
+    DOMZHERITSY = PointSchema(
+        label="Домжерицы",
+        latitude=28.349495110191032,
+        longitude=54.73569818149728,
+        region=Region.VITEBSK,
+    )
 
     def __init__(self, vals: dict):
         self.label = vals["label"]
-        self.longitude = vals["longitude"]
         self.latitude = vals["latitude"]
+        self.longitude = vals["longitude"]
         self.region = vals["region"]
 
     @property
-    def coordinates(self) -> tuple[float, float]:
+    def coordinates(self) -> Coordinates:
         return self.latitude, self.longitude
 
 
@@ -391,90 +426,67 @@ class Emoji(str, enum.Enum):
     ARROW = emojize("⤵")
     RIGHT_ARROW = emojize("▶")
     LEFT_ARROW = emojize("◀")
+    COFFEE = emojize("☕")
+
+
+class ButtonSchema(TypedDict, total=False):
+    """
+    Schema for Button.
+    """
+
+    label: str
+    url: ParseResult
+    callback_data: str
 
 
 class Button(enum.Enum):
+    MAIN_MENU = ButtonSchema(label="Главное меню")
+    NEXT = ButtonSchema(label=f"{Emoji.RIGHT_ARROW * 2}")
+    NEXT_ARROW = ButtonSchema(label=f"{Emoji.RIGHT_ARROW}")
+    PREV = ButtonSchema(label=f"{Emoji.LEFT_ARROW * 2}")
+    PREV_ARROW = ButtonSchema(label=f"{Emoji.LEFT_ARROW}")
+    MONITORING = ButtonSchema(label="Радиационный мониторинг")
+    SEND_LOCATION = ButtonSchema(label="Отправить мою геопозицию")
+    POINTS = ButtonSchema(label="Пункты наблюдения")
+    BREST = ButtonSchema(label=f"{Region.BREST} {Emoji.HOUSE}")
+    VITEBSK = ButtonSchema(label=f"{Region.VITEBSK} {Emoji.HOUSE}")
+    GOMEL = ButtonSchema(label=f"{Region.GOMEL} {Emoji.HOUSE}")
+    GRODNO = ButtonSchema(label=f"{Region.GRODNO} {Emoji.HOUSE}")
+    MINSK = ButtonSchema(label=f"{Region.MINSK} {Emoji.HOUSE}")
+    MOGILEV = ButtonSchema(label=f"{Region.MOGILEV} {Emoji.HOUSE}")
+    HIDE_KEYBOARD = ButtonSchema(label="Скрыть клавиатуру")
 
-    MAIN_MENU = {
-        "label": "Главное меню",
-        "callback_data": str(uuid.uuid4()),
-    }
-    NEXT = {
-        "label": f"{Emoji.RIGHT_ARROW * 2}",
-        "callback_data": str(uuid.uuid4()),
-    }
-    NEXT_ARROW = {
-        "label": f"{Emoji.RIGHT_ARROW}",
-        "callback_data": str(uuid.uuid4()),
-    }
-    PREV = {
-        "label": f"{Emoji.LEFT_ARROW * 2}",
-        "callback_data": str(uuid.uuid4()),
-    }
-    PREV_ARROW = {
-        "label": f"{Emoji.LEFT_ARROW}",
-        "callback_data": str(uuid.uuid4()),
-    }
-    MONITORING = {
-        "label": "Радиационный мониторинг",
-        "callback_data": str(uuid.uuid4()),
-    }
-    SEND_LOCATION = {
-        "label": "Отправить мою геопозицию",
-        "callback_data": str(uuid.uuid4()),
-    }
-    POINTS = {
-        "label": "Пункты наблюдения",
-        "callback_data": str(uuid.uuid4()),
-    }
-    BREST = {
-        "label": f"{Region.BREST} {Emoji.HOUSE}",
-        "callback_data": str(uuid.uuid4()),
-    }
-    VITEBSK = {
-        "label": f"{Region.VITEBSK} {Emoji.HOUSE}",
-        "callback_data": str(uuid.uuid4()),
-    }
-    GOMEL = {
-        "label": f"{Region.GOMEL} {Emoji.HOUSE}",
-        "callback_data": str(uuid.uuid4()),
-    }
-    GRODNO = {
-        "label": f"{Region.GRODNO} {Emoji.HOUSE}",
-        "callback_data": str(uuid.uuid4()),
-    }
-    MINSK = {
-        "label": f"{Region.MINSK} {Emoji.HOUSE}",
-        "callback_data": str(uuid.uuid4()),
-    }
-    MOGILEV = {
-        "label": f"{Region.MOGILEV} {Emoji.HOUSE}",
-        "callback_data": str(uuid.uuid4()),
-    }
-    HIDE_KEYBOARD = {
-        "label": "Скрыть клавиатуру",
-        "callback_data": str(uuid.uuid4()),
-    }
-    TOTAL_COUNT_USERS = {
-        "label": "Get total count users",
-        "callback_data": str(uuid.uuid4()),
-    }
-    LIST_ADMIN = {
-        "label": "Get list admin IDs",
-        "callback_data": str(uuid.uuid4()),
-    }
-    ADD_ADMIN = {
-        "label": "Add new admin by user ID",
-        "callback_data": str(uuid.uuid4()),
-    }
-    DEL_ADMIN = {
-        "label": "Delete admin by user ID",
-        "callback_data": str(uuid.uuid4()),
-    }
+    TOTAL_COUNT_USERS = ButtonSchema(
+        label="Get total count users",
+        callback_data=str(uuid.uuid4()),
+    )
+
+    LIST_ADMIN = ButtonSchema(
+        label="Get list admin IDs",
+        callback_data=str(uuid.uuid4()),
+    )
+
+    ADD_ADMIN = ButtonSchema(
+        label="Add new admin by user ID",
+        callback_data=str(uuid.uuid4()),
+    )
+
+    DEL_ADMIN = ButtonSchema(
+        label="Delete admin by user ID",
+        callback_data=str(uuid.uuid4()),
+    )
+
+    DONATE = ButtonSchema(
+        label=f"{BotInfo.DONATE} {Emoji.COFFEE}",
+        url=urlparse("https://www.buymeacoffee.com/vitalyskopets"),
+    )
 
     def __init__(self, vals: dict) -> None:
-        self.label = vals["label"]
-        self.callback_data = vals["callback_data"]
+        self.label = vals["label"] if vals.get("label") else None
+        self.callback_data = (
+            vals["callback_data"] if vals.get("callback_data") else None
+        )
+        self.url = vals["url"].geturl() if vals.get("url") else None
 
 
 @dataclass(frozen=True)
@@ -482,19 +494,21 @@ class Command:
     START: str = "start"
     HELP: str = "help"
     ADMIN: str = "admin"
+    DONATE: str = "donate"
 
 
 class Action(str, enum.Enum):
     START = "start_command"
     HELP = "help_command"
+    DONATE = "donate_command"
     ADMIN = "admin_command"
     GET_COUNT = "get_total_count_users"
     GET_LIST = "get_list_of_admin_IDs"
     ADD_ADMIN = "add_admin_by_user_ID"
-    GREETING = "greeting_message"
+    GREETING = "sent_greeting_message"
     MESSAGE = "unknown_message"
     MONITORING = "radiation_monitoring"
-    LOCATION = "send_geolocation"
+    LOCATION = "sent_location"
     POINTS = "monitoring_points"
     BREST = "Brest_region"
     VITEBSK = "Vitebsk_region"
@@ -509,18 +523,3 @@ class Action(str, enum.Enum):
 
     def __str__(self) -> str:
         return self.value
-
-
-@dataclass(frozen=True)
-class Description:
-    BOT: str = """
-    Этот бот может информировать пользователя по состоянию на текущую дату о
-    радиационной обстановке в Беларуси и об уровне мощности эквивалентной дозы
-    гамма-излучения, зафиксированного в сети радиационного мониторинга Министерства
-    природных ресурсов и охраны окружающей среды Беларуси.
-    Источник: ©<a href="https://rad.org.by/">rad.org.by</a>
-    Разработано: ©<a href="https://itrexgroup.com/">itrexgroup.com</a>
-    """
-    START: str = "Launch this bot / Запустить бота"
-    HELP: str = "Useful info about this bot / Полезная информация о боте"
-    ADMIN: str = "List of admin commands (limited access)"

@@ -12,8 +12,10 @@ __all__ = ("FileAdminManager",)
 
 
 class FileAdminManager(AdminManager):
-    """A class that encapsulates the logic of managing the list of administrators
-    stored in a file."""
+    """
+    A class that encapsulates the logic of managing the list of administrators
+    stored in a file.
+    """
 
     FILE_PATH: pathlib.Path = settings.BASE_DIR / "admins.txt"
     LIST_OF_ADMINS = LIST_OF_ADMIN_IDS
@@ -33,8 +35,10 @@ class FileAdminManager(AdminManager):
                 file.write(f"{self.cryptographer.encrypt(str(uid))}" + "\n")
 
     def get_one(self, uid: str | int | None = None) -> str | int | None:
-        """The method returns a numeric identifier or the string "ADMIN" from
-        the temporary list of administrators stored in the file."""
+        """
+        The method returns a numeric identifier or the string "ADMIN" from
+        the temporary list of administrators stored in the file.
+        """
         with open(self.FILE_PATH, "r") as file:
             admins = [self.cryptographer.decrypt(line.strip()) for line in file]
         if uid and str(uid) not in admins:
@@ -44,7 +48,8 @@ class FileAdminManager(AdminManager):
         return None
 
     def get_all(self) -> str:
-        """The method returns a string representation of the numbered
+        """
+        The method returns a string representation of the numbered
         list of admins IDs from the temporary list of administrators stored in the file.
         """
         with open(self.FILE_PATH, "r") as file:
@@ -60,8 +65,10 @@ class FileAdminManager(AdminManager):
         return "\n".join(output)
 
     def add(self, uid: int) -> tuple[str, bool]:
-        """A method for adding a digital user ID to a file with a temporary
-        list of administrator IDs."""
+        """
+        A method for adding a digital user ID to a file with a temporary
+        list of administrator IDs.
+        """
         with open(self.FILE_PATH, "r") as file:
             admins = file.read()
         if str(uid) in admins.split():
@@ -71,8 +78,10 @@ class FileAdminManager(AdminManager):
         return f"User ID <u>{uid}</u> added to the list of admins.", True
 
     def delete(self, uid: int) -> tuple[str, bool]:
-        """A method for deleting a digital user ID from a file with a temporary
-        list of administrator IDs."""
+        """
+        A method for deleting a digital user ID from a file with a temporary
+        list of administrator IDs.
+        """
         with open(self.FILE_PATH, "r") as file:
             admins = [self.cryptographer.decrypt(line.strip()) for line in file]
 
