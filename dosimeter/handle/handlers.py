@@ -11,7 +11,7 @@ from dosimeter.navigator import Navigator, navigator
 from dosimeter.parse import Parser, parser
 from dosimeter.storage import file_manager_admins as f_manager
 from dosimeter.storage import manager_admins as manager
-from dosimeter.storage.mongo import mongo_atlas__repo
+from dosimeter.storage.mongo import mongo_cloud
 from dosimeter.storage.repository import AdminManager, Repository
 from dosimeter.template_engine import TemplateEngine, message_engine
 from dosimeter.template_engine.engine import Template
@@ -34,7 +34,7 @@ class Handler(object):
         self,
         parse: Parser = parser,
         template: TemplateEngine = message_engine,
-        repo: Repository = mongo_atlas__repo,
+        repo: Repository = mongo_cloud,
         geolocation: Navigator = navigator,
         measurement: Analytics = analytics,
         control: AdminManager = manager or f_manager,
