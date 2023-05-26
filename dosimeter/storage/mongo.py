@@ -4,6 +4,8 @@ from typing import Any, Mapping, TypeAlias, TypeVar
 
 from pydantic import BaseModel, ValidationError, validator
 from pymongo import MongoClient
+from pymongo.database import Database
+from pymongo.errors import ConfigurationError, ConnectionFailure
 from telegram import User
 
 from dosimeter.config import db_settings, settings
@@ -15,7 +17,7 @@ from dosimeter.storage import manager_admins as manager
 from dosimeter.storage.memory import InternalAdminManager
 from dosimeter.storage.repository import Repository
 
-__all__ = ("MongoDataBase", "mongo_atlas__repo")
+__all__ = ("CloudMongoDataBase", "mongo_cloud")
 
 logger = CustomAdapter(get_logger(__name__), {"user_id": manager.get_one()})
 
@@ -53,22 +55,29 @@ class CollectionDataSchema(BaseModel):
         each_item=True,
     )
     def check_date(cls, value: Date) -> Date:
-        if not isinstance(value, str):
-            raise TypeError("date must be a string.")
-        else:
-            try:
-                datetime.strptime(value, "%d-%b-%Y")
-                return value
-            except ValueError:
-                raise ValueError("date must be %d-%b-%Y format.")
+        try:
+            datetime.strptime(value, "%d-%b-%Y")
+            return value
+        except ValueError:
+            raise ValueError("date must be %d-%b-%Y format")
 
 
-class MongoDataBase(Repository, abc.ABC):
+class CloudMongoDataBase(Repository, abc.ABC):
     """
-    Mongo Data Base client.
+    Cloud Mongo Database client.
     """
 
     LOG_MSG = "Action '%s' added to Mongo DB."
+    __instance = None
+
+    def __new__(cls, *args: Any, **kwargs: Any) -> "CloudMongoDataBase":
+        """
+        A method that controls the creation of a single instance of the class.
+        """
+        if not cls.__instance:
+            cls.__instance = super().__new__(cls)
+
+        return cls.__instance
 
     def __init__(
         self,
@@ -78,23 +87,37 @@ class MongoDataBase(Repository, abc.ABC):
         control: InternalAdminManager = manager,
     ) -> None:
         """
-        Constructor method for initializing objects of the MongoDataBase class.
+        Constructor method for initializing objects of the CloudMongoDataBase class.
         """
-        try:
-            client: MongoClient = MongoClient(
-                db_settings.mongo_url, serverSelectionTimeoutMS=5000
-            )
+
+        def _get_connection() -> Database:
             logger.debug(
-                "Reference to cloud Mongo Atlas Database: '%s'" % db_settings.mongo_url
+                "URI to cloud Mongo Atlas Database Server: '%s'" % db_settings.uri
             )
-            self.mdb = client.users_db
-            logger.info(f"Info about server: {client.server_info()}")
-        except Exception as ex:
-            logger.exception(
-                "Unable to connect to the server. Raised exception: %s" % ex
-            )
+            try:
+                client: MongoClient = MongoClient(
+                    db_settings.uri,
+                    serverSelectionTimeoutMS=db_settings.timeout,
+                    tz_aware=True,
+                )
+            except (ConnectionFailure, ConfigurationError) as ex:
+                logger.exception(
+                    "Cloud Server not available. Raised exception: %s" % ex
+                )
+                raise
+            logger.info(f"Info about Server: {client.server_info()}")
+            return client.users_db
+
+        self.mdb = _get_connection()
         self.cypher = cypher
         self.manager = control
+
+    def __del__(self) -> None:
+        """
+        The destructor method that is called before destroying an instance of the class
+        and used to clean up memory resources.
+        """
+        CloudMongoDataBase.__instance = None
 
     def create(self, user: User) -> CollectionType | None:
         """
@@ -188,13 +211,13 @@ class MongoDataBase(Repository, abc.ABC):
         )
 
 
-"""MongoDataBase class instance"""
-mongo_atlas__repo = MongoDataBase()
+"""CloudMongoDataBase class instance"""
+mongo_cloud = CloudMongoDataBase()
 
 
 if __name__ == "__main__":
-    mongo_atlas__repo = MongoDataBase()
-    # print(mongo_atlas__repo.get_user_by_id(413818791))
-    # print(mongo_atlas__repo.get_all_users_data())
-    # print(mongo_atlas__repo.get_all_users_ids())
-    # print(mongo_atlas__repo.get_count_of_users())
+    pass
+    # print(mongo_cloud.get_user_by_id(413818791))
+    # print(mongo_cloud.get_all_users_data())
+    # print(mongo_cloud.get_all_users_ids())
+    # print(mongo_cloud.get_count_of_users())

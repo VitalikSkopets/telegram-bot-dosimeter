@@ -77,6 +77,7 @@ class DataBaseSettings(BaseSettings):
     password: str = Field(..., env="MONGO_PASSWORD")
     db_name: str = Field(..., env="MONGO_NAME")
     port: int = Field(default="8443")
+    timeout: int = Field(default="5000")
 
     class Config:
         env_file = ENV_FILE
@@ -84,7 +85,7 @@ class DataBaseSettings(BaseSettings):
         env_file_encoding = UTF
 
     @property
-    def mongo_url(self) -> str:
+    def uri(self) -> str:
         return (
             f"mongodb+srv://{self.username}:{self.password}@cluster.s3cxd.mongodb.net/"
             f"{self.db_name}?retryWrites=true&w=majority"

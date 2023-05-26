@@ -50,8 +50,8 @@ class BotInfo:
 
 
 class URL(str, enum.Enum):
-    RADIATION = f"{os.environ['DEFAULT_URL']}/radiation.xml"
-    MONITORING = f"{os.environ['DEFAULT_URL']}/monitoring/radiation"
+    RADIATION = urlparse(f"{os.environ['DEFAULT_URL']}/radiation.xml").geturl()
+    MONITORING = urlparse(f"{os.environ['DEFAULT_URL']}/monitoring/radiation").geturl()
 
     def __str__(self) -> str:
         return self.value
