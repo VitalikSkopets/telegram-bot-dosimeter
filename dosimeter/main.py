@@ -1,8 +1,10 @@
+from urllib.parse import urljoin
+
 import pytz
 from telegram import ParseMode, ext
 from telegram.utils.request import Request
 
-from dosimeter.config import settings
+from dosimeter.config import config
 from dosimeter.config.logger import get_logger
 from dosimeter.constants import Command
 from dosimeter.handle import Handler, handler
@@ -16,25 +18,21 @@ class DosimeterBot(object):
     the DosimeterBot object.
     """
 
-    WEBHOOK_MODE: bool = settings.WEBHOOK_MODE
-    HEROKU_APP: str = settings.HEROKU_APP
-    PORT: int = settings.PORT
-
     def __init__(self, token: str, callback: Handler = handler) -> None:
         """
         Instantiate a DosimeterBot object.
         """
         self.token = token
+        self.handler = callback
 
-        # Initial and check bot application
+        # Initial bot application
         defaults = ext.Defaults(
-            parse_mode=ParseMode.HTML, tzinfo=pytz.timezone("Europe/Minsk")
+            parse_mode=ParseMode.HTML, tzinfo=pytz.timezone(config.app.timezone)
         )
         request = Request(con_pool_size=8, connect_timeout=0.5, read_timeout=1.0)
         bot = ext.ExtBot(request=request, token=self.token, defaults=defaults)
         self.updater = ext.Updater(bot=bot, use_context=True)
-        logger.info(f"Checking bot...{self.updater.bot.get_me()}")
-        self.handler = callback
+
         dispatcher = self.updater.dispatcher
 
         command_handlers = {
@@ -62,24 +60,36 @@ class DosimeterBot(object):
         )
         dispatcher.add_handler(button_handler)
 
+    @property
+    def is_checked(self) -> bool:
+        """
+        Method for testing your bot's auth token. Requires no parameters.
+        Returns basic information about the bot in form of a User object.
+        """
+        info = self.updater.bot.get_me()
+        if not info or info.username != self.__class__.__name__:
+            return False
+        logger.info("Checking bot... %s ...successful!" % self.updater.bot.get_me())
+        return True
+
     def start(self) -> None:
         """
         Method for launching the DosimeterBot object.
         """
-        if not self.WEBHOOK_MODE:
+        if not config.app.webhook_mode:
             logger.info("Application running in pooling mode...")
             # Start the Bot
             self.updater.start_polling()
             self.updater.idle()
             logger.info("Application finished!")
-        if self.WEBHOOK_MODE and self.HEROKU_APP:
+        if config.app.webhook_mode and config.heroku.app:
             logger.info("Application running in webhook mode...")
             # Start the Bot
             self.updater.start_webhook(
                 listen="0.0.0.0",
-                port=self.PORT,
+                port=config.heroku.port,
                 url_path=self.token,
-                webhook_url=f"https://{self.HEROKU_APP}.herokuapp.com/{self.token}",
+                webhook_url=urljoin(config.heroku.webhook_uri, self.token),
             )
             self.updater.idle()
             logger.info("Application finished!")
@@ -89,10 +99,11 @@ def main() -> None:
     """
     Application entry point.
     """
-    instance_of_bot = DosimeterBot(settings.TOKEN)
+    instance_of_bot = DosimeterBot(config.app.token)
+    if not instance_of_bot.is_checked:
+        return None
     instance_of_bot.start()
 
 
 if __name__ == "__main__":
-    bot_instance = DosimeterBot(settings.TOKEN)
-    bot_instance.start()
+    main()

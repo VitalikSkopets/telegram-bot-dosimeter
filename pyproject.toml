@@ -47,6 +47,7 @@ pytest-randomly = "^3.12.0"
 mimesis = "^8.0.0"
 yamllint = "^1.30.0"
 httpretty = "^1.1.4"
+pytest-freezegun = "^0.4.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

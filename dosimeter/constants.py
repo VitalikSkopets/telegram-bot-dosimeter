@@ -1,5 +1,4 @@
 import enum
-import os
 import uuid
 from dataclasses import dataclass
 from typing import TypeAlias, TypedDict
@@ -7,7 +6,7 @@ from urllib.parse import ParseResult, urlparse
 
 from emoji.core import emojize
 
-from dosimeter.config import settings
+from dosimeter.config import config
 
 __all__ = (
     "ADMIN_ID",
@@ -24,7 +23,7 @@ __all__ = (
 
 Coordinates: TypeAlias = tuple[float, float]
 
-ADMIN_ID: int = settings.MAIN_ADMIN_TELEGRAM_ID or settings.ADMIN_TELEGRAM_ID
+ADMIN_ID: int = config.app.main_admin_tgm_id or config.app.admin_tgm_id
 LIST_OF_ADMIN_IDS: tuple[int, int] = (ADMIN_ID, 487236325)
 TEMP_LIST_OF_ADMIN_IDS: list[int] = []
 
@@ -50,8 +49,8 @@ class BotInfo:
 
 
 class URL(str, enum.Enum):
-    RADIATION = urlparse(f"{os.environ['DEFAULT_URL']}/radiation.xml").geturl()
-    MONITORING = urlparse(f"{os.environ['DEFAULT_URL']}/monitoring/radiation").geturl()
+    RADIATION = urlparse(f"{config.app.source}/radiation.xml").geturl()
+    MONITORING = urlparse(f"{config.app.source}/monitoring/radiation").geturl()
 
     def __str__(self) -> str:
         return self.value

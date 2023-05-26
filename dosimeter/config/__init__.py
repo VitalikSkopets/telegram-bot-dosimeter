@@ -1,7 +1,4 @@
-from dosimeter.config.settings import AnalyticsSettings, DataBaseSettings
+from dosimeter.config.settings import Settings
 
-"""DataBaseSettings class instance"""
-db_settings = DataBaseSettings()
-
-"""AnalyticsSettings class instance"""
-analytics_settings = AnalyticsSettings()
+"""Settings class instance"""
+config = Settings()

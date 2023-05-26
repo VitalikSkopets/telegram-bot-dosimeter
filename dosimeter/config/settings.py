@@ -1,83 +1,64 @@
 import os
 import pathlib
-from dataclasses import dataclass
 from datetime import datetime
 from urllib.parse import ParseResult, urlparse
 
 import pytz
 import sentry_sdk
 from mtranslate import translate
-from pydantic import BaseSettings, Field
+from pydantic import BaseModel, BaseSettings, Field
 
 __all__ = (
-    "APP",
-    "ASYMMETRIC_ENCRYPTION",
     "BASE_DIR",
-    "DEBUG",
-    "HEROKU_APP",
-    "PORT",
-    "PWD",
     "SENTRY_SDK",
-    "TEMPLATES_DIR",
-    "TESTS_DIR",
-    "TOKEN",
-    "TODAY",
     "UTF",
-    "WEBHOOK_MODE",
-    "AnalyticsSettings",
-    "DataBaseSettings",
-    "Key",
+    "Settings",
 )
 
-DEFAULT_LOCALE = "ru"
-DATE: str = datetime.now(pytz.timezone("Europe/Minsk")).strftime("%d-%b-%Y")
-TODAY: str = translate(DATE, DEFAULT_LOCALE)
-
-DEBUG = True
-ENVIRON = "DEV" if DEBUG else "PROD"
-WEBHOOK_MODE = bool(0) if DEBUG else bool(1)
-
-APP = "dosimeter"
 BASE_DIR: pathlib.Path = pathlib.Path(__file__).resolve().parent.parent.parent
-APP_DIR: pathlib.Path = BASE_DIR / APP
-TEMPLATES_DIR: pathlib.Path = APP_DIR / "templates"
-TESTS_DIR: pathlib.Path = BASE_DIR / "tests"
 ENV_FILE = ".env"
 UTF = "utf-8"
 
-# python-telegram-bot API TOKEN
-TOKEN = os.environ["API_TOKEN"]
-
-MAIN_ADMIN_TELEGRAM_ID = int(os.environ["MAIN_ADMIN_TELEGRAM_ID"])
-ADMIN_TELEGRAM_ID = int(os.environ["ADMIN_TELEGRAM_ID"])
 
 # Heroku
-HEROKU_APP = os.environ["HEROKU_APP"]
-PORT = int(os.environ["PORT"])
+class HerokuCloudSettings(BaseSettings):
+    app: str = Field(..., env="HEROKU_APP")
+    port: int = Field(..., env="HEROKU_PORT")
 
-# Sentry SDK
-SENTRY_SDK = os.environ["SENTRY_SDK"]
-sentry_sdk.init(dsn=SENTRY_SDK, traces_sample_rate=1.0)
+    class Config:
+        env_file = ENV_FILE
+        env_prefix = "HEROKU_"
+        env_file_encoding = UTF
+
+    @property
+    def webhook_uri(self) -> str:
+        return urlparse(f"https://{self.app}.herokuapp.com").geturl()
+
 
 # Encryption
-PWD = os.environ["PASS"]
-ASYMMETRIC_ENCRYPTION = False
-
-
-@dataclass(frozen=True)
-class Key:
+class Key(BaseModel):
     SECRET: pathlib.Path = BASE_DIR / "secret.pem"
     PUBLIC: pathlib.Path = BASE_DIR / "public.pem"
 
 
-# MongoDB Atlas
-class DataBaseSettings(BaseSettings):
+class EncryptionSettings(BaseSettings):
+    pwd: str = Field(..., env="ENC_PWD")
+    isAsymmetric: bool = Field(default=False)
+    key: Key = Key()
+
+    class Config:
+        env_file = ENV_FILE
+        env_prefix = "ENC_"
+        env_file_encoding = UTF
+
+
+# Cloud Mongo Atlas Database
+class CloudDataBaseSettings(BaseSettings):
     host: str = Field(..., env="MONGO_HOST")
     username: str = Field(..., env="MONGO_USERNAME")
     password: str = Field(..., env="MONGO_PASSWORD")
-    db_name: str = Field(..., env="MONGO_NAME")
-    port: int = Field(default="8443")
-    timeout: int = Field(default="5000")
+    name: str = Field(..., env="MONGO_NAME")
+    timeout: int = Field(default=5_000)
 
     class Config:
         env_file = ENV_FILE
@@ -88,7 +69,7 @@ class DataBaseSettings(BaseSettings):
     def uri(self) -> str:
         return (
             f"mongodb+srv://{self.username}:{self.password}@cluster.s3cxd.mongodb.net/"
-            f"{self.db_name}?retryWrites=true&w=majority"
+            f"{self.name}?retryWrites=true&w=majority"
         )
 
 
@@ -103,8 +84,62 @@ class AnalyticsSettings(BaseSettings):
         env_file_encoding = UTF
 
     @property
-    def url(self) -> ParseResult:
+    def uri(self) -> ParseResult:
         return urlparse(
             f"https://www.google-analytics.com/mp/collect?"
             f"measurement_id={self.measurement_id}&api_secret={self.api_secret}"
         )
+
+
+# python-telegram-bot
+class AppSettings(BaseSettings):
+    token: str = Field(..., env="API_TOKEN")
+    name: str = Field(default="dosimeter")
+    source: str = Field(..., env="SOURCE")
+    main_admin_tgm_id: int = Field(..., env="MAIN_ADMIN_TGM_ID")
+    admin_tgm_id: int = Field(..., env="ADMIN_TGM_ID")
+    locale: str = Field(default="ru")
+    timezone: str = Field(default="Europe/Minsk")
+    debug: bool = Field(default=True)
+
+    class Config:
+        env_file = ENV_FILE
+        env_file_encoding = UTF
+
+    @property
+    def app_dir(self) -> pathlib.Path:
+        return BASE_DIR / self.name
+
+    @property
+    def templates_dir(self) -> pathlib.Path:
+        return self.app_dir / "templates"
+
+    @property
+    def tests_dir(self) -> pathlib.Path:
+        return BASE_DIR / "tests"
+
+    @property
+    def today(self) -> str:
+        date = datetime.now(pytz.timezone(self.timezone)).strftime("%d-%b-%Y")
+        return translate(date, self.locale)
+
+    @property
+    def environ(self) -> str:
+        return "DEV" if self.debug else "PROD"
+
+    @property
+    def webhook_mode(self) -> bool:
+        return False if self.debug else True
+
+
+class Settings(BaseModel):
+    app: AppSettings = Field(default_factory=AppSettings)
+    enc: EncryptionSettings = Field(default_factory=EncryptionSettings)
+    db: CloudDataBaseSettings = Field(default_factory=CloudDataBaseSettings)
+    analytics: AnalyticsSettings = Field(default_factory=AnalyticsSettings)
+    heroku: HerokuCloudSettings = Field(default_factory=HerokuCloudSettings)
+
+
+# Sentry SDK
+SENTRY_SDK = os.environ["SENTRY_SDK"]
+sentry_sdk.init(dsn=SENTRY_SDK, traces_sample_rate=1.0)

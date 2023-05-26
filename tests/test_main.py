@@ -3,8 +3,8 @@ from unittest import mock
 import pytest
 import telegram
 
-from dosimeter.config import settings
-from dosimeter.main import DosimeterBot
+from dosimeter.config import config
+from dosimeter.main import DosimeterBot, main
 
 
 @pytest.mark.bot()
@@ -45,15 +45,15 @@ class TestDosimeterBot(object):
 
     def test_correct_signature(self):
         # Act
-        result = self.mocked.start()
-        webhook_mode = self.mocked.WEBHOOK_MODE
+        checked = self.mocked.is_checked
+        bot = self.mocked.start()
 
         # Assert
-        assert result
-        assert isinstance(webhook_mode, bool)
+        assert checked
+        assert bot
 
     @pytest.mark.skipif(
-        settings.WEBHOOK_MODE is True,
+        config.app.webhook_mode is True,
         reason="activate webhook mode",
     )
     def test_start_bot_in_pooling_mode(self):
@@ -64,7 +64,7 @@ class TestDosimeterBot(object):
             start_webhook=mock.DEFAULT,
             idle=mock.DEFAULT,
         ) as mock_updater:
-            bot = DosimeterBot(settings.TOKEN)
+            bot = DosimeterBot(config.app.token)
             bot.start()
 
         # Assert
@@ -74,7 +74,7 @@ class TestDosimeterBot(object):
         mock_updater["start_webhook"].assert_not_called()
 
     @pytest.mark.skipif(
-        settings.WEBHOOK_MODE is False,
+        config.app.webhook_mode is False,
         reason="deactivate webhook mode",
     )
     def test_start_bot_in_webhook_mode(self):
@@ -87,7 +87,7 @@ class TestDosimeterBot(object):
             start_webhook=mock.DEFAULT,
             idle=mock.DEFAULT,
         ) as mock_updater:
-            bot = DosimeterBot(settings.TOKEN)
+            bot = DosimeterBot(config.app.token)
             bot.start()
 
         # Assert
@@ -95,3 +95,36 @@ class TestDosimeterBot(object):
         mock_updater["start_webhook"].assert_called_once()
         mock_updater["idle"].assert_called_once()
         mock_updater["start_polling"].assert_not_called()
+
+
+@pytest.mark.bot()
+class TestMainFunction(object):
+    """
+    A class for testing the main function.
+    """
+
+    bot_instance = "dosimeter.main.DosimeterBot"
+
+    def test_main_func_with_success_check(self) -> None:
+        # Act
+        with mock.patch.multiple(
+            self.bot_instance,
+            is_checked=True,
+            start=mock.DEFAULT,
+        ) as mocked:
+            main()
+
+        # Assert
+        mocked["start"].assert_called_once()
+
+    def test_main_func_with_fail_check(self) -> None:
+        # Act
+        with mock.patch.multiple(
+            self.bot_instance,
+            is_checked=False,
+            start=mock.DEFAULT,
+        ) as mocked:
+            main()
+
+        # Assert
+        mocked["start"].assert_not_called()

@@ -7,7 +7,7 @@ import httpretty
 import pytest
 
 from dosimeter.api import Api
-from dosimeter.config import settings
+from dosimeter.config import config
 from dosimeter.constants import URL
 
 testdata = [
@@ -135,7 +135,7 @@ class TestApi(object):
         httpretty.register_uri(
             method=httpretty.GET,
             uri=URL.RADIATION,
-            body=get_text_from_file(settings.TESTS_DIR / "fixtures" / "rad.xml"),
+            body=get_text_from_file(config.app.tests_dir / "fixtures" / "rad.xml"),
             status=HTTPStatus.SERVICE_UNAVAILABLE,
             content_type="application/rss+xml",
         )

@@ -9,7 +9,9 @@ from dosimeter.template_engine.engine import Template, TemplateEngine
 
 @pytest.fixture(scope="session")
 def message_engine() -> TemplateEngine:
-    """Create TemplateEngine class instance."""
+    """
+    Create TemplateEngine class instance.
+    """
     return TemplateEngine()
 
 

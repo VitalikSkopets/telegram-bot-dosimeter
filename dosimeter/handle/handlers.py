@@ -4,7 +4,7 @@ from telegram.ext import CallbackContext
 
 from dosimeter.analytics import Analytics, analytics
 from dosimeter.analytics.decorators import analytic
-from dosimeter.config import settings
+from dosimeter.config import config
 from dosimeter.config.logger import CustomAdapter, get_logger
 from dosimeter.constants import ADMIN_ID, Action, Button, Point, Region
 from dosimeter.navigator import Navigator, navigator
@@ -215,7 +215,7 @@ class Handler(object):
                         Template.LOCATION,
                         distance=f"{near_point.distance:,} м".replace(",", " "),
                         point=near_point.title,
-                        date=settings.TODAY,
+                        date=config.app.today,
                         value=value,
                     ),
                 )
@@ -341,7 +341,7 @@ class Handler(object):
             chat_id=update.effective_message.chat_id,
             text=self.template.render(
                 Template.RADIATION,
-                date=settings.TODAY,
+                date=config.app.today,
                 response=self.parser.get_info_about_radiation_monitoring(),
                 value=self.parser.get_mean_radiation_level(),
             ),
@@ -385,7 +385,7 @@ class Handler(object):
             chat_id=update.effective_message.chat_id,
             text=self.template.render(
                 Template.TABLE,
-                date=settings.TODAY,
+                date=config.app.today,
                 values_by_region=values_by_region,
                 mean_value=mean_value,
             ),
