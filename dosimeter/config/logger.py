@@ -5,7 +5,7 @@ import uuid
 from pathlib import Path
 from typing import Any, MutableMapping
 
-from dosimeter.config import settings
+from dosimeter.config import config, settings
 
 __all__ = ("CustomAdapter", "get_logger")
 
@@ -21,7 +21,7 @@ class LOGRoutes(str, enum.Enum):
 
 class EnvironFilter(logging.Filter):
     def filter(self, record: logging.LogRecord) -> bool:
-        setattr(record, "environment", settings.ENVIRON)
+        setattr(record, "environment", config.app.environ)
         return True
 
 
@@ -139,7 +139,7 @@ def create_log_folder(folder_name: str = LOGRoutes.FOLDER) -> None:
 
 def get_logger(name: str = __name__, template: str = "file_logger") -> logging.Logger:
     create_log_folder()
-    template = "console_logger" if settings.DEBUG else template
+    template = "console_logger" if config.app.debug else template
     LOGGING_CONFIG["loggers"][name] = LOGGING_CONFIG["loggers"][template]
     logging.config.dictConfig(LOGGING_CONFIG)
     return logging.getLogger(name)

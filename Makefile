@@ -67,7 +67,7 @@ test-coverage: ## Run tests with coverage
 
 .PHONY: find-tests-slow
 find-tests-slow: ## Find slow two tests
-	poetry run pytest --verbose --randomly-seed=default --durations=2 --no-cov --disable-warnings
+	poetry run pytest --verbose --randomly-seed=default --durations=3 --no-cov --disable-warnings
 
 .PHONY: tests-slow
 tests-slow: ## Start tests with 'slow' mark
@@ -104,6 +104,10 @@ tests-analytics: ## Start tests with 'analytics' mark
 .PHONY: tests-bot
 tests-bot: ## Start tests with 'bot' mark
 	pytest --verbose --randomly-seed=default -m "bot" --no-cov --disable-warnings
+
+.PHONY: tests-settings
+tests-settings: ## Start tests with 'settings' mark
+	pytest --verbose --randomly-seed=default -m "settings" --no-cov --disable-warnings
 
 # ==== Cache ====
 

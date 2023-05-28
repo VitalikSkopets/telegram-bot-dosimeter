@@ -8,7 +8,7 @@ from pymongo.database import Database
 from pymongo.errors import ConfigurationError, ConnectionFailure
 from telegram import User
 
-from dosimeter.config import db_settings, settings
+from dosimeter.config import config
 from dosimeter.config.logger import CustomAdapter, get_logger
 from dosimeter.constants import Action
 from dosimeter.encryption import asym_cypher, sym_cypher
@@ -82,7 +82,7 @@ class CloudMongoDataBase(Repository, abc.ABC):
     def __init__(
         self,
         cypher: BaseCryptographer = (
-            asym_cypher if settings.ASYMMETRIC_ENCRYPTION else sym_cypher
+            asym_cypher if config.enc.isAsymmetric else sym_cypher
         ),
         control: InternalAdminManager = manager,
     ) -> None:
@@ -92,12 +92,12 @@ class CloudMongoDataBase(Repository, abc.ABC):
 
         def _get_connection() -> Database:
             logger.debug(
-                "URI to cloud Mongo Atlas Database Server: '%s'" % db_settings.uri
+                "URI to cloud Mongo Atlas Database Server: '%s'" % config.db.uri
             )
             try:
                 client: MongoClient = MongoClient(
-                    db_settings.uri,
-                    serverSelectionTimeoutMS=db_settings.timeout,
+                    config.db.uri,
+                    serverSelectionTimeoutMS=config.db.timeout,
                     tz_aware=True,
                 )
             except (ConnectionFailure, ConfigurationError) as ex:
@@ -205,7 +205,7 @@ class CloudMongoDataBase(Repository, abc.ABC):
             {"user_id": user_id},
             {
                 "$push": {
-                    field: settings.DATE,
+                    field: datetime.today().strftime("%d-%m-%Y %H:%M"),
                 },
             },
         )

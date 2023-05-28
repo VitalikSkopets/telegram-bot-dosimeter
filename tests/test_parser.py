@@ -5,7 +5,7 @@ from unittest import mock
 import pytest
 from bs4 import BeautifulSoup
 
-from dosimeter.config import settings
+from dosimeter.config import config
 from dosimeter.constants import URL, Point, Region
 from dosimeter.parse.parser import Parser
 
@@ -39,8 +39,8 @@ class TestParser(object):
     A class for testing logic encapsulated in the Parser class.
     """
 
-    xml: Path = settings.TESTS_DIR / "fixtures" / "rad.xml"
-    html: Path = settings.TESTS_DIR / "fixtures" / "rad.html"
+    xml: Path = config.app.tests_dir / "fixtures" / "rad.xml"
+    html: Path = config.app.tests_dir / "fixtures" / "rad.html"
     method = "dosimeter.parse.Parser._get_source"
 
     @pytest.mark.parametrize(

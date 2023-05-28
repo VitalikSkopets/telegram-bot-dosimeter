@@ -1,7 +1,7 @@
 import requests
 from pydantic import BaseModel, ValidationError
 
-from dosimeter.config import analytics_settings
+from dosimeter.config import config
 from dosimeter.config.logger import CustomAdapter, get_logger
 from dosimeter.constants import Action
 from dosimeter.storage import manager_admins as manager
@@ -54,7 +54,7 @@ class Analytics(object):
         """
         Instantiate a Analytics object.
         """
-        self.url = analytics_settings.url.geturl()
+        self.url = config.analytics.uri.geturl()
 
     def send(self, user_id: int, user_lang_code: str, action: Action) -> None:
         """
@@ -70,7 +70,7 @@ class Analytics(object):
             except Exception as ex:
                 logger.exception(
                     "Unable to connect to '%s'. Raised exception: %s"
-                    % (analytics_settings.url.hostname, ex),
+                    % (config.analytics.uri.hostname, ex),
                     user_id=manager.get_one(user_id),
                 )
 

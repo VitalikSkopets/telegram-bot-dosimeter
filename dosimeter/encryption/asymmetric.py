@@ -6,7 +6,7 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPublicKey
 
-from dosimeter.config import settings
+from dosimeter.config import config, settings
 from dosimeter.encryption.interface import BaseCryptographer
 
 __all__ = ("AsymmetricCryptographer",)
@@ -18,9 +18,9 @@ class AsymmetricCryptographer(BaseCryptographer):
     asymmetric method.
     """
 
-    PASSWORD: bytes = bytes(settings.PWD, encoding=settings.UTF)
-    PRIV_KEY: pathlib.Path = settings.Key.SECRET
-    PUB_KEY: pathlib.Path = settings.Key.PUBLIC
+    PASSWORD: bytes = bytes(config.enc.pwd, encoding=settings.UTF)
+    PRIV_KEY: pathlib.Path = config.enc.key.SECRET
+    PUB_KEY: pathlib.Path = config.enc.key.PUBLIC
 
     def __init__(self) -> None:
         if pathlib.Path(self.PRIV_KEY and self.PUB_KEY).exists():

@@ -4,7 +4,7 @@ from typing import Any
 
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-from dosimeter.config import settings
+from dosimeter.config import config
 
 __all__ = (
     "Template",
@@ -14,23 +14,23 @@ __all__ = (
 
 @dataclass(frozen=True)
 class Template:
-    ADD_OR_DEL_USER: pathlib.Path = settings.TEMPLATES_DIR / "add_or_delete_user.html"
-    ADMIN: pathlib.Path = settings.TEMPLATES_DIR / "admin.html"
-    USER_COUNT: pathlib.Path = settings.TEMPLATES_DIR / "count_of_users.html"
-    ADMIN_ERROR: pathlib.Path = settings.TEMPLATES_DIR / "error_to_admin.html"
-    USER_ERROR: pathlib.Path = settings.TEMPLATES_DIR / "error_to_user.html"
-    GREET: pathlib.Path = settings.TEMPLATES_DIR / "greeting.html"
-    HELP: pathlib.Path = settings.TEMPLATES_DIR / "help.html"
-    ADMINS_LIST: pathlib.Path = settings.TEMPLATES_DIR / "list_of_admins.html"
-    LOCATION: pathlib.Path = settings.TEMPLATES_DIR / "location.html"
-    MENU: pathlib.Path = settings.TEMPLATES_DIR / "menu.html"
-    RADIATION: pathlib.Path = settings.TEMPLATES_DIR / "radiation.html"
-    REGION: pathlib.Path = settings.TEMPLATES_DIR / "region.html"
-    KEYBOARD: pathlib.Path = settings.TEMPLATES_DIR / "show_keyboard.html"
-    START: pathlib.Path = settings.TEMPLATES_DIR / "start.html"
-    TABLE: pathlib.Path = settings.TEMPLATES_DIR / "table.html"
-    UNKNOWN: pathlib.Path = settings.TEMPLATES_DIR / "unknown.html"
-    DONATE: pathlib.Path = settings.TEMPLATES_DIR / "donate.html"
+    ADD_OR_DEL_USER: pathlib.Path = config.app.templates_dir / "add_or_delete_user.html"
+    ADMIN: pathlib.Path = config.app.templates_dir / "admin.html"
+    USER_COUNT: pathlib.Path = config.app.templates_dir / "count_of_users.html"
+    ADMIN_ERROR: pathlib.Path = config.app.templates_dir / "error_to_admin.html"
+    USER_ERROR: pathlib.Path = config.app.templates_dir / "error_to_user.html"
+    GREET: pathlib.Path = config.app.templates_dir / "greeting.html"
+    HELP: pathlib.Path = config.app.templates_dir / "help.html"
+    ADMINS_LIST: pathlib.Path = config.app.templates_dir / "list_of_admins.html"
+    LOCATION: pathlib.Path = config.app.templates_dir / "location.html"
+    MENU: pathlib.Path = config.app.templates_dir / "menu.html"
+    RADIATION: pathlib.Path = config.app.templates_dir / "radiation.html"
+    REGION: pathlib.Path = config.app.templates_dir / "region.html"
+    KEYBOARD: pathlib.Path = config.app.templates_dir / "show_keyboard.html"
+    START: pathlib.Path = config.app.templates_dir / "start.html"
+    TABLE: pathlib.Path = config.app.templates_dir / "table.html"
+    UNKNOWN: pathlib.Path = config.app.templates_dir / "unknown.html"
+    DONATE: pathlib.Path = config.app.templates_dir / "donate.html"
 
 
 class TemplateEngine:
@@ -39,9 +39,9 @@ class TemplateEngine:
     (see more https://jinja.palletsprojects.com/en/3.1.x/api/)
     """
 
-    APP: str = settings.APP
+    APP: str = config.app.name
 
-    def __init__(self, templates_dir_name: str = settings.TEMPLATES_DIR.stem) -> None:
+    def __init__(self, templates_dir_name: str = config.app.templates_dir.stem) -> None:
         """
         Constructor method for initializing objects of class TemplateEngine.
         """
