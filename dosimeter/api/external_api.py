@@ -73,7 +73,10 @@ class Api(BaseApi):
         try:
             with requests.session() as session:
                 response = session.get(
-                    uri, verify=False, headers={"User-Agent": agent.random}
+                    uri,
+                    verify=False,
+                    headers={"User-Agent": agent.random},
+                    timeout=(3, 7),
                 )
         except requests.exceptions.RequestException as ex:
             logger.exception(

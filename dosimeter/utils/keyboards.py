@@ -62,3 +62,17 @@ def donate_keyboard() -> InlineKeyboardMarkup:
     """
     keyboard = [[InlineKeyboardButton(Button.DONATE.label, url=Button.DONATE.url)]]
     return InlineKeyboardMarkup(keyboard)
+
+
+def chart_keyboard() -> InlineKeyboardMarkup:
+    """
+    The show chart inline button.
+    """
+    keyboard = [
+        [
+            InlineKeyboardButton(
+                Button.SHOW_CHART.label, callback_data=Button.SHOW_CHART.callback_data
+            ),
+        ],
+    ]
+    return InlineKeyboardMarkup(keyboard)

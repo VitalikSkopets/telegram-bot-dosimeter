@@ -4,6 +4,7 @@ from telegram.ext import CallbackContext
 
 from dosimeter.analytics import Analytics, analytics
 from dosimeter.analytics.decorators import analytic
+from dosimeter.chart_engine import ChartEngine, chart
 from dosimeter.config import config
 from dosimeter.config.logger import CustomAdapter, get_logger
 from dosimeter.constants import ADMIN_ID, Action, Button, Point, Region
@@ -38,6 +39,7 @@ class Handler(object):
         geolocation: Navigator = navigator,
         measurement: Analytics = analytics,
         control: AdminManager = manager or f_manager,
+        bar_chart: ChartEngine = chart,
     ) -> None:
         """
         Constructor method for initializing objects of class Handlers.
@@ -48,6 +50,7 @@ class Handler(object):
         self.navigator = geolocation
         self.analytics = measurement
         self.manager = control
+        self.chart = bar_chart
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -131,6 +134,8 @@ class Handler(object):
                 return self._get_list_admin_ids_callback(update, context)
             case Button.ADD_ADMIN.callback_data | Button.DEL_ADMIN.callback_data:
                 return self._enter_admin_by_user_id_callback(update, context)
+            case Button.SHOW_CHART.callback_data:
+                return self._show_chart(update, context)
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.TYPING)
@@ -162,27 +167,33 @@ class Handler(object):
                 return self._hide_keyboard_callback(update, context)
             case Button.BREST.label:
                 points = tuple(point for point in Point if point.region == Region.BREST)
+                region = Region.BREST
                 action = Action.BREST
             case Button.VITEBSK.label:
                 points = tuple(
                     point for point in Point if point.region == Region.VITEBSK
                 )
+                region = Region.VITEBSK
                 action = Action.VITEBSK
             case Button.GOMEL.label:
                 points = tuple(point for point in Point if point.region == Region.GOMEL)
+                region = Region.GOMEL
                 action = Action.GOMEL
             case Button.GRODNO.label:
                 points = tuple(
                     point for point in Point if point.region == Region.GRODNO
                 )
+                region = Region.GRODNO
                 action = Action.GRODNO
             case Button.MINSK.label:
                 points = tuple(point for point in Point if point.region == Region.MINSK)
+                region = Region.MINSK
                 action = Action.MINSK
             case Button.MOGILEV.label:
                 points = tuple(
                     point for point in Point if point.region == Region.MOGILEV
                 )
+                region = Region.MOGILEV
                 action = Action.MOGILEV
             case str() as user_id if user_id.startswith("add "):
                 return self._add_admin_by_user_id_callback(update, context)
@@ -191,7 +202,7 @@ class Handler(object):
             case _:
                 return self._greeting_callback(update, context)
 
-        return self._points_callback(update, context, points, action)
+        return self._points_callback(update, context, points, region, action)
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.FIND_LOCATION)
@@ -373,13 +384,16 @@ class Handler(object):
         update: Update,
         context: CallbackContext,
         points: tuple[Point, ...],
+        region: Region,
         action: Action,
     ) -> None:
         """
         Handler method for pressing the "* region" button by the user.
         """
         user = update.effective_user
-        values_by_region, mean_value = self.parser.get_info_about_region(region=points)
+        data = self.parser.get_region_info(points, region)
+        self.chart.create(data)
+        values_by_region, mean_value = self.parser.draw_table(data)
 
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
@@ -389,6 +403,7 @@ class Handler(object):
                 values_by_region=values_by_region,
                 mean_value=mean_value,
             ),
+            reply_markup=keyboards.chart_keyboard(),
         )
 
         self.repo.put(user, action)
@@ -555,5 +570,20 @@ class Handler(object):
         )
         logger.debug(
             self.LOG_MSG % Action.HIDE_KEYBOARD,
+            user_id=self.manager.get_one(user.id),
+        )
+
+    def _show_chart(self, update: Update, context: CallbackContext) -> None:
+        """
+        Method for sending a png file with a chart to the user.
+        """
+        user = update.effective_user
+        context.bot.send_document(
+            chat_id=update.effective_message.chat_id,
+            document=open(config.app.chart_dir / self.chart.file_name, "rb"),
+        )
+        self.chart.delete()
+        logger.debug(
+            self.LOG_MSG % Action.SHOW_CHART,
             user_id=self.manager.get_one(user.id),
         )

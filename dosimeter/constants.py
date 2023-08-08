@@ -426,6 +426,7 @@ class Emoji(str, enum.Enum):
     RIGHT_ARROW = emojize("▶")
     LEFT_ARROW = emojize("◀")
     COFFEE = emojize("☕")
+    GRAPH = emojize("📈")
 
 
 class ButtonSchema(TypedDict, total=False):
@@ -475,6 +476,11 @@ class Button(enum.Enum):
         callback_data=str(uuid.uuid4()),
     )
 
+    SHOW_CHART = ButtonSchema(
+        label=f"Показать на графике {Emoji.GRAPH}",
+        callback_data=str(uuid.uuid4()),
+    )
+
     DONATE = ButtonSchema(
         label=f"{BotInfo.DONATE} {Emoji.COFFEE}",
         url=urlparse("https://www.buymeacoffee.com/vitalyskopets"),
@@ -519,6 +525,7 @@ class Action(str, enum.Enum):
     NEXT = "next"
     PREV = "previosly"
     HIDE_KEYBOARD = "hide_keyboard"
+    SHOW_CHART = "show_chart"
 
     def __str__(self) -> str:
         return self.value

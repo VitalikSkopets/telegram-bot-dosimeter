@@ -167,15 +167,15 @@ class TestParser(object):
     def test_get_info_about_region(
         self,
         get_markup_from_file: Callable[[Path], BeautifulSoup],
-        get_points: tuple[Point],
+        get_points: tuple[tuple[Point, ...], Region],
         assert_correct_region_info: "RegionInfoAssertion",
     ) -> None:
         # Act
         with mock.patch(self.method) as mocked:
             mocked.return_value = get_markup_from_file(self.xml)
             parser = Parser()
-            result = parser.get_info_about_region(get_points)
+            result = parser.get_region_info(*get_points)
 
         # Assert
-        assert_correct_region_info(result, get_points)
+        assert_correct_region_info(result, get_points[0])
         mocked.assert_called_once()

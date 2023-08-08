@@ -130,11 +130,9 @@ class CloudMongoDataBase(Repository, abc.ABC):
             "user_name": self.cypher.encrypt(user.username),
         }
         try:
-            collection = CollectionDataSchema(**data)
+            collection = CollectionDataSchema(**data)  # type: ignore[arg-type]
         except ValidationError as ex:
             logger.exception("Validation error. Raised exception: %s" % ex)
-            collection = None
-        if not collection:
             return None
         logger.info("New collection created", user_id=self.manager.get_one(user.id))
         return collection.dict()
