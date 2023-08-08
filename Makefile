@@ -18,6 +18,10 @@ install-poetry:  ## Installation Poetry tool for dependency management and packa
 update-poetry:  ## Updating Poetry to the latest stable version
 	poetry self update
 
+.PHONY: where-is-my-venv
+where-is-my-venv:  ## Showing the directory where the interpreter is installed
+	poetry env info -p
+
 # ==== Launch App ====
 
 .PHONY: run
@@ -59,7 +63,7 @@ mypy:  ## to run typing checking
 
 .PHONY: test
 test:  ## Run tests
-	poetry run pytest --verbose --randomly-seed=default --capture=no --showlocals
+	poetry run pytest
 
 .PHONY: test-coverage
 test-coverage: ## Run tests with coverage
@@ -75,39 +79,39 @@ tests-slow: ## Start tests with 'slow' mark
 
 .PHONY: tests-not-slow
 tests-not-slow: ## Start quick tests (without 'slow' mark)
-	pytest --verbose --randomly-seed=default -m "not slow" --no-cov --disable-warnings
+	poetry run pytest --verbose --randomly-seed=default -m "not slow" --no-cov --disable-warnings
 
 .PHONY: tests-encryption
-tests-encryption: ## Start tests with 'login' mark
-	pytest --verbose --randomly-seed=default -m "encryption" --no-cov --disable-warnings
+tests-encryption: ## Start tests with 'encryption' mark
+	poetry run pytest --verbose --randomly-seed=default -m "encryption" --no-cov --disable-warnings
 
 .PHONY: tests-message-engine
 tests-message-engine: ## Start tests with 'message_engine' mark
-	pytest --verbose --randomly-seed=default -m "message_engine" --no-cov --disable-warnings
+	poetry run pytest --verbose --randomly-seed=default -m "message_engine" --no-cov --disable-warnings
 
 .PHONY: tests-parse
 tests-parse: ## Start tests with 'parsing' mark
-	pytest --verbose --randomly-seed=default -m "parsing" --no-cov --disable-warnings
+	poetry run pytest --verbose --randomly-seed=default -m "parsing" --no-cov --disable-warnings
 
 .PHONY: tests-api
 tests-api: ## Start tests with 'api' mark
-	pytest --verbose --randomly-seed=default -m "api" --no-cov --disable-warnings
+	poetry run pytest --verbose --randomly-seed=default -m "api" --no-cov --disable-warnings
 
 .PHONY: tests-navigator
 tests-navigator: ## Start tests with 'navigator' mark
-	pytest --verbose --randomly-seed=default -m "navigator" --no-cov --disable-warnings
+	poetry run pytest --verbose --randomly-seed=default -m "navigator" --no-cov --disable-warnings
 
 .PHONY: tests-analytics
 tests-analytics: ## Start tests with 'analytics' mark
-	pytest --verbose --randomly-seed=default -m "analytics" --no-cov --disable-warnings
+	poetry run pytest --verbose --randomly-seed=default -m "analytics" --no-cov --disable-warnings
 
 .PHONY: tests-bot
 tests-bot: ## Start tests with 'bot' mark
-	pytest --verbose --randomly-seed=default -m "bot" --no-cov --disable-warnings
+	poetry run pytest --verbose --randomly-seed=default -m "bot" --no-cov --disable-warnings
 
 .PHONY: tests-settings
 tests-settings: ## Start tests with 'settings' mark
-	pytest --verbose --randomly-seed=default -m "settings" --no-cov --disable-warnings
+	poetry run pytest --verbose --randomly-seed=default -m "settings" --no-cov --disable-warnings
 
 # ==== Cache ====
 

@@ -47,7 +47,7 @@ schema_settings = {
         "username": None,
     },
     Service.ENC: {
-        "isAsymmetric": False,
+        "isAsymmetric": None,
         "key": {
             "SECRET": None,
             "PUBLIC": None,

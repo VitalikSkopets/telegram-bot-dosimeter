@@ -33,7 +33,7 @@ class DosimeterBot(object):
         bot = ext.ExtBot(request=request, token=self.token, defaults=defaults)
         self.updater = ext.Updater(bot=bot, use_context=True)
 
-        dispatcher = self.updater.dispatcher
+        dispatcher = self.updater.dispatcher  # type: ignore[has-type]
 
         command_handlers = {
             Command.START: self.handler.start_callback,
@@ -66,10 +66,10 @@ class DosimeterBot(object):
         Method for testing your bot's auth token. Requires no parameters.
         Returns basic information about the bot in form of a User object.
         """
-        info = self.updater.bot.get_me()
+        info = self.updater.bot.get_me()  # type: ignore[has-type]
         if not info or info.username != self.__class__.__name__:
             return False
-        logger.info("Checking bot... %s ...successful!" % self.updater.bot.get_me())
+        logger.info("Checking bot... %s ...successful!" % self.updater.bot.get_me())  # type: ignore[has-type]
         return True
 
     def start(self) -> None:

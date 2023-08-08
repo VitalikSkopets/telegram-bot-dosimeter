@@ -107,12 +107,16 @@ class AppSettings(BaseSettings):
         env_file_encoding = UTF
 
     @property
-    def app_dir(self) -> pathlib.Path:
+    def dir(self) -> pathlib.Path:
         return BASE_DIR / self.name
 
     @property
     def templates_dir(self) -> pathlib.Path:
-        return self.app_dir / "templates"
+        return self.dir / "templates"
+
+    @property
+    def chart_dir(self) -> pathlib.Path:
+        return self.dir / "chart_engine" / "charts"
 
     @property
     def tests_dir(self) -> pathlib.Path:
@@ -133,11 +137,11 @@ class AppSettings(BaseSettings):
 
 
 class Settings(BaseModel):
-    app: AppSettings = Field(default_factory=AppSettings)
-    enc: EncryptionSettings = Field(default_factory=EncryptionSettings)
-    db: CloudDataBaseSettings = Field(default_factory=CloudDataBaseSettings)
-    analytics: AnalyticsSettings = Field(default_factory=AnalyticsSettings)
-    heroku: HerokuCloudSettings = Field(default_factory=HerokuCloudSettings)
+    app: AppSettings = Field(default_factory=AppSettings)  # type: ignore[arg-type]
+    enc: EncryptionSettings = Field(default_factory=EncryptionSettings)  # type: ignore[arg-type]
+    db: CloudDataBaseSettings = Field(default_factory=CloudDataBaseSettings)  # type: ignore[arg-type]
+    analytics: AnalyticsSettings = Field(default_factory=AnalyticsSettings)  # type: ignore[arg-type]
+    heroku: HerokuCloudSettings = Field(default_factory=HerokuCloudSettings)  # type: ignore[arg-type]
 
 
 # Sentry SDK

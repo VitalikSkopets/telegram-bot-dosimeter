@@ -19,6 +19,7 @@ pytest_plugins = [
 ]
 
 
+OPTION_LABEL = "randomly_seed"
 MAX_LENGTH = 12
 
 
@@ -29,21 +30,22 @@ def pytest_configure(config: pytest.Config) -> None:
     """
     seed_length_in_bits = 32
     assert config.cache is not None
-    seed_value = config.getoption("randomly_seed")
+    seed_value = config.getoption(OPTION_LABEL)
     # random seed:
     default_seed = random.Random().getrandbits(seed_length_in_bits)
 
-    if seed_value == "last":
-        seed = config.cache.get("randomly_seed", default_seed)
-    elif seed_value == "default":
-        seed = default_seed
-    else:
-        seed = seed_value
+    match seed_value:
+        case "last":
+            seed = config.cache.get(OPTION_LABEL, default_seed)
+        case "default":
+            seed = default_seed
+        case _:
+            seed = seed_value
 
     # saving to cache
     cache = getattr(config, "cache", None)
     if cache is not None:
-        config.cache.set("randomly_seed", seed)
+        config.cache.set(OPTION_LABEL, seed)
     config.option.randomly_seed = seed
 
 

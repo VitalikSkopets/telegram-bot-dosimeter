@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from statistics import mean
 from typing import TypeAlias
 
@@ -6,14 +7,31 @@ from bs4 import BeautifulSoup, Tag
 from dosimeter.api import api
 from dosimeter.api.interface_api import BaseApi
 from dosimeter.config.logger import get_logger
-from dosimeter.constants import URL, Point
+from dosimeter.constants import URL, Point, Region
 
-__all__ = ("ObservePoint", "Parser", "PowerOfRadiation")
+__all__ = (
+    "ObservePoint",
+    "NameOfRegion",
+    "Parser",
+    "PowerOfRadiation",
+    "RegionInfoDTO",
+)
 
 logger = get_logger(__name__)
 
 PowerOfRadiation: TypeAlias = float
 ObservePoint: TypeAlias = str
+NameOfRegion: TypeAlias = str
+
+
+@dataclass
+class RegionInfoDTO:
+    """
+    Class representing Data Transfer Object for region's information.
+    """
+
+    region: str
+    info: dict[ObservePoint, PowerOfRadiation]
 
 
 class Parser(object):
@@ -67,8 +85,9 @@ class Parser(object):
             soup.find_all(has_substring)[0].text.replace("\xa0", " ").replace("  ", " ")
         )
 
-    def get_info_about_region(
-        self, region: tuple[Point, ...]
+    @staticmethod
+    def draw_table(
+        data: RegionInfoDTO,
     ) -> tuple[list[tuple[ObservePoint, str]], PowerOfRadiation]:
         """
         The method for parsing an object of the BeautifulSoup class, which is the XML
@@ -76,15 +95,33 @@ class Parser(object):
         monitoring point and the dose rate values, as well as the average dose rate
         value in the region.
         """
-        values_by_region = []
-        table = []
+        values_by_region, table = [], []
 
-        for point, value in self.get_points_with_radiation_level().items():
-            if point in [monitoring_point.label for monitoring_point in region]:
-                values_by_region.append(value)
-                table.append((point.ljust(20, "-"), "{:>6}".format(value)))
+        for point, value in data.info.items():
+            values_by_region.append(value)
+            table.append((point.ljust(20, "-"), "{:>6}".format(value)))
 
         return table, mean(values_by_region)
+
+    def get_region_info(
+        self,
+        region_points: tuple[Point, ...],
+        region: Region,
+    ) -> RegionInfoDTO:
+        """
+        The method for parsing an object of the BeautifulSoup class, which is the XML
+        markup web resource. Return the list of tuples containing the name of the
+        monitoring point and the dose rate values, as well as the average dose rate
+        value in the region.
+        """
+        points, values = [], []
+
+        for point, value in self.get_points_with_radiation_level().items():
+            if point in [monitoring_point.label for monitoring_point in region_points]:
+                points.append(point)
+                values.append(value)
+
+        return RegionInfoDTO(region=region, info=dict(zip(points, values)))
 
     def _get_source(self, url: str | None = None) -> BeautifulSoup | None:
         """
