@@ -379,9 +379,9 @@ class Handler(object):
         """
         user = update.effective_user
         data = self.parser.get_region_info(region)
-        self.chart.create(data)
         values_by_region, mean_value = self.parser.draw_table(data)
 
+        context.user_data["region"] = region
         context.bot.send_message(
             chat_id=update.effective_message.chat_id,
             text=self.template.render(
@@ -565,9 +565,12 @@ class Handler(object):
         Method for sending a png file with a chart to the user.
         """
         user = update.effective_user
-        context.bot.send_document(
+        region = context.user_data["region"]
+        data = self.parser.get_region_info(region)
+        self.chart.create(data)
+        context.bot.send_photo(
             chat_id=update.effective_message.chat_id,
-            document=open(config.app.chart_dir / self.chart.file_name, "rb"),
+            photo=open(config.app.chart_dir / self.chart.file_name, "rb"),
         )
         self.chart.delete()
         logger.debug(
