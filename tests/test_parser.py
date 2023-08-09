@@ -158,24 +158,19 @@ class TestParser(object):
         assert "на текущую дату радиационная" in result
         mocked.assert_called_once()
 
-    @pytest.mark.parametrize(
-        "get_points",
-        vals := list(Region),
-        indirect=True,
-        ids=assign_id,
-    )
+    @pytest.mark.parametrize("region", list(Region), ids=assign_id)
     def test_get_info_about_region(
         self,
+        region: Region,
         get_markup_from_file: Callable[[Path], BeautifulSoup],
-        get_points: tuple[tuple[Point, ...], Region],
         assert_correct_region_info: "RegionInfoAssertion",
     ) -> None:
         # Act
         with mock.patch(self.method) as mocked:
             mocked.return_value = get_markup_from_file(self.xml)
             parser = Parser()
-            result = parser.get_region_info(*get_points)
+            result = parser.get_region_info(region)
 
         # Assert
-        assert_correct_region_info(result, get_points[0])
+        assert_correct_region_info(result, region)
         mocked.assert_called_once()

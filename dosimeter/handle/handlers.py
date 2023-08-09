@@ -7,7 +7,7 @@ from dosimeter.analytics.decorators import analytic
 from dosimeter.chart_engine import ChartEngine, chart
 from dosimeter.config import config
 from dosimeter.config.logger import CustomAdapter, get_logger
-from dosimeter.constants import ADMIN_ID, Action, Button, Point, Region
+from dosimeter.constants import ADMIN_ID, Action, Button, Region
 from dosimeter.navigator import Navigator, navigator
 from dosimeter.parse import Parser, parser
 from dosimeter.storage import file_manager_admins as f_manager
@@ -42,7 +42,7 @@ class Handler(object):
         bar_chart: ChartEngine = chart,
     ) -> None:
         """
-        Constructor method for initializing objects of class Handlers.
+        Constructor method for initializing objects of class Handler.
         """
         self.parser = parse
         self.template = template
@@ -166,33 +166,21 @@ class Handler(object):
             case Button.HIDE_KEYBOARD.label:
                 return self._hide_keyboard_callback(update, context)
             case Button.BREST.label:
-                points = tuple(point for point in Point if point.region == Region.BREST)
                 region = Region.BREST
                 action = Action.BREST
             case Button.VITEBSK.label:
-                points = tuple(
-                    point for point in Point if point.region == Region.VITEBSK
-                )
                 region = Region.VITEBSK
                 action = Action.VITEBSK
             case Button.GOMEL.label:
-                points = tuple(point for point in Point if point.region == Region.GOMEL)
                 region = Region.GOMEL
                 action = Action.GOMEL
             case Button.GRODNO.label:
-                points = tuple(
-                    point for point in Point if point.region == Region.GRODNO
-                )
                 region = Region.GRODNO
                 action = Action.GRODNO
             case Button.MINSK.label:
-                points = tuple(point for point in Point if point.region == Region.MINSK)
                 region = Region.MINSK
                 action = Action.MINSK
             case Button.MOGILEV.label:
-                points = tuple(
-                    point for point in Point if point.region == Region.MOGILEV
-                )
                 region = Region.MOGILEV
                 action = Action.MOGILEV
             case str() as user_id if user_id.startswith("add "):
@@ -202,7 +190,7 @@ class Handler(object):
             case _:
                 return self._greeting_callback(update, context)
 
-        return self._points_callback(update, context, points, region, action)
+        return self._points_callback(update, context, region, action)
 
     @debug_handler(log_handler=logger)
     @send_action(ChatAction.FIND_LOCATION)
@@ -383,7 +371,6 @@ class Handler(object):
         self,
         update: Update,
         context: CallbackContext,
-        points: tuple[Point, ...],
         region: Region,
         action: Action,
     ) -> None:
@@ -391,7 +378,7 @@ class Handler(object):
         Handler method for pressing the "* region" button by the user.
         """
         user = update.effective_user
-        data = self.parser.get_region_info(points, region)
+        data = self.parser.get_region_info(region)
         self.chart.create(data)
         values_by_region, mean_value = self.parser.draw_table(data)
 
