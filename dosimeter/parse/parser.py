@@ -103,11 +103,7 @@ class Parser(object):
 
         return table, mean(values_by_region)
 
-    def get_region_info(
-        self,
-        region_points: tuple[Point, ...],
-        region: Region,
-    ) -> RegionInfoDTO:
+    def get_region_info(self, region: Region) -> RegionInfoDTO:
         """
         The method for parsing an object of the BeautifulSoup class, which is the XML
         markup web resource. Return the list of tuples containing the name of the
@@ -115,6 +111,7 @@ class Parser(object):
         value in the region.
         """
         points, values = [], []
+        region_points = tuple(point for point in Point if point.region == region)
 
         for point, value in self.get_points_with_radiation_level().items():
             if point in [monitoring_point.label for monitoring_point in region_points]:

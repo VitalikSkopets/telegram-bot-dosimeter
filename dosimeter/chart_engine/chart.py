@@ -18,7 +18,7 @@ class ChartEngine(object):
 
     def __init__(self, dir_path: pathlib.Path) -> None:
         """
-        Instantiate a GraphEngine instance.
+        Instantiate a ChartEngine instance.
         """
         self.dir_path = dir_path
         if pathlib.Path(self.dir_path).exists():
