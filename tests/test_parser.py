@@ -4,6 +4,7 @@ from unittest import mock
 
 import pytest
 from bs4 import BeautifulSoup
+from plugins.parsing import assign_id
 
 from dosimeter.config import config
 from dosimeter.constants import URL, Point, Region
@@ -11,26 +12,6 @@ from dosimeter.parse.parser import Parser
 
 if TYPE_CHECKING:
     from plugins.parsing import RegionInfoAssertion
-
-
-def assign_id(val: str) -> str:
-    """
-    Generates string representations that are used in test IDs.
-    """
-    identifier = "{}_region"
-    match val:
-        case Region.BREST:
-            return identifier.format(Region.BREST.name)
-        case Region.VITEBSK:
-            return identifier.format(Region.VITEBSK.name)
-        case Region.GOMEL:
-            return identifier.format(Region.GOMEL.name)
-        case Region.GRODNO:
-            return identifier.format(Region.GRODNO.name)
-        case Region.MOGILEV:
-            return identifier.format(Region.MOGILEV.name)
-        case Region.MINSK:
-            return identifier.format(Region.MINSK.name)
 
 
 @pytest.mark.parsing()

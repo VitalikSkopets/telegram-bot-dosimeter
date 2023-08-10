@@ -56,7 +56,7 @@ class TestNavigator(object):
         fake_integer_number: int,
         fake_latitude: float,
         fake_longitude: float,
-    ):
+    ) -> None:
         # Arrange
         user_id = fake_integer_number
 
@@ -75,7 +75,7 @@ class TestNavigator(object):
         fake_integer_number: int,
         fake_latitude: float,
         fake_longitude: float,
-    ):
+    ) -> None:
         # Arrange
         user_id = fake_integer_number
 
@@ -92,7 +92,7 @@ class TestNavigator(object):
         assert isinstance(result.title, str)
         assert result.title in (point.label for point in Point)
 
-    def test_success_with_default_coordinates(self, fake_integer_number: int):
+    def test_success_with_default_coordinates(self, fake_integer_number: int) -> None:
         # Arrange
         user_id = fake_integer_number
 

@@ -15,6 +15,23 @@ from dosimeter.parse.parser import (
 RegionInfoAssertion: TypeAlias = Callable[[RegionInfoDTO, Region], None]
 
 
+def assign_id(fixture_value: str) -> str:
+    """
+    Generates string representations that are used in test IDs.
+    """
+    string_ids = "{name}_region"
+    identifiers = {
+        Region.BREST.value: string_ids.format(name=Region.BREST.name),
+        Region.VITEBSK.value: string_ids.format(name=Region.VITEBSK.name),
+        Region.GOMEL.value: string_ids.format(name=Region.GOMEL.name),
+        Region.GRODNO.value: string_ids.format(name=Region.GRODNO.name),
+        Region.MOGILEV.value: string_ids.format(name=Region.MOGILEV.name),
+        Region.MINSK.value: string_ids.format(name=Region.MINSK.name),
+    }
+
+    return identifiers[fixture_value]
+
+
 @pytest.fixture()
 def get_markup_from_file() -> Callable[[Path], BeautifulSoup]:
     """
