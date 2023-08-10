@@ -4,6 +4,7 @@ import pathlib
 import matplotlib
 import matplotlib.pyplot as plt
 
+from dosimeter.config import config
 from dosimeter.parse.parser import RegionInfoDTO
 
 matplotlib.use("agg")
@@ -16,7 +17,7 @@ class ChartEngine(object):
 
     file_name = "bar-chart.png"
 
-    def __init__(self, dir_path: pathlib.Path) -> None:
+    def __init__(self, dir_path: pathlib.Path = config.app.chart_dir) -> None:
         """
         Instantiate a ChartEngine instance.
         """

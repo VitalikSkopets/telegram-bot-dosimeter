@@ -30,7 +30,7 @@ class RegionInfoDTO:
     Class representing Data Transfer Object for region's information.
     """
 
-    region: str
+    region: Region
     info: dict[ObservePoint, PowerOfRadiation]
 
 
