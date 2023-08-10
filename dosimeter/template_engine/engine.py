@@ -33,7 +33,7 @@ class Template:
     DONATE: pathlib.Path = config.app.templates_dir / "donate.html"
 
 
-class TemplateEngine:
+class TemplateEngine(object):
     """
     Message template engine based on API to Jinja2.
     (see more https://jinja.palletsprojects.com/en/3.1.x/api/)
