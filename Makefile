@@ -119,3 +119,13 @@ tests-settings: ## Start tests with 'settings' mark
 clean:  ## Clean up the cache folders
 	@rm -rf __pycache__ .pytest_cache .mypy_cache .ruff_cache .coverage coverage.xml htmlcov
 	@echo "====> Cache folders deleted! \(^_^)/"
+
+# ==== Docker ====
+
+.PHONY: docker-up
+docker-up:  ## Launch docker container with bot
+	docker-compose up -d --build
+
+.PHONY: docker-down
+docker-down:  ## Stop docker container with bot
+	docker-compose down -v  && docker-compose ps

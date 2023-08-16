@@ -1,0 +1,26 @@
+---
+
+# Default compose file for development and production.
+# Should be used directly in development.
+# Automatically loads `docker-compose.override.yml` if it exists.
+# No extra steps required.
+# Should be used together with `docker-compose.prod.yml`
+# in production.
+
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    image: "telegram-bot-dosimeter:latest"
+    container_name: bot
+    command: python ./dosimeter/main.py
+    env_file: ./dosimeter/config/.env
+    expose:
+      - "8000:8000"
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./:/app
+    restart: on-failure

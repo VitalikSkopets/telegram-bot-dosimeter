@@ -11,25 +11,26 @@ repository = "https://gitlab.itrexgroup.com/vitaly.skopets/telegram-bot-desimete
 [tool.poetry.dependencies]
 python = "^3.10"
 pymongo = {extras = ["snappy", "gssapi", "srv", "tls"], version = "^4.2.0"}
-pytz = "^2022.1"
+pytz = "^2023.3"
 mtranslate = "^1.8"
 python-telegram-bot = "^13.13"
 fake-useragent = "^1.1.0"
 requests = "^2.28.1"
-urllib3 = "^1.26.10"
+urllib3 = "^2.0"
 bs4 = "^0.0.1"
-emoji = "^1.7.0"
+emoji = "^2.8"
 python-json-logger = "^2.0.4"
 geopy = "^2.2.0"
-types-emoji = "^1.7.4"
-types-pytz = "^2022.1.2"
+types-emoji = "^2.1"
+types-pytz = "^2023.3"
 types-requests = "^2.28.2"
 sentry-sdk = "^1.7.2"
 lxml = "^4.9.2"
-cryptography = "^39.0.0"
+cryptography = "^41.0"
 jinja2 = "^3.1.2"
-pydantic = "^1.10.7"
+pydantic = "^1.10"
 matplotlib = "^3.7.1"
+pykerberos = "1.2.4"
 
 [tool.poetry.scripts]
 poetry = 'poetry.console:run'
@@ -51,7 +52,7 @@ httpretty = "^1.1.4"
 pytest-freezegun = "^0.4.2"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core>=1.1.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.black]
