@@ -3,6 +3,7 @@
 APP = dosimeter
 DOTENV_BASE_FILE ?= $(APP)/config/.env
 TESTS = tests/**/*.py
+POETRY_VERSION ?= 1.5.1
 
 -include $(DOTENV_BASE_FILE)
 
@@ -10,8 +11,8 @@ TESTS = tests/**/*.py
 
 .PHONY: install-poetry
 install-poetry:  ## Installation Poetry tool for dependency management and packaging in Python
-	curl -sSL https://install.python-poetry.org | python3 -
-	export PATH="/root/.local/bin:$PATH"
+	curl -sSL https://install.python-poetry.org | python3 - --version $(POETRY_VERSION)
+	export PATH="$HOME/.local/bin"
 	poetry --version
 
 .PHONY: update-poetry
@@ -61,12 +62,16 @@ mypy:  ## to run typing checking
 
 # ==== Tests ====
 
-.PHONY: test
-test:  ## Run tests
+.PHONY: tests-all
+tests-all:  ## Run all tests
 	poetry run pytest
 
-.PHONY: test-coverage
-test-coverage: ## Run tests with coverage
+.PHONY: tests
+tests: ## Start tests only with specify markers option
+	poetry run pytest --verbose --randomly-seed=default -m $(opt) --no-cov --disable-warnings
+
+.PHONY: tests-coverage
+tests-coverage: ## Run tests with coverage
 	poetry run pytest --verbose --randomly-seed=default --cov=$(APP) --cov-report=term --cov-report=html
 
 .PHONY: find-tests-slow
@@ -81,41 +86,26 @@ tests-slow: ## Start tests with 'slow' mark
 tests-not-slow: ## Start quick tests (without 'slow' mark)
 	poetry run pytest --verbose --randomly-seed=default -m "not slow" --no-cov --disable-warnings
 
-.PHONY: tests-encryption
-tests-encryption: ## Start tests with 'encryption' mark
-	poetry run pytest --verbose --randomly-seed=default -m "encryption" --no-cov --disable-warnings
-
-.PHONY: tests-message-engine
-tests-message-engine: ## Start tests with 'message_engine' mark
-	poetry run pytest --verbose --randomly-seed=default -m "message_engine" --no-cov --disable-warnings
-
-.PHONY: tests-parse
-tests-parse: ## Start tests with 'parsing' mark
-	poetry run pytest --verbose --randomly-seed=default -m "parsing" --no-cov --disable-warnings
-
-.PHONY: tests-api
-tests-api: ## Start tests with 'api' mark
-	poetry run pytest --verbose --randomly-seed=default -m "api" --no-cov --disable-warnings
-
-.PHONY: tests-navigator
-tests-navigator: ## Start tests with 'navigator' mark
-	poetry run pytest --verbose --randomly-seed=default -m "navigator" --no-cov --disable-warnings
-
-.PHONY: tests-analytics
-tests-analytics: ## Start tests with 'analytics' mark
-	poetry run pytest --verbose --randomly-seed=default -m "analytics" --no-cov --disable-warnings
-
-.PHONY: tests-bot
-tests-bot: ## Start tests with 'bot' mark
-	poetry run pytest --verbose --randomly-seed=default -m "bot" --no-cov --disable-warnings
-
-.PHONY: tests-settings
-tests-settings: ## Start tests with 'settings' mark
-	poetry run pytest --verbose --randomly-seed=default -m "settings" --no-cov --disable-warnings
-
 # ==== Cache ====
 
 .PHONY: clean
 clean:  ## Clean up the cache folders
 	@rm -rf __pycache__ .pytest_cache .mypy_cache .ruff_cache .coverage coverage.xml htmlcov
 	@echo "====> Cache folders deleted! \(^_^)/"
+
+# ==== Docker ====
+
+.PHONY: docker-up
+docker-up:  ## Launch docker container with bot
+	docker-compose up -d --build
+
+.PHONY: docker-down
+docker-down:  ## Stop docker container with bot
+	docker-compose down -v  && docker-compose ps
+
+.PHONY: docker-restart
+docker-restart: docker-down docker-up
+
+.PHONY: docker-logs
+docker-logs:  ## Show logs from docker container with bot
+	docker-compose logs --follow

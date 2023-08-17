@@ -23,6 +23,7 @@ def region_info_dto(request: SubRequest) -> RegionInfoDTO:
     return RegionInfoDTO(region=request.param, info=region_data)
 
 
+@pytest.mark.chart_engine()
 class TestChartEngine(object):
     """
     A class for testing logic encapsulated in the ChartEngine class.
