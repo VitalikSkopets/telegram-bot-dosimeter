@@ -2,10 +2,8 @@ import base64
 
 from cryptography.fernet import Fernet
 
-from dosimeter.config import config, settings
+from dosimeter.config import UTF, config
 from dosimeter.encryption.interface import BaseCryptographer
-
-__all__ = ("SymmetricCryptographer",)
 
 
 class SymmetricCryptographer(BaseCryptographer):
@@ -14,7 +12,7 @@ class SymmetricCryptographer(BaseCryptographer):
     symmetric method.
     """
 
-    PASSWORD: bytes = bytes(config.enc.pwd, encoding=settings.UTF)
+    PASSWORD: bytes = bytes(config.enc.pwd, encoding=UTF)
 
     def __init__(self) -> None:
         key = base64.b64decode(self.PASSWORD)
@@ -27,9 +25,9 @@ class SymmetricCryptographer(BaseCryptographer):
         if not isinstance(message, str):
             return None
         # encryption
-        ciphertext = self.cipher.encrypt(bytes(message, encoding=settings.UTF))
+        ciphertext = self.cipher.encrypt(bytes(message, encoding=UTF))
         token = base64.b64encode(ciphertext)
-        return token.decode(encoding=settings.UTF)
+        return token.decode(encoding=UTF)
 
     def decrypt(self, token: str) -> str | None:
         """
@@ -40,4 +38,4 @@ class SymmetricCryptographer(BaseCryptographer):
         pre_token = base64.b64decode(token)
         # decryption
         plaintext = self.cipher.decrypt(pre_token)
-        return plaintext.decode(encoding=settings.UTF)
+        return plaintext.decode(encoding=UTF)

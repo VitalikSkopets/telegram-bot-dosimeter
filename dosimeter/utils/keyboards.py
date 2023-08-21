@@ -7,12 +7,6 @@ from telegram import (
 
 from dosimeter.constants import Button
 
-__all__ = (
-    "admin_keyboard",
-    "main_keyboard",
-    "points_keyboard",
-)
-
 
 def main_keyboard() -> ReplyKeyboardMarkup:
     """

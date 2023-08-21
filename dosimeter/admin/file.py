@@ -1,14 +1,12 @@
 import pathlib
 from typing import Union
 
-from dosimeter.config import config, settings
+from dosimeter.admin.interface import AdminManager
+from dosimeter.config import BASE_DIR, config
 from dosimeter.constants import ADMIN_ID, LIST_OF_ADMIN_IDS
 from dosimeter.encryption import asym_cypher, sym_cypher
 from dosimeter.encryption.asymmetric import AsymmetricCryptographer
 from dosimeter.encryption.symmetric import SymmetricCryptographer
-from dosimeter.storage.repository import AdminManager
-
-__all__ = ("FileAdminManager",)
 
 
 class FileAdminManager(AdminManager):
@@ -17,7 +15,7 @@ class FileAdminManager(AdminManager):
     stored in a file.
     """
 
-    FILE_PATH: pathlib.Path = settings.BASE_DIR / "admins.txt"
+    FILE_PATH: pathlib.Path = BASE_DIR / "admins.txt"
     LIST_OF_ADMINS = LIST_OF_ADMIN_IDS
 
     def __init__(

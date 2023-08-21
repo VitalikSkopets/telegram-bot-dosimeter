@@ -6,11 +6,6 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 
 from dosimeter.config import config
 
-__all__ = (
-    "Template",
-    "TemplateEngine",
-)
-
 
 @dataclass(frozen=True)
 class Template:

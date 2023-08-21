@@ -4,18 +4,9 @@ from typing import TypeAlias
 
 from bs4 import BeautifulSoup, Tag
 
-from dosimeter.api import api
-from dosimeter.api.interface_api import BaseApi
+from dosimeter.api import BaseApi, api
 from dosimeter.config.logger import get_logger
 from dosimeter.constants import URL, Point, Region
-
-__all__ = (
-    "ObservePoint",
-    "NameOfRegion",
-    "Parser",
-    "PowerOfRadiation",
-    "RegionInfoDTO",
-)
 
 logger = get_logger(__name__)
 

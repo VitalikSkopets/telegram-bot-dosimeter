@@ -1,8 +1,11 @@
-from dosimeter.storage.file import FileAdminManager
-from dosimeter.storage.memory import InternalAdminManager
+from dosimeter.storage.mongo import CloudMongoDataBase
+from dosimeter.storage.repository import Repository
 
-"""InternalAdminManager class instance"""
-manager_admins = InternalAdminManager()
+__all__ = (
+    "CloudMongoDataBase",
+    "Repository",
+    "mongo_cloud",
+)
 
-"""FileAdminManager class instance"""
-file_manager_admins = FileAdminManager()
+"""CloudMongoDataBase class instance"""
+mongo_cloud = CloudMongoDataBase()

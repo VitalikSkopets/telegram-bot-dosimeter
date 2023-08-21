@@ -2,11 +2,9 @@ from typing import NamedTuple, TypeAlias
 
 from geopy import distance
 
+from dosimeter.admin import manager_admins as manager
 from dosimeter.config.logger import CustomAdapter, get_logger
 from dosimeter.constants import Point
-from dosimeter.storage import manager_admins as manager
-
-__all__ = ("Navigator", "NearPoint")
 
 logger = CustomAdapter(get_logger(__name__), {"user_id": manager.get_one()})
 

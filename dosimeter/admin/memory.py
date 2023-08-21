@@ -1,7 +1,5 @@
+from dosimeter.admin import AdminManager
 from dosimeter.constants import LIST_OF_ADMIN_IDS
-from dosimeter.storage.repository import AdminManager
-
-__all__ = ("InternalAdminManager",)
 
 
 class InternalAdminManager(AdminManager):

@@ -5,12 +5,10 @@ import requests
 import urllib3
 from fake_useragent import UserAgent
 
-from dosimeter.api.interface_api import BaseApi
+from dosimeter.api.interface import BaseApi
 from dosimeter.config.logger import get_logger
 from dosimeter.constants import URL
-from dosimeter.utils.cache import timed_lru_cache
-
-__all__ = ("Api",)
+from dosimeter.utils import timed_lru_cache
 
 urllib3.disable_warnings()
 
