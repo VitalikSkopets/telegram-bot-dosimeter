@@ -5,12 +5,7 @@ import pytest
 from bs4 import BeautifulSoup
 
 from dosimeter.constants import Point, Region
-from dosimeter.parse.parser import (
-    NameOfRegion,
-    ObservePoint,
-    PowerOfRadiation,
-    RegionInfoDTO,
-)
+from dosimeter.parser import NameOfRegion, ObservePoint, PowerOfRadiation, RegionInfoDTO
 
 RegionInfoAssertion: TypeAlias = Callable[[RegionInfoDTO, Region], None]
 

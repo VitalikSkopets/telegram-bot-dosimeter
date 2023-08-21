@@ -2,8 +2,6 @@ import abc
 
 import requests
 
-__all__ = ("BaseApi",)
-
 
 class BaseApi(abc.ABC):
     """

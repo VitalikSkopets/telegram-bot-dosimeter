@@ -8,7 +8,7 @@ from plugins.parsing import assign_id
 
 from dosimeter.config import config
 from dosimeter.constants import URL, Point, Region
-from dosimeter.parse.parser import Parser
+from dosimeter.parser import Parser
 
 if TYPE_CHECKING:
     from plugins.parsing import RegionInfoAssertion
@@ -22,7 +22,7 @@ class TestParser(object):
 
     xml: Path = config.app.tests_dir / "fixtures" / "rad.xml"
     html: Path = config.app.tests_dir / "fixtures" / "rad.html"
-    method = "dosimeter.parse.Parser._get_source"
+    method = "dosimeter.parser.Parser._get_source"
 
     @pytest.mark.parametrize(
         "source,url",
@@ -39,7 +39,7 @@ class TestParser(object):
         get_markup_from_file: Callable[[Path], BeautifulSoup],
     ) -> None:
         # Act
-        with mock.patch("dosimeter.api.external_api.Api._get_markup") as mocked:
+        with mock.patch("dosimeter.api.external.Api._get_markup") as mocked:
             mocked.return_value = get_markup_from_file(source)
             parser = Parser()
             result = parser._get_source(url)
@@ -54,7 +54,7 @@ class TestParser(object):
     ) -> None:
         # Act
         with mock.patch.multiple(
-            "dosimeter.api.external_api.Api",
+            "dosimeter.api.external.Api",
             get_xml=mock.DEFAULT,
             get_html=mock.DEFAULT,
         ) as mocked:
@@ -74,7 +74,7 @@ class TestParser(object):
     ) -> None:
         # Act
         with mock.patch.multiple(
-            "dosimeter.api.external_api.Api",
+            "dosimeter.api.external.Api",
             get_html=mock.DEFAULT,
             get_xml=mock.DEFAULT,
         ) as mocked:

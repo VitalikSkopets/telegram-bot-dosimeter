@@ -4,8 +4,7 @@ import pytest
 from mimesis import Field
 
 from dosimeter.constants import Point
-from dosimeter.navigator import Navigator
-from dosimeter.navigator.navigator import NearPoint
+from dosimeter.navigator import Navigator, NearPoint
 
 
 @pytest.fixture()

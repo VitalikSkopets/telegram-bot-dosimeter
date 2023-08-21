@@ -8,7 +8,7 @@ from plugins.parsing import assign_id
 
 from dosimeter.chart_engine import ChartEngine
 from dosimeter.constants import Point, Region
-from dosimeter.parse.parser import RegionInfoDTO
+from dosimeter.parser import RegionInfoDTO
 
 
 @pytest.fixture(params=list(Region), ids=assign_id)

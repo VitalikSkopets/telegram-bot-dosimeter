@@ -1,7 +1,5 @@
 import abc
 
-__all__ = ("BaseCryptographer",)
-
 
 class BaseCryptographer(abc.ABC):
     @abc.abstractmethod
