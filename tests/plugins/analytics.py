@@ -4,7 +4,7 @@ from typing import Callable, TypeAlias
 import pytest
 from mimesis import Field
 
-from dosimeter.analytics.measurement_protocol import Event, Param, Payload
+from dosimeter.analytics import Event, Param, Payload
 from dosimeter.constants import Action
 
 PayloadDataAssertion: TypeAlias = Callable[[Payload], None]

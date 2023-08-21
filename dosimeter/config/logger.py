@@ -5,9 +5,7 @@ import uuid
 from pathlib import Path
 from typing import Any, MutableMapping
 
-from dosimeter.config import config, settings
-
-__all__ = ("CustomAdapter", "get_logger")
+from dosimeter.config import BASE_DIR, config
 
 
 class LOGRoutes(str, enum.Enum):
@@ -94,7 +92,7 @@ LOGGING_CONFIG: dict[str, Any] = {
             "level": "INFO",
             "formatter": "json",
             "filters": ["environ_filter", "request_filter"],
-            "filename": f"{settings.BASE_DIR}/{LOGRoutes.FOLDER}/{LOGRoutes.FILE}",
+            "filename": f"{BASE_DIR}/{LOGRoutes.FOLDER}/{LOGRoutes.FILE}",
             "maxBytes": 10485760,  # 10Mb
             "backupCount": 2,
             "encoding": "utf-8",
@@ -104,7 +102,7 @@ LOGGING_CONFIG: dict[str, Any] = {
             "level": "ERROR",
             "formatter": "json",
             "filters": ["environ_filter", "request_filter"],
-            "filename": f"{settings.BASE_DIR}/{LOGRoutes.FOLDER}/{LOGRoutes.ERR_FILE}",
+            "filename": f"{BASE_DIR}/{LOGRoutes.FOLDER}/{LOGRoutes.ERR_FILE}",
             "when": "d",
             "interval": 1,
             "backupCount": 7,
@@ -132,13 +130,13 @@ LOGGING_CONFIG: dict[str, Any] = {
 }
 
 
-def create_log_folder(folder_name: str = LOGRoutes.FOLDER) -> None:
-    folder = Path(settings.BASE_DIR / folder_name)
+def _create_log_folder(folder_name: str = LOGRoutes.FOLDER) -> None:
+    folder = Path(BASE_DIR / folder_name)
     folder.mkdir(exist_ok=True)
 
 
 def get_logger(name: str = __name__, template: str = "file_logger") -> logging.Logger:
-    create_log_folder()
+    _create_log_folder()
     template = "console_logger" if config.app.debug else template
     LOGGING_CONFIG["loggers"][name] = LOGGING_CONFIG["loggers"][template]
     logging.config.dictConfig(LOGGING_CONFIG)

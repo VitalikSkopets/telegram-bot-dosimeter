@@ -5,7 +5,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 from dosimeter.config import config
-from dosimeter.parse.parser import RegionInfoDTO
+from dosimeter.parser.parser import RegionInfoDTO
 
 matplotlib.use("agg")
 

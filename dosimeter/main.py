@@ -7,7 +7,7 @@ from telegram.utils.request import Request
 from dosimeter.config import config
 from dosimeter.config.logger import get_logger
 from dosimeter.constants import Command
-from dosimeter.handle import Handler, handler
+from dosimeter.handler import Handler, handler
 
 logger = get_logger(__name__)
 

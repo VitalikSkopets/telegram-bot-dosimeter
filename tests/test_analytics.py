@@ -4,9 +4,8 @@ from unittest import mock
 import httpretty
 import pytest
 
-from dosimeter.analytics import Analytics
-from dosimeter.analytics.measurement_protocol import Payload
-from dosimeter.config.settings import UTF
+from dosimeter.analytics import Analytics, Payload
+from dosimeter.config import UTF
 from dosimeter.constants import Action
 
 if TYPE_CHECKING:

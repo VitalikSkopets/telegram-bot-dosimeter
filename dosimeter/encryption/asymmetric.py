@@ -6,10 +6,8 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPublicKey
 
-from dosimeter.config import config, settings
+from dosimeter.config import UTF, config
 from dosimeter.encryption.interface import BaseCryptographer
-
-__all__ = ("AsymmetricCryptographer",)
 
 
 class AsymmetricCryptographer(BaseCryptographer):
@@ -18,7 +16,7 @@ class AsymmetricCryptographer(BaseCryptographer):
     asymmetric method.
     """
 
-    PASSWORD: bytes = bytes(config.enc.pwd, encoding=settings.UTF)
+    PASSWORD: bytes = bytes(config.enc.pwd, encoding=UTF)
     PRIV_KEY: pathlib.Path = config.enc.key.SECRET
     PUB_KEY: pathlib.Path = config.enc.key.PUBLIC
 
@@ -69,7 +67,7 @@ class AsymmetricCryptographer(BaseCryptographer):
         # encryption
         assert isinstance(public_key, RSAPublicKey)
         ciphertext: Any = public_key.encrypt(
-            bytes(message, encoding=settings.UTF),
+            bytes(message, encoding=UTF),
             padding.OAEP(
                 mgf=padding.MGF1(algorithm=hashes.SHA256()),
                 algorithm=hashes.SHA256(),
@@ -77,7 +75,7 @@ class AsymmetricCryptographer(BaseCryptographer):
             ),
         )
         token = base64.b64encode(ciphertext)
-        return token.decode(encoding=settings.UTF)
+        return token.decode(encoding=UTF)
 
     def decrypt(self, token: str) -> str | None:
         """
@@ -102,4 +100,4 @@ class AsymmetricCryptographer(BaseCryptographer):
                 label=None,
             ),
         )
-        return plaintext.decode(encoding=settings.UTF)
+        return plaintext.decode(encoding=UTF)

@@ -8,16 +8,13 @@ from pymongo.database import Database
 from pymongo.errors import ConfigurationError, ConnectionFailure
 from telegram import User
 
+from dosimeter.admin import InternalAdminManager
+from dosimeter.admin import manager_admins as manager
 from dosimeter.config import config
 from dosimeter.config.logger import CustomAdapter, get_logger
 from dosimeter.constants import Action
-from dosimeter.encryption import asym_cypher, sym_cypher
-from dosimeter.encryption.interface import BaseCryptographer
-from dosimeter.storage import manager_admins as manager
-from dosimeter.storage.memory import InternalAdminManager
+from dosimeter.encryption import BaseCryptographer, asym_cypher, sym_cypher
 from dosimeter.storage.repository import Repository
-
-__all__ = ("CloudMongoDataBase", "mongo_cloud")
 
 logger = CustomAdapter(get_logger(__name__), {"user_id": manager.get_one()})
 
@@ -209,13 +206,9 @@ class CloudMongoDataBase(Repository, abc.ABC):
         )
 
 
-"""CloudMongoDataBase class instance"""
-mongo_cloud = CloudMongoDataBase()
-
-
 if __name__ == "__main__":
-    pass
-    # print(mongo_cloud.get_user_by_id(413818791))
-    # print(mongo_cloud.get_all_users_data())
-    # print(mongo_cloud.get_all_users_ids())
-    # print(mongo_cloud.get_count_of_users())
+    mongo_cloud = CloudMongoDataBase()
+    mongo_cloud.get_user_by_id(413818791)
+    logger.debug(mongo_cloud.get_all_users_data())
+    logger.debug(mongo_cloud.get_all_users_ids())
+    mongo_cloud.get_count_of_users()

@@ -4,7 +4,7 @@ from unittest import mock
 import jinja2
 import pytest
 
-from dosimeter.template_engine.engine import Template, TemplateEngine
+from dosimeter.template_engine import Template, TemplateEngine
 
 
 @pytest.fixture(scope="session")

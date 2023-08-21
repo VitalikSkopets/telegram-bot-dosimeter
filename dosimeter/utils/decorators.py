@@ -3,18 +3,10 @@ from typing import Any, Callable, Optional
 
 import sentry_sdk
 
+from dosimeter.admin import manager_admins as manager
 from dosimeter.config.logger import CustomAdapter, get_logger
 from dosimeter.constants import ADMIN_ID, LIST_OF_ADMIN_IDS
-from dosimeter.storage import manager_admins as manager
-from dosimeter.template_engine import message_engine
-from dosimeter.template_engine.engine import Template
-
-__all__ = (
-    "debug_handler",
-    "restricted",
-    "send_action",
-)
-
+from dosimeter.template_engine import Template, message_engine
 
 logger = CustomAdapter(get_logger(__name__), {"user_id": manager.get_one()})
 

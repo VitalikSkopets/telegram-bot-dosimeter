@@ -32,7 +32,7 @@ class TestApi(object):
     A class for testing logic encapsulated in the Api class.
     """
 
-    method = "dosimeter.api.external_api.Api._get_markup"
+    method = "dosimeter.api.external.Api._get_markup"
 
     @httpretty.activate
     def test_success_get_xml(self, get_text_from_file: Callable[[Path], str]) -> None:

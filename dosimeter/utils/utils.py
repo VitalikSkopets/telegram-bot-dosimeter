@@ -1,7 +1,5 @@
 from dosimeter.config.logger import get_logger
 
-__all__ = ("get_id_from_text", "greeting")
-
 logger = get_logger(__name__)
 
 greeting: tuple[str, ...] = (
