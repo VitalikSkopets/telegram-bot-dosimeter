@@ -16,8 +16,8 @@ def analytic(action: Action) -> Callable:
             update = args[1]
             if update and hasattr(update, "message"):
                 analytics.send(
-                    user_id=update.message.chat_id,
-                    user_lang_code=update.message.from_user.language_code,
+                    user_id=update.effective_message.chat_id,
+                    user_lang_code=update.effective_message.from_user.language_code,
                     action=action,
                 )
             return func(*args, **kwargs)

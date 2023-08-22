@@ -6,12 +6,8 @@ __all__ = (
     "AdminManager",
     "FileAdminManager",
     "InternalAdminManager",
-    "file_manager_admins",
-    "manager_admins",
+    "manager",
 )
 
 """InternalAdminManager class instance"""
-manager_admins = InternalAdminManager()
-
-"""FileAdminManager class instance"""
-file_manager_admins = FileAdminManager()
+manager = InternalAdminManager()

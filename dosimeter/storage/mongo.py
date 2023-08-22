@@ -1,73 +1,35 @@
 import abc
 from datetime import datetime
-from typing import Any, Mapping, TypeAlias, TypeVar
+from typing import ParamSpec
 
-from pydantic import BaseModel, ValidationError, validator
+from pydantic import ValidationError
 from pymongo import MongoClient
 from pymongo.database import Database
 from pymongo.errors import ConfigurationError, ConnectionFailure
 from telegram import User
 
-from dosimeter.admin import InternalAdminManager
-from dosimeter.admin import manager_admins as manager
+from dosimeter.admin import AdminManager, InternalAdminManager, manager
 from dosimeter.config import config
-from dosimeter.config.logger import CustomAdapter, get_logger
+from dosimeter.config.logging import CustomAdapter, get_logger
 from dosimeter.constants import Action
 from dosimeter.encryption import BaseCryptographer, asym_cypher, sym_cypher
-from dosimeter.storage.repository import Repository
+from dosimeter.storage.repository import DocumentType, Repository
+from dosimeter.storage.schema import MongoCollectionDataSchema
+
+P = ParamSpec("P")
 
 logger = CustomAdapter(get_logger(__name__), {"user_id": manager.get_one()})
-
-Date: TypeAlias = str
-CollectionType: TypeAlias = dict[str, Any]
-DocumentType = TypeVar("DocumentType", bound=Mapping[str, Any])
-
-
-# noinspection PyMethodParameters
-class CollectionDataSchema(BaseModel):
-    """
-    Schema for data documents collection in Mongo DB.
-    """
-
-    user_id: int
-    first_name: str
-    last_name: str
-    user_name: str
-    start_command: list[Date] = []
-    help_command: list[Date] = []
-    donate_command: list[Date] = []
-    sent_greeting_message: list[Date] = []
-    radiation_monitoring: list[Date] = []
-    monitoring_points: list[Date] = []
-    sent_location: list[Date] = []
-
-    @validator(
-        "start_command",
-        "help_command",
-        "donate_command",
-        "sent_greeting_message",
-        "radiation_monitoring",
-        "monitoring_points",
-        "sent_location",
-        each_item=True,
-    )
-    def check_date(cls, value: Date) -> Date:
-        try:
-            datetime.strptime(value, "%d-%b-%Y")
-            return value
-        except ValueError:
-            raise ValueError("date must be %d-%b-%Y format")
 
 
 class CloudMongoDataBase(Repository, abc.ABC):
     """
-    Cloud Mongo Database client.
+    Cloud Mongo Atlas Database repository.
     """
 
     LOG_MSG = "Action '%s' added to Mongo DB."
     __instance = None
 
-    def __new__(cls, *args: Any, **kwargs: Any) -> "CloudMongoDataBase":
+    def __new__(cls, *args: P.args, **kwargs: P.kwargs) -> "CloudMongoDataBase":
         """
         A method that controls the creation of a single instance of the class.
         """
@@ -81,7 +43,7 @@ class CloudMongoDataBase(Repository, abc.ABC):
         cypher: BaseCryptographer = (
             asym_cypher if config.enc.isAsymmetric else sym_cypher
         ),
-        control: InternalAdminManager = manager,
+        control: AdminManager = InternalAdminManager(),
     ) -> None:
         """
         Constructor method for initializing objects of the CloudMongoDataBase class.
@@ -116,35 +78,17 @@ class CloudMongoDataBase(Repository, abc.ABC):
         """
         CloudMongoDataBase.__instance = None
 
-    def create(self, user: User) -> CollectionType | None:
-        """
-        Method for creating a document base stored in a data collection.
-        """
-        data = {
-            "user_id": user.id,
-            "first_name": self.cypher.encrypt(user.first_name),
-            "last_name": self.cypher.encrypt(user.last_name),
-            "user_name": self.cypher.encrypt(user.username),
-        }
-        try:
-            collection = CollectionDataSchema(**data)  # type: ignore[arg-type]
-        except ValidationError as ex:
-            logger.exception("Validation error. Raised exception: %s" % ex)
-            return None
-        logger.info("New collection created", user_id=self.manager.get_one(user.id))
-        return collection.dict()
-
     def put(self, user: User, action: Action) -> None:
         """
         Method for adding information to the database about the user's call
         to the command.
         """
         if not self.mdb.users.find_one({"user_id": user.id}):
-            self.mdb.users.insert_one(self.create(user))
+            self.mdb.users.insert_one(self._create(user))
         self._update(user.id, action)
         logger.info(self.LOG_MSG % action, user_id=self.manager.get_one(user.id))
 
-    def get_count_of_users(self, user: User | None = None) -> int:
+    def get_users_count(self, user: User | None = None) -> int:
         """
         Method for getting the number of users from the database.
         """
@@ -155,7 +99,7 @@ class CloudMongoDataBase(Repository, abc.ABC):
         )
         return users_count
 
-    def get_user_by_id(self, user_id: int) -> DocumentType | None:
+    def get_user(self, user_id: int) -> DocumentType | None:
         """
         Method for getting info about the user by id from the database.
         """
@@ -164,7 +108,7 @@ class CloudMongoDataBase(Repository, abc.ABC):
         logger.debug(f"Info about the user: {user}")
         return user
 
-    def get_all_users_ids(self) -> str:
+    def get_users_ids(self) -> str:
         """
         The method queries the database and outputs a selection of User IDs to the
         console.
@@ -175,7 +119,7 @@ class CloudMongoDataBase(Repository, abc.ABC):
         ]
         return "\n".join(response)
 
-    def get_all_users_data(self) -> str:
+    def get_users_data(self) -> str:
         """
         The method queries the database and outputs a selection of users to the console.
         """
@@ -191,6 +135,27 @@ class CloudMongoDataBase(Repository, abc.ABC):
         ]
         return "\n\n".join(response)
 
+    def _create(self, user: User) -> DocumentType | None:
+        """
+        Method for creating a document base stored in a data collection.
+        """
+        data = {
+            "user_id": user.id,
+            "first_name": self.cypher.encrypt(user.first_name),
+            "last_name": self.cypher.encrypt(user.last_name),
+            "user_name": self.cypher.encrypt(user.username),
+        }
+        try:
+            collection = MongoCollectionDataSchema(**data)  # type: ignore[arg-type]
+        except ValidationError as exc:
+            logger.exception(
+                "Validation error. Raised exception: %s" % exc,
+                user_id=self.manager.get_one(user.id) if user else None,
+            )
+            collection = None
+        logger.info("New collection created", user_id=self.manager.get_one(user.id))
+        return collection.dict() if collection else None
+
     def _update(self, user_id: int, field: str) -> None:
         """
         Private method for adding the current date of the corresponding field of the
@@ -200,15 +165,17 @@ class CloudMongoDataBase(Repository, abc.ABC):
             {"user_id": user_id},
             {
                 "$push": {
-                    field: datetime.today().strftime("%d-%m-%Y %H:%M"),
+                    field: datetime.today().strftime("%Y-%m-%d %H:%M:%S"),
                 },
             },
         )
 
 
 if __name__ == "__main__":
+    import os
+
     mongo_cloud = CloudMongoDataBase()
-    mongo_cloud.get_user_by_id(413818791)
-    logger.debug(mongo_cloud.get_all_users_data())
-    logger.debug(mongo_cloud.get_all_users_ids())
-    mongo_cloud.get_count_of_users()
+    mongo_cloud.get_user(int(os.environ["MAIN_ADMIN_TGM_ID"]))
+    logger.debug(mongo_cloud.get_users_data())
+    logger.debug(mongo_cloud.get_users_ids())
+    mongo_cloud.get_users_count()

@@ -1,9 +1,9 @@
 import requests
 from pydantic import BaseModel, ValidationError
 
-from dosimeter.admin import manager_admins as manager
+from dosimeter.admin import manager
 from dosimeter.config import config
-from dosimeter.config.logger import CustomAdapter, get_logger
+from dosimeter.config.logging import CustomAdapter, get_logger
 from dosimeter.constants import Action
 
 logger = CustomAdapter(get_logger(__name__), {"user_id": manager.get_one()})

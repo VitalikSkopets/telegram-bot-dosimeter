@@ -66,6 +66,21 @@ class CloudDataBaseSettings(BaseSettings):
         )
 
 
+# File Database (Repository)
+class FileDataBaseSettings(BaseSettings):
+    stem: str = Field(default="dataBase")
+    suffix: str = Field(default=".json")
+    encoding: str = Field(default=UTF)
+
+    @property
+    def name(self) -> str:
+        return self.stem + self.suffix
+
+    @property
+    def path(self) -> pathlib.Path:
+        return BASE_DIR / "dosimeter" / "storage" / self.name
+
+
 # Measurement Protocol API (Google Analytics 4)
 class AnalyticsSettings(BaseSettings):
     measurement_id: str = Field(..., env="GOOGLE_MEASUREMENT_ID")
@@ -121,6 +136,10 @@ class AppSettings(BaseSettings):
         return translate(date, self.locale)
 
     @property
+    def date_format(self) -> str:
+        return "%Y-%m-%d %H:%M:%S"
+
+    @property
     def environ(self) -> str:
         return "DEV" if self.debug else "PROD"
 
@@ -131,10 +150,21 @@ class AppSettings(BaseSettings):
 
 class Settings(BaseModel):
     app: AppSettings = Field(default_factory=AppSettings)  # type: ignore[arg-type]
-    enc: EncryptionSettings = Field(default_factory=EncryptionSettings)  # type: ignore[arg-type]
-    db: CloudDataBaseSettings = Field(default_factory=CloudDataBaseSettings)  # type: ignore[arg-type]
-    analytics: AnalyticsSettings = Field(default_factory=AnalyticsSettings)  # type: ignore[arg-type]
-    heroku: HerokuCloudSettings = Field(default_factory=HerokuCloudSettings)  # type: ignore[arg-type]
+    enc: EncryptionSettings = Field(
+        default_factory=EncryptionSettings,  # type: ignore[arg-type]
+    )
+    db: CloudDataBaseSettings = Field(
+        default_factory=CloudDataBaseSettings,  # type: ignore[arg-type]
+    )
+    repo: FileDataBaseSettings = Field(
+        default_factory=FileDataBaseSettings,  # type: ignore[arg-type]
+    )
+    analytics: AnalyticsSettings = Field(
+        default_factory=AnalyticsSettings,  # type: ignore[arg-type]
+    )
+    heroku: HerokuCloudSettings = Field(
+        default_factory=HerokuCloudSettings,  # type: ignore[arg-type]
+    )
 
 
 """Settings class instance"""
