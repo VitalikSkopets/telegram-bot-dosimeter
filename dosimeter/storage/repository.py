@@ -22,14 +22,14 @@ class Repository(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def get_users_count(self, user: User | None = None) -> int:
+    def get_count(self, user: User | None = None) -> int:
         """
         Method for getting the number of users from the database.
         """
         pass
 
     @abc.abstractmethod
-    def get_user(self, user_id: int) -> DocumentType | None:
+    def get(self, user_id: int | str) -> DocumentType | str:
         """
         Method for getting info about the user by id from the database.
         """

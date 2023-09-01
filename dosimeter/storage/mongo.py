@@ -88,7 +88,7 @@ class CloudMongoDataBase(Repository, abc.ABC):
         self._update(user.id, action)
         logger.info(self.LOG_MSG % action, user_id=self.manager.get_one(user.id))
 
-    def get_users_count(self, user: User | None = None) -> int:
+    def get_count(self, user: User | None = None) -> int:
         """
         Method for getting the number of users from the database.
         """
@@ -99,16 +99,17 @@ class CloudMongoDataBase(Repository, abc.ABC):
         )
         return users_count
 
-    def get_user(self, user_id: int) -> DocumentType | None:
+    def get(self, user_id: int | str) -> DocumentType | str:
         """
         Method for getting info about the user by id from the database.
         """
-        query = {"user_id": user_id}
+        notification = "User does not exist."
+        query = {"user_id": int(user_id)}
         user = self.mdb.users.find_one(query)
-        logger.debug(f"Info about the user: {user}")
-        return user
+        logger.debug(f"Info about the user: {user if user else notification}")
+        return user if user else notification
 
-    def get_users_ids(self) -> str:
+    def get_ids(self) -> str:
         """
         The method queries the database and outputs a selection of User IDs to the
         console.
@@ -119,7 +120,7 @@ class CloudMongoDataBase(Repository, abc.ABC):
         ]
         return "\n".join(response)
 
-    def get_users_data(self) -> str:
+    def get_data(self) -> str:
         """
         The method queries the database and outputs a selection of users to the console.
         """
@@ -146,7 +147,7 @@ class CloudMongoDataBase(Repository, abc.ABC):
             "user_name": self.cypher.encrypt(user.username),
         }
         try:
-            collection = MongoCollectionDataSchema(**data)  # type: ignore[arg-type]
+            collection = MongoCollectionDataSchema(**data)
         except ValidationError as exc:
             logger.exception(
                 "Validation error. Raised exception: %s" % exc,
@@ -175,7 +176,7 @@ if __name__ == "__main__":
     import os
 
     mongo_cloud = CloudMongoDataBase()
-    mongo_cloud.get_user(int(os.environ["MAIN_ADMIN_TGM_ID"]))
-    logger.debug(mongo_cloud.get_users_data())
-    logger.debug(mongo_cloud.get_users_ids())
-    mongo_cloud.get_users_count()
+    mongo_cloud.get(os.environ["MAIN_ADMIN_TGM_ID"])
+    logger.debug(mongo_cloud.get_data())
+    logger.debug(mongo_cloud.get_ids())
+    mongo_cloud.get_count()

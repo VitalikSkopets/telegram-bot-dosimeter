@@ -427,7 +427,7 @@ class MessageHandler(object):
             chat_id=update.effective_message.chat_id,
             text=self.template.render(
                 Template.USER_COUNT,
-                value=self.repo.get_users_count(user),
+                value=self.repo.get_count(user),
             ),
         )
         logger.debug(

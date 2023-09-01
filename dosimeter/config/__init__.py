@@ -149,22 +149,12 @@ class AppSettings(BaseSettings):
 
 
 class Settings(BaseModel):
-    app: AppSettings = Field(default_factory=AppSettings)  # type: ignore[arg-type]
-    enc: EncryptionSettings = Field(
-        default_factory=EncryptionSettings,  # type: ignore[arg-type]
-    )
-    db: CloudDataBaseSettings = Field(
-        default_factory=CloudDataBaseSettings,  # type: ignore[arg-type]
-    )
-    repo: FileDataBaseSettings = Field(
-        default_factory=FileDataBaseSettings,  # type: ignore[arg-type]
-    )
-    analytics: AnalyticsSettings = Field(
-        default_factory=AnalyticsSettings,  # type: ignore[arg-type]
-    )
-    heroku: HerokuCloudSettings = Field(
-        default_factory=HerokuCloudSettings,  # type: ignore[arg-type]
-    )
+    app: AppSettings = Field(default_factory=AppSettings)
+    enc: EncryptionSettings = Field(default_factory=EncryptionSettings)
+    db: CloudDataBaseSettings = Field(default_factory=CloudDataBaseSettings)
+    repo: FileDataBaseSettings = Field(default_factory=FileDataBaseSettings)
+    analytics: AnalyticsSettings = Field(default_factory=AnalyticsSettings)
+    heroku: HerokuCloudSettings = Field(default_factory=HerokuCloudSettings)
 
 
 """Settings class instance"""
