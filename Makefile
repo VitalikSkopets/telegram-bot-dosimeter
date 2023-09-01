@@ -90,7 +90,7 @@ tests-not-slow: ## Start quick tests (without 'slow' mark)
 
 .PHONY: clean
 clean:  ## Clean up the cache folders
-	@rm -rf __pycache__ .pytest_cache .mypy_cache .ruff_cache .coverage coverage.xml htmlcov
+	@rm -rf __pycache__ .pytest_cache .mypy_cache .ruff_cache coverage .coverage coverage.xml htmlcov
 	@echo "====> Cache folders deleted! \(^_^)/"
 
 # ==== Docker ====

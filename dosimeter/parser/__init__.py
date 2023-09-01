@@ -12,8 +12,4 @@ __all__ = (
     "Parser",
     "PowerOfRadiation",
     "RegionInfoDTO",
-    "parser",
 )
-
-"""Parser class instance"""
-parser = Parser()

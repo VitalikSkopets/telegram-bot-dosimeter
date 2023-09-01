@@ -2,25 +2,25 @@
 from telegram import ChatAction, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import CallbackContext
 
-from dosimeter.admin import AdminManager
-from dosimeter.admin import file_manager_admins as f_manager
-from dosimeter.admin import manager_admins as manager
-from dosimeter.analytics import Analytics, analytics
+from dosimeter.admin import AdminManager, InternalAdminManager, manager
+from dosimeter.analytics import Analytics
 from dosimeter.analytics.decorators import analytic
-from dosimeter.chart_engine import ChartEngine, chart
+from dosimeter.chart_engine import ChartEngine
 from dosimeter.config import config
-from dosimeter.config.logger import CustomAdapter, get_logger
+from dosimeter.config.logging import CustomAdapter, get_logger
 from dosimeter.constants import ADMIN_ID, Action, Button, Region
-from dosimeter.navigator import Navigator, navigator
-from dosimeter.parser import Parser, parser
-from dosimeter.storage import Repository, mongo_cloud
-from dosimeter.template_engine import Template, TemplateEngine, message_engine
+from dosimeter.navigator import Navigator
+from dosimeter.parser import Parser
+from dosimeter.storage import CloudMongoDataBase, Repository
+from dosimeter.template_engine import Template, TemplateEngine
 from dosimeter.utils import debug_handler, keyboards, restricted, send_action, utils
+
+__all__ = ("MessageHandler",)
 
 logger = CustomAdapter(get_logger(__name__), {"user_id": manager.get_one()})
 
 
-class Handler(object):
+class MessageHandler(object):
     """
     A class that encapsulates methods for processing Telegram bot commands.
     """
@@ -29,18 +29,18 @@ class Handler(object):
 
     def __init__(
         self,
-        parse: Parser = parser,
-        template: TemplateEngine = message_engine,
-        repo: Repository = mongo_cloud,
-        geolocation: Navigator = navigator,
-        measurement: Analytics = analytics,
-        control: AdminManager = manager or f_manager,
-        bar_chart: ChartEngine = chart,
+        parser: Parser = Parser(),
+        template: TemplateEngine = TemplateEngine(),
+        repo: Repository = CloudMongoDataBase(),
+        geolocation: Navigator = Navigator(),
+        measurement: Analytics = Analytics(),
+        control: AdminManager = InternalAdminManager(),
+        bar_chart: ChartEngine = ChartEngine(),
     ) -> None:
         """
-        Constructor method for initializing objects of class Handler.
+        Constructor method for initializing objects of class MessageHandler.
         """
-        self.parser = parse
+        self.parser = parser
         self.template = template
         self.repo = repo
         self.navigator = geolocation
@@ -274,7 +274,7 @@ class Handler(object):
         action: Action,
     ) -> None:
         """
-        Handler method for pressing the "Next" or "Prev" keyboard button by the user.
+        Method for pressing the "Next" or "Prev" keyboard button by the user.
         """
         user = update.effective_user
         context.bot.send_message(
@@ -329,7 +329,7 @@ class Handler(object):
         self, update: Update, context: CallbackContext
     ) -> None:
         """
-        Handler method for pressing the "Radiation monitoring" button by the user.
+        Method for pressing the "Radiation monitoring" button by the user.
         """
         user = update.effective_user
         context.bot.send_message(
@@ -427,7 +427,7 @@ class Handler(object):
             chat_id=update.effective_message.chat_id,
             text=self.template.render(
                 Template.USER_COUNT,
-                value=self.repo.get_count_of_users(user),
+                value=self.repo.get_count(user),
             ),
         )
         logger.debug(
@@ -568,6 +568,7 @@ class Handler(object):
             photo=open(config.app.chart_dir / self.chart.file_name, "rb"),
         )
         self.chart.delete()
+        self.repo.put(user, Action.SHOW_CHART)
         logger.debug(
             self.LOG_MSG % Action.SHOW_CHART,
             user_id=self.manager.get_one(user.id),

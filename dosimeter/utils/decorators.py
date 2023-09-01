@@ -3,8 +3,8 @@ from typing import Any, Callable, Optional
 
 import sentry_sdk
 
-from dosimeter.admin import manager_admins as manager
-from dosimeter.config.logger import CustomAdapter, get_logger
+from dosimeter.admin import manager
+from dosimeter.config.logging import CustomAdapter, get_logger
 from dosimeter.constants import ADMIN_ID, LIST_OF_ADMIN_IDS
 from dosimeter.template_engine import Template, message_engine
 

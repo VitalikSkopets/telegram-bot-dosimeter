@@ -4,8 +4,8 @@ from typing import TypeAlias
 
 from bs4 import BeautifulSoup, Tag
 
-from dosimeter.api import BaseApi, api
-from dosimeter.config.logger import get_logger
+from dosimeter.api import Api, BaseApi
+from dosimeter.config.logging import get_logger
 from dosimeter.constants import URL, Point, Region
 
 logger = get_logger(__name__)
@@ -31,7 +31,7 @@ class Parser(object):
     markup of the web resource.
     """
 
-    def __init__(self, external_api: BaseApi = api) -> None:
+    def __init__(self, external_api: BaseApi = Api()) -> None:
         """
         Instantiate a Parser object.
         """
