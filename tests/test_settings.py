@@ -1,5 +1,6 @@
 import enum
 from datetime import date, datetime
+from pathlib import Path
 from typing import Sequence
 from urllib.parse import ParseResult, urlparse
 
@@ -17,6 +18,7 @@ class Service(str, enum.Enum):
     APP = "app"
     ENC = "enc"
     DB = "db"
+    REPO = "repo"
     ANALYTICS = "analytics"
     HEROKU = "heroku"
 
@@ -45,6 +47,11 @@ schema_settings = {
         "password": None,
         "timeout": None,
         "username": None,
+    },
+    Service.REPO: {
+        "stem": None,
+        "suffix": None,
+        "encoding": None,
     },
     Service.ENC: {
         "isAsymmetric": None,
@@ -81,6 +88,7 @@ class TestSettings(object):
             [Service.APP, schema_settings.get(Service.APP).keys()],
             [Service.ENC, schema_settings.get(Service.ENC).keys()],
             [Service.DB, schema_settings.get(Service.DB).keys()],
+            [Service.REPO, schema_settings.get(Service.REPO).keys()],
             [Service.ANALYTICS, schema_settings.get(Service.ANALYTICS).keys()],
             [Service.HEROKU, schema_settings.get(Service.HEROKU).keys()],
         ),
@@ -118,3 +126,8 @@ class TestSettings(object):
         assert isinstance(self.config.heroku.webhook_uri, str)
         assert isinstance(url, ParseResult)
         assert self.config.heroku.app in url.hostname
+
+    def test_file_repo_settings(self) -> None:
+        # Assert
+        assert isinstance(self.config.repo.path, Path)
+        assert self.config.repo.path.name == self.config.repo.name
