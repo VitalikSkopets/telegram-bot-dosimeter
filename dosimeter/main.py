@@ -5,9 +5,9 @@ from telegram import ParseMode, ext
 from telegram.utils.request import Request
 
 from dosimeter.config import config
-from dosimeter.config.logger import get_logger
+from dosimeter.config.logging import get_logger
 from dosimeter.constants import Command
-from dosimeter.handler import Handler, handler
+from dosimeter.handler import MessageHandler  # type: ignore[attr-defined]
 
 logger = get_logger(__name__)
 
@@ -18,7 +18,7 @@ class DosimeterBot(object):
     the DosimeterBot object.
     """
 
-    def __init__(self, token: str, callback: Handler = handler) -> None:
+    def __init__(self, token: str, callback: MessageHandler = MessageHandler()) -> None:
         """
         Instantiate a DosimeterBot object.
         """
@@ -33,7 +33,7 @@ class DosimeterBot(object):
         bot = ext.ExtBot(request=request, token=self.token, defaults=defaults)
         self.updater = ext.Updater(bot=bot, use_context=True)
 
-        dispatcher = self.updater.dispatcher  # type: ignore[has-type]
+        dispatcher = self.updater.dispatcher  # type: ignore[has-type,unused-ignore]
 
         command_handlers = {
             Command.START: self.handler.start_callback,
@@ -63,13 +63,13 @@ class DosimeterBot(object):
     @property
     def is_checked(self) -> bool:
         """
-        Method for testing your bot's auth token. Requires no parameters.
+        Method for testing your bots auth token. Requires no parameters.
         Returns basic information about the bot in form of a User object.
         """
-        info = self.updater.bot.get_me()  # type: ignore[has-type]
+        info = self.updater.bot.get_me()  # type: ignore[has-type,unused-ignore]
         if not info or info.username != self.__class__.__name__:
             return False
-        logger.info("Checking bot... %s ...successful!" % self.updater.bot.get_me())  # type: ignore[has-type]
+        logger.info("Checking bot... %s ...successful!" % info)
         return True
 
     def start(self) -> None:
@@ -106,4 +106,8 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt as exc:
+        logger.exception("Raised exception: %s" % exc)
+        exit(1)

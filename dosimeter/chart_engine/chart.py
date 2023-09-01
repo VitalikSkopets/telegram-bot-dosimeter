@@ -12,7 +12,7 @@ matplotlib.use("agg")
 
 class ChartEngine(object):
     """
-    A class designed to create png files with a chart.
+    A class designed to _create png files with a chart.
     """
 
     file_name = "bar-chart.png"

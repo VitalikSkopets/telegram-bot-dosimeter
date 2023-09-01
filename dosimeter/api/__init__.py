@@ -4,8 +4,4 @@ from dosimeter.api.interface import BaseApi
 __all__ = (
     "Api",
     "BaseApi",
-    "api",
 )
-
-"""Api class instance"""
-api = Api()

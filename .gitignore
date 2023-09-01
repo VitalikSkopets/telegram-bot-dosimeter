@@ -104,3 +104,4 @@ dosimeter/config/.env
 .DS_Store
 /private.pem
 /secret.pem
+/dosimeter/storage/dataBase.json
