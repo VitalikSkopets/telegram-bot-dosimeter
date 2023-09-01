@@ -14,7 +14,6 @@ if TYPE_CHECKING:
 
 @pytest.mark.analytics()
 class TestAnalytics(object):
-
     analytics = Analytics()
     mocked = mock.create_autospec(Analytics)
     error_msg = "missing a required argument: '{arg}'"

@@ -9,21 +9,21 @@ repos:
       - id: trailing-whitespace
   # isort sorts the imports
   - repo: https://github.com/pycqa/isort
-    rev: 5.11.2
+    rev: 5.12.0
     hooks:
       - id: isort
         name: isort (python)
         args: [--settings-path=pyproject.toml]
   # Black formats the Python code
   - repo: https://github.com/psf/black
-    rev: 22.12.0
+    rev: 23.7.0
     hooks:
       - id: black
         language_version: python3
         args: [--config=pyproject.toml]
   # Ruff lints the Python code
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.239
+    rev: v0.0.287
     hooks:
       - id: ruff
         args: [--fix, --respect-gitignore]

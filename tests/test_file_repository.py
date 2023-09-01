@@ -21,6 +21,7 @@ def file_repo(tmp_path: Path) -> FileRepository:
     return FileRepository(path_to_file=tmp_path / config.repo.name)
 
 
+@pytest.mark.file_repo()
 class TestFileRepository(object):
     """
     A class for testing logic encapsulated in the FileRepository class.
