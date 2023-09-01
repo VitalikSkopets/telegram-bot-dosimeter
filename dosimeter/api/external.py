@@ -6,7 +6,7 @@ import urllib3
 from fake_useragent import UserAgent
 
 from dosimeter.api.interface import BaseApi
-from dosimeter.config.logger import get_logger
+from dosimeter.config.logging import get_logger
 from dosimeter.constants import URL
 from dosimeter.utils import timed_lru_cache
 

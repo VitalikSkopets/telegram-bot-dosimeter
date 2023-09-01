@@ -39,7 +39,7 @@ def assert_correct_token() -> TokenAssertion:
     Assert that token value is not equal message text.
     """
 
-    def factory(message: str, token: str) -> None:
+    def factory(message: str | None, token: str) -> None:
         if message and isinstance(message, str):
             assert isinstance(token, str)
             assert token != message
@@ -55,7 +55,7 @@ def assert_correct_message(fake_string: str) -> MessageAssertion:
     Assert that message value is valid.
     """
 
-    def factory(token: str, message: str) -> None:
+    def factory(token: str | None, message: str) -> None:
         if token and isinstance(token, str):
             assert isinstance(message, str)
             assert message == fake_string

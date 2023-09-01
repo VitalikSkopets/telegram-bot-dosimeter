@@ -7,18 +7,20 @@ It may be also used for extending doctest's context:
 """
 import random
 from string import ascii_letters, digits
+from typing import Protocol, TypeVar, final
 
 import pytest
 from mimesis.locales import Locale
 from mimesis.schema import Field
 
 pytest_plugins = [
+    "plugins.analytics",
     "plugins.encryption",
     "plugins.parsing",
-    "plugins.analytics",
+    "plugins.storage",
 ]
 
-
+T = TypeVar("T")
 OPTION_LABEL = "randomly_seed"
 MAX_LENGTH = 12
 
@@ -82,6 +84,22 @@ def fake_integer_number(faker_seed: int, fake_field: Field) -> int:
 
 
 @pytest.fixture()
+def fake_first_name(faker_seed: int, fake_field: Field) -> str:
+    """
+    Generating mimesis random person first name.
+    """
+    return fake_field("person.first_name")
+
+
+@pytest.fixture()
+def fake_last_name(faker_seed: int, fake_field: Field) -> str:
+    """
+    Generating mimesis random person last name.
+    """
+    return fake_field("person.last_name")
+
+
+@pytest.fixture()
 def fake_username(faker_seed: int, fake_field: Field) -> str:
     """
     Generating mimesis random person username.
@@ -90,7 +108,7 @@ def fake_username(faker_seed: int, fake_field: Field) -> str:
 
 
 @pytest.fixture()
-def generate_random_string() -> str:
+def random_string() -> str:
     """
     Generating a random string of letters of different case and numbers without seed.
     """
@@ -98,7 +116,7 @@ def generate_random_string() -> str:
 
 
 @pytest.fixture()
-def generate_random_number() -> int:
+def random_number() -> int:
     """
     Generating random integer value without seed.
     """
@@ -111,3 +129,16 @@ def fake_url(faker_seed: int, fake_field: Field) -> str:
     Generating mimesis random url.
     """
     return fake_field("url")
+
+
+@final
+class FactoryListProtocol(Protocol[T]):
+    """
+    Makes list of objects
+    """
+
+    def __call__(self, count: int | None = 5) -> list[T]:
+        """
+        List of objects factory protocol.
+        """
+        ...

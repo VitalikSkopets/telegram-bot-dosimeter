@@ -16,10 +16,12 @@ def region_info_dto(request: SubRequest) -> RegionInfoDTO:
     """
     Generating RegionInfoDTO object.
     """
-    region_data = {}
-    for point in Point:
-        if point.region == request.param:
-            region_data[point.label] = round(random.random(), 2)
+    region_data = {
+        point.label: round(random.random(), 2)
+        for point in Point
+        if point.region == request.param
+    }
+
     return RegionInfoDTO(region=request.param, info=region_data)
 
 

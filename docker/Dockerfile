@@ -24,7 +24,7 @@ RUN apt-get update  \
     && apt-get install --no-install-recommends -y curl \
     && rm -rf /var/lib/apt/lists/* \
     && curl -sSL https://install.python-poetry.org | python3 - --version ${POETRY_VERSION} \
-    && poetry config virtualenvs.create false \
+    && poetry config virtualenvs._create false \
     && poetry install --no-root --without dev --no-interaction --no-ansi \
     # Cleaning cache:
     && rm -rf $(poetry config cache-dir)/{cache,artifacts} \

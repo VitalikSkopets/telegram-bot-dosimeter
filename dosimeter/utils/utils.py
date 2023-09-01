@@ -1,4 +1,4 @@
-from dosimeter.config.logger import get_logger
+from dosimeter.config.logging import get_logger
 
 logger = get_logger(__name__)
 
