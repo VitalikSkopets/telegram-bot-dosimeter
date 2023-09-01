@@ -10,7 +10,7 @@ repository = "https://gitlab.itrexgroup.com/vitaly.skopets/telegram-bot-desimete
 
 [tool.poetry.dependencies]
 python = "^3.10"
-pymongo = {extras = ["snappy", "gssapi", "srv", "tls"], version = "^4.2.0"}
+pymongo = {extras = ["snappy", "gssapi", "srv", "tls"], version = "^4.5"}
 pytz = "^2023.3"
 mtranslate = "^1.8"
 python-telegram-bot = "^13.13"
@@ -20,11 +20,11 @@ urllib3 = "^2.0"
 bs4 = "^0.0.1"
 emoji = "^2.8"
 python-json-logger = "^2.0.4"
-geopy = "^2.2.0"
+geopy = "^2.4"
 types-emoji = "^2.1"
 types-pytz = "^2023.3"
 types-requests = "^2.28.2"
-sentry-sdk = "^1.7.2"
+sentry-sdk = "^1.30"
 lxml = "^4.9.2"
 cryptography = "^41.0"
 jinja2 = "^3.1.2"

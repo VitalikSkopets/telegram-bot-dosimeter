@@ -70,7 +70,6 @@ class TestMessageEngine(object):
         self,
         message_engine: TemplateEngine,
     ) -> None:
-
         # Act
         with pytest.raises(jinja2.exceptions.TemplateNotFound) as exc_info:
             message_engine.render(pathlib.Path(""))
