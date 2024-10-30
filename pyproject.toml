@@ -1,15 +1,15 @@
 [tool.poetry]
-name = "dosimeter"
+name = "Telegram Bot Dosimeter"
 version = "0.1.0"
 description = "This bot can inform the user about the current state of the radiation encounter in Belarus and about the power level of the equivalent concentration-concentration recorded in the radiation monitoring network of the Ministry of Natural Resources and Environmental Protection of Belarus. Source: ©rad.org.by Designed by: ©itrexgroup.com"
 license = "MIT"
-authors = ["Vitaly Skopets <vitaly.skopets@gitrexgroup.com>"]
+authors = ["Vitaly Skopets <vitalikskopets@gmail.com>"]
 readme = "README.md"
-homepage = "https://gitlab.itrexgroup.com/vitaly.skopets/telegram-bot-desimeter"
-repository = "https://gitlab.itrexgroup.com/vitaly.skopets/telegram-bot-desimeter"
+homepage = "https://github.com/VitalikSkopets/telegram-bot-dosimeter"
+repository = "https://github.com/VitalikSkopets/telegram-bot-dosimeter"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.10.0"
 pymongo = {extras = ["snappy", "gssapi", "srv", "tls"], version = "^4.5"}
 pytz = "^2023.3"
 mtranslate = "^1.8"
