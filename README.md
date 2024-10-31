@@ -1,4 +1,4 @@
-[![Typing SVG](https://readme-typing-svg.herokuapp.com?color=%2336BCF7&lines=Telegram+Bot+Dosimeter)](https://git.io/typing-svg)
+# Telegram Bot Dosimeter
 
 ![GitHub top language](https://img.shields.io/github/languages/top/vitalikskopets/telegram-bot-dosimeter)
 ![GitHub License](https://img.shields.io/github/license/vitalikskopets/telegram-bot-dosimeter?style=flat)
