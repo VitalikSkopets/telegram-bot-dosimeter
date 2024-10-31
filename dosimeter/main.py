@@ -1,3 +1,4 @@
+import sys
 from urllib.parse import urljoin
 
 import pytz
@@ -69,7 +70,7 @@ class DosimeterBot(object):
         info = self.updater.bot.get_me()  # type: ignore[has-type,unused-ignore]
         if not info or info.username != self.__class__.__name__:
             return False
-        logger.info("Checking bot... %s ...successful!" % info)
+        logger.info("Checking bot... %s ...successful!", info)
         return True
 
     def start(self) -> None:
@@ -109,5 +110,5 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt as exc:
-        logger.exception("Raised exception: %s" % exc)
-        exit(1)
+        logger.exception("Raised exception: %s", exc)
+        sys.exit(1)

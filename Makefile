@@ -1,99 +1,122 @@
 .EXPORT_ALL_VARIABLES:
 
-APP = dosimeter
-DOTENV_BASE_FILE ?= $(APP)/config/.env
+# Define color codes
+RED       = \033[0;31m
+YELLOW    = \033[0;33m
+GREEN     = \033[0;32m
+UNDERLINE = \033[4m
+NC        = \033[0m
+
+PYTHON := $(shell which python3)
+POETRY := $(shell which poetry)
+
+APP   = dosimeter
 TESTS = tests/**/*.py
-POETRY_VERSION ?= 1.5.1
+
+DOTENV_BASE_FILE ?= $(APP)/config/.env
+POETRY_VERSION   ?= 1.8.4
 
 -include $(DOTENV_BASE_FILE)
 
-# ==== Poetry ====
+# ====================================
+#               Poetry
+# ====================================
 
 .PHONY: install-poetry
 install-poetry:  ## Installation Poetry tool for dependency management and packaging in Python
 	curl -sSL https://install.python-poetry.org | python3 - --version $(POETRY_VERSION)
 	export PATH="$HOME/.local/bin"
-	poetry --version
+	@$(POETRY) --version
 
 .PHONY: update-poetry
 update-poetry:  ## Updating Poetry to the latest stable version
-	poetry self update
+	@$(POETRY) self update
 
 .PHONY: where-is-my-venv
 where-is-my-venv:  ## Showing the directory where the interpreter is installed
-	poetry env info -p
+	@$(POETRY) env info -p
 
-# ==== Launch App ====
+# ====================================
+#             Launch App
+# ====================================
 
 .PHONY: run
 run:  ## Run main function in main.py file - entry point in app
-	poetry run main-run
+	@$(POETRY) run main-run
 
-# ==== Linters and formating ====
+# ====================================
+#         Linters and formating
+# ====================================
 
 .PHONY: lint
 lint:  ## Lint and static-check
 	@echo "====> Checking started..."
-	poetry run isort --check-only --diff $(APP)
-	poetry run black --check --diff $(APP)
-	poetry run ruff $(APP)
-	poetry run mypy $(APP) $(TESTS) --show-error-codes
-	poetry run yamllint -d '{"extends": "default", "ignore": ".venv"}' -s .
-	@echo "====> Linter and style checking finished! \(^_^)/"
+	$(POETRY) run isort --check-only --diff $(APP)
+	$(POETRY) run black --check --diff $(APP)
+	$(POETRY) run ruff $(APP)
+	$(POETRY) run mypy $(APP) $(TESTS) --show-error-codes
+	$(POETRY) run yamllint -d '{"extends": "default", "ignore": ".venv"}' -s .
+	@echo "$(GREEN)Linter and style checking finished! \(^_^)/$(NC)"
 
 .PHONY: fmt-yaml
 fmt-yaml:  ## to lint yaml files
-	poetry run yamllint -d '{"extends": "default", "ignore": ".venv"}' -s .
+	@$(POETRY) run yamllint -d '{"extends": "default", "ignore": ".venv"}' -s .
 
 .PHONY: fmt-isort
 fmt-isort:  ## To apply isort recursively
-	poetry run isort $(APP)
+	@$(POETRY) run isort $(APP)
 
 .PHONY: fmt-black
 fmt-black:  ## To get started black recursively
-	poetry run black $(APP)
+	@$(POETRY) run black $(APP)
 
 .PHONY: fmt
 fmt: fmt-yaml fmt-isort fmt-black
 
 .PHONY: mypy
 mypy:  ## to run typing checking
-	poetry run mypy $(APP) $(TESTS) --show-error-codes
+	@$(POETRY) run mypy $(APP) $(TESTS) --show-error-codes
 
-# ==== Tests ====
+# ====================================
+#               Tests
+# ====================================
 
 .PHONY: tests-all
 tests-all:  ## Run all tests
-	poetry run pytest
+	@$(POETRY) run pytest
 
 .PHONY: tests
 tests: ## Start tests only with specify markers option
-	poetry run pytest --verbose --randomly-seed=default -m $(opt) --no-cov --disable-warnings
+	@$(POETRY) run pytest --verbose --randomly-seed=default -m $(opt) --no-cov --disable-warnings
 
 .PHONY: tests-coverage
 tests-coverage: ## Run tests with coverage
-	poetry run pytest --verbose --randomly-seed=default --cov=$(APP) --cov-report=term --cov-report=html
+	@$(POETRY) run pytest --verbose --randomly-seed=default --cov=$(APP) --cov-report=term --cov-report=html
 
 .PHONY: find-tests-slow
 find-tests-slow: ## Find slow two tests
-	poetry run pytest --verbose --randomly-seed=default --durations=3 --no-cov --disable-warnings
+	@$(POETRY) run pytest --verbose --randomly-seed=default --durations=3 --no-cov --disable-warnings
 
 .PHONY: tests-slow
 tests-slow: ## Start tests with 'slow' mark
-	poetry run pytest --verbose --randomly-seed=default -m "slow" --no-cov --disable-warnings
+	@$(POETRY) run pytest --verbose --randomly-seed=default -m "slow" --no-cov --disable-warnings
 
 .PHONY: tests-not-slow
 tests-not-slow: ## Start quick tests (without 'slow' mark)
-	poetry run pytest --verbose --randomly-seed=default -m "not slow" --no-cov --disable-warnings
+	@$(POETRY) run pytest --verbose --randomly-seed=default -m "not slow" --no-cov --disable-warnings
 
-# ==== Cache ====
+# ====================================
+#               Cache
+# ====================================
 
 .PHONY: clean
 clean:  ## Clean up the cache folders
-	@rm -rf __pycache__ .pytest_cache .mypy_cache .ruff_cache coverage .coverage coverage.xml htmlcov
-	@echo "====> Cache folders deleted! \(^_^)/"
+	@rm -rf __pycache__ .DS_Store .pytest_cache .mypy_cache .ruff_cache coverage .coverage coverage.xml htmlcov
+	@echo "$(GREEN)Cache folders deleted! \(^_^)/$(NC)"
 
-# ==== Docker ====
+# ====================================
+#               Docker
+# ====================================
 
 .PHONY: docker-up
 docker-up:  ## Launch docker container with bot
