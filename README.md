@@ -1,4 +1,8 @@
 [![Typing SVG](https://readme-typing-svg.herokuapp.com?color=%2336BCF7&lines=Telegram+Bot+Dosimeter)](https://git.io/typing-svg)
+![GitHub top language](https://img.shields.io/github/languages/top/vitalikskopets/telegram-bot-dosimeter)
+![GitHub License](https://img.shields.io/github/license/vitalikskopets/telegram-bot-dosimeter?style=flat)
+![GitHub repo size](https://img.shields.io/github/repo-size/vitalikskopets/telegram-bot-dosimeter?style=flat)
+![GitHub last commit](https://img.shields.io/github/last-commit/vitalikskopets/telegram-bot-dosimeter)
 
 This bot can inform the user as of the current date about the radiation situation in Belarus and the level of equivalent dose of gamma radiation detected in the radiation monitoring network. Source: [rad.org.by](https://rad.org.by/monitoring/radiation)
 
