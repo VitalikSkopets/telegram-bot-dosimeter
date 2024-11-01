@@ -13,7 +13,7 @@ from dosimeter.handler import MessageHandler  # type: ignore[attr-defined]
 logger = get_logger(__name__)
 
 
-class DosimeterBot(object):
+class DosimeterBot:
     """
     The wrapper class encapsulates the logic of initializing and launching
     the DosimeterBot object.
@@ -101,9 +101,8 @@ def main() -> None:
     Application entry point.
     """
     instance_of_bot = DosimeterBot(config.app.token)
-    if not instance_of_bot.is_checked:
-        return None
-    instance_of_bot.start()
+    if instance_of_bot.is_checked:
+        instance_of_bot.start()
 
 
 if __name__ == "__main__":
