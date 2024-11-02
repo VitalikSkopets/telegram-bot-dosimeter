@@ -1,22 +1,14 @@
 .EXPORT_ALL_VARIABLES:
 
-# Define color codes
-RED       = \033[0;31m
-YELLOW    = \033[0;33m
-GREEN     = \033[0;32m
-UNDERLINE = \033[4m
-NC        = \033[0m
-
+SHELL  := $(shell which zsh)
 PYTHON := $(shell which python3)
 POETRY := $(shell which poetry)
 
-APP   = dosimeter
-TESTS = tests/**/*.py
-
-DOTENV_BASE_FILE ?= $(APP)/config/.env
-POETRY_VERSION   ?= 1.8.4
-
--include $(DOTENV_BASE_FILE)
+APP            = dosimeter
+TESTS          = ./tests/**/*.py
+ENV_FILE       = ./$(APP)/config/.env
+DEPS_FILE      = ./requirements.txt
+POETRY_VERSION = 1.8.4
 
 # ====================================
 #               Poetry
@@ -32,16 +24,79 @@ install-poetry:  ## Installation Poetry tool for dependency management and packa
 update-poetry:  ## Updating Poetry to the latest stable version
 	@$(POETRY) self update
 
+.PHONY: check
+check:  ## Validate the content of the pyproject.toml and its consistency with the poetry.lock
+	@$(POETRY) check
+
+.PHONY: venv-info
+venv-info:  ## Get basic information about the currently activated virtual environment
+	@$(POETRY) env info
+
 .PHONY: where-is-my-venv
-where-is-my-venv:  ## Showing the directory where the interpreter is installed
-	@$(POETRY) env info -p
+where-is-my-venv:  ## Get the path to the virtual environment
+	@$(POETRY) env info -path
+
+.PHONY: where-is-my-python
+where-is-my-python:  ## Get the path to the python executable
+	@$(POETRY) env info --executable
+
+# ====================================
+#        Manage Dependencies
+# ====================================
+
+.PHONY: list-deps
+list-deps:  ## Show list all the available packages
+	@$(POETRY) show
+
+.PHONY: show-details
+show-details:  ## Check the details of a certain package
+ifdef package
+	@$(POETRY) show $(package)
+endif
+ifndef package
+	$(warning WARNING: Please provide a package name.)
+	$(error You must usage command: 'make show-details package=<package_name>')
+endif
+
+.PHONY: compare-deps
+compare-deps:  ## Compare locked dependencies against their latest releases on PyPI
+	@$(POETRY) show --latest --top-level
+
+.PHONY: update-all-deps
+update-all-deps:  ## Update all packages along with their dependencies to their latest compatible versions
+	@$(POETRY) update
+
+.PHONY: update-deps-dry-run
+update-deps-dry-run:  ## Show which dependencies will be updated and in which direction
+	@$(POETRY) update --dry-run
+
+.PHONY: update-deps
+update-deps:  ## Update one specific package
+ifdef package
+	@$(POETRY) update $(package)
+endif
+ifndef package
+	$(warning WARNING: Please provide a package name.)
+	$(error You must usage command 'make update package=<package_name>')
+endif
+
+.PHONY: export-deps
+export-deps:  ## Export dependencies from poetry into requirements.txt
+	@$(POETRY) run $(PYTHON) -m pip freeze > $(DEPS_FILE)
+	$(info All dependency packages have been exported to a file '$(DEPS_FILE)' successfully!)
 
 # ====================================
 #             Launch App
 # ====================================
 
+HONY: load-env
+load-env:  ## Load environment variables before launch app
+	export $(shell grep -v '^#' $(ENV_FILE) | xargs) && $(SHELL)
+	$(info Environment variables from the file '$(ENV_FILE)' have been uploaded successfully!)
+
+
 .PHONY: run
-run:  ## Run main function in main.py file - entry point in app
+run: load-env  ## Run main function in main.py file - entry point in app
 	@$(POETRY) run main-run
 
 # ====================================
@@ -50,13 +105,13 @@ run:  ## Run main function in main.py file - entry point in app
 
 .PHONY: lint
 lint:  ## Lint and static-check
-	@echo "====> Checking started..."
+	$(info Checking started...)
 	$(POETRY) run isort --check-only --diff $(APP)
 	$(POETRY) run black --check --diff $(APP)
 	$(POETRY) run ruff $(APP)
 	$(POETRY) run mypy $(APP) $(TESTS) --show-error-codes
 	$(POETRY) run yamllint -d '{"extends": "default", "ignore": ".venv"}' -s .
-	@echo "$(GREEN)Linter and style checking finished! \(^_^)/$(NC)"
+	$(info The linter, style, and ctatic check has been completed successfully!)
 
 .PHONY: fmt-yaml
 fmt-yaml:  ## to lint yaml files
@@ -110,9 +165,24 @@ tests-not-slow: ## Start quick tests (without 'slow' mark)
 # ====================================
 
 .PHONY: clean
-clean:  ## Clean up the cache folders
-	@rm -rf __pycache__ .DS_Store .pytest_cache .mypy_cache .ruff_cache coverage .coverage coverage.xml htmlcov
-	@echo "$(GREEN)Cache folders deleted! \(^_^)/$(NC)"
+clean:  ## Clean up the cache folders and recursively find and delete all __pycache__ directories
+	@rm -rf .DS_Store .pytest_cache .mypy_cache .ruff_cache coverage .coverage coverage.xml htmlcov
+	@find . -type d -name "__pycache__" -exec rm -rf {} +
+	$(info Directories with cache files have been successfully deleted!)
+
+.PHONY: cache-list
+cache-list:  ## Lists Poetry’s available caches
+	@$(POETRY) cache list
+
+.PHONY: cache-clear
+cache-clear:  ## Clear the whole cache of packages from a cached repository
+ifdef repo
+	@$(POETRY) cache clear $(repo) --all
+endif
+ifndef repo
+	$(warning WARNING: Please provide a cached repository name.)
+	$(error You must usage command 'make cache-clear repo=<repository_name>')
+endif
 
 # ====================================
 #               Docker
